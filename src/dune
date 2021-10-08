@@ -1,4 +1,6 @@
 (executable
  (name hello)
  (modes js)
- (libraries react))
+ (libraries react tyxml)
+ (preprocess
+  (pps tyxml-jsx)))
