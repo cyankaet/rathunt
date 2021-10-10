@@ -11,6 +11,7 @@
 
 # production
 /build
+.merlin
 
 # misc
 .DS_Store
