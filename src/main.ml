@@ -9,7 +9,7 @@ type model = {
   turn : color;
 }
 
-let model = { moves = 1; turn = White }
+let init () = ({ moves = 1; turn = White }, Cmd.none)
 
 type msg = Move
 
@@ -20,9 +20,8 @@ let update model = function
         | Black -> White
         | White -> Black
       in
-
       let moves = model.moves + 1 in
-      { turn; moves }
+      ({ turn; moves }, Cmd.none)
 
 let view model =
   let open Html in
@@ -39,4 +38,6 @@ let view model =
       p [] [ button [ onClick Move ] [ text "Make a move!" ] ];
     ]
 
-let main = App.beginnerProgram { model; update; view }
+let main =
+  App.standardProgram
+    { init; update; view; subscriptions = (fun _ -> Sub.none) }
