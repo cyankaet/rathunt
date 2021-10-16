@@ -1,49 +1,48 @@
 open Tea
 
-type color =
-  | Black
-  | White
 
-type model = {
-  moves : int;
-  turn : color;
-  text : string;
-  temp_text: string;
+type guess = {
+  g_answer : string;
+  correct : bool;
 }
 
-let init () = ({ moves = 1; turn = White; text = ""; temp_text = "" }, Cmd.none)
+type model = {
+  text : string;
+  temp_text: string;
+  guesses: guess list;
+}
+
+let ans = "answer"
+let init () = ({ text = ""; temp_text = ""; guesses = [];}, Cmd.none)
 
 type msg =
   | Move
   | Text of string
   | Update
 
+let string_clean str = Js.String.(toUpperCase str |> trim 
+  |> replaceByRe [%bs.re "/[^A-Za]/g"] "")
+
+let submit_guess submission answer = {
+  g_answer = string_clean submission;
+  correct = string_clean submission == string_clean answer;
+}
+
+
 let update model = function
   | Move ->
-      let turn =
-        match model.turn with
-        | Black -> White
-        | White -> Black
-      in
-      let moves = model.moves + 1 in
-      ({ turn; moves; text = model.temp_text; temp_text = "" }, Cmd.none)
+      ({text = string_clean model.temp_text; temp_text = ""; guesses = (submit_guess model.temp_text ans) :: model.guesses }, Cmd.none)
   | Text s ->
-      ({ moves = model.moves; turn = model.turn; text = model.text; temp_text = s }, Cmd.none)
+      ({text = model.text; temp_text = s; guesses = model.guesses }, Cmd.none)
   | Update ->
-      ( { moves = model.moves; turn = model.turn; text = model.text; temp_text = model.temp_text }, Cmd.none)
-
+      ( {text = model.text; temp_text = model.temp_text; guesses = model.guesses }, Cmd.none)
+      
+  
 let view model =
   let open Html in
   div []
     [
-      p []
-        [
-          Printf.sprintf "Move %d. It is %s's move." model.moves
-            ( match model.turn with
-            | Black -> "Black"
-            | White -> "White" )
-          |> text;
-        ];
+      h1 [] [Printf.sprintf "Rat Hunt" |> text ];
       p []
         [
           input'
@@ -56,8 +55,14 @@ let view model =
             ]
             [];
         ];
-      p [] [ button [ onClick Move ] [ text "Make a move!" ] ];
+      p [] [ button [ onClick Move ] [ text "Submit Answer!" ] ];
       p [] [ Printf.sprintf "%s." model.text |> text ];
+      let rec print_guesses = function
+      | [] -> p [] []
+      | guess :: rest ->
+          p []
+            [ Printf.sprintf "%s: %s" guess.g_answer (if guess.correct then "correct" else "incorrect") |> text; print_guesses rest ]
+      in print_guesses model.guesses;
     ]
 
 let main =
