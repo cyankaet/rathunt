@@ -8,9 +8,10 @@ type model = {
   moves : int;
   turn : color;
   text : string;
+  temp_text: string;
 }
 
-let init () = ({ moves = 1; turn = White; text = "" }, Cmd.none)
+let init () = ({ moves = 1; turn = White; text = ""; temp_text = "" }, Cmd.none)
 
 type msg =
   | Move
@@ -25,12 +26,11 @@ let update model = function
         | White -> Black
       in
       let moves = model.moves + 1 in
-      ({ turn; moves; text = model.text }, Cmd.none)
+      ({ turn; moves; text = model.temp_text; temp_text = "" }, Cmd.none)
   | Text s ->
-      ({ moves = model.moves; turn = model.turn; text = s }, Cmd.none)
+      ({ moves = model.moves; turn = model.turn; text = model.text; temp_text = s }, Cmd.none)
   | Update ->
-      ( { moves = model.moves; turn = model.turn; text = model.text },
-        Cmd.none )
+      ( { moves = model.moves; turn = model.turn; text = model.text; temp_text = model.temp_text }, Cmd.none)
 
 let view model =
   let open Html in
@@ -50,7 +50,7 @@ let view model =
             [
               type' "text";
               id "answer-bar";
-              value model.text;
+              value model.temp_text;
               onInput (fun s -> Text s);
               placeholder "Enter Answer Here";
             ]
