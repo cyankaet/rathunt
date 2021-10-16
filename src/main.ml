@@ -1,19 +1,18 @@
 open Tea
 
-
+(** Type representing guesses with a guess answer and whether the guess was correct or not. *)
 type guess = {
   g_answer : string;
   correct : bool;
 }
 
 type model = {
-  text : string;
-  temp_text: string;
+  temp_text : string;
   guesses: guess list;
 }
 
 let ans = "answer"
-let init () = ({ text = ""; temp_text = ""; guesses = [];}, Cmd.none)
+let init () = ({ temp_text = ""; guesses = [];}, Cmd.none)
 
 type msg =
   | Move
@@ -31,11 +30,11 @@ let submit_guess submission answer = {
 
 let update model = function
   | Move ->
-      ({text = string_clean model.temp_text; temp_text = ""; guesses = (submit_guess model.temp_text ans) :: model.guesses }, Cmd.none)
+      ({temp_text = ""; guesses = (submit_guess model.temp_text ans) :: model.guesses }, Cmd.none)
   | Text s ->
-      ({text = model.text; temp_text = s; guesses = model.guesses }, Cmd.none)
+      ({temp_text = s; guesses = model.guesses }, Cmd.none)
   | Update ->
-      ( {text = model.text; temp_text = model.temp_text; guesses = model.guesses }, Cmd.none)
+      ( {temp_text = model.temp_text; guesses = model.guesses }, Cmd.none)
       
   
 let view model =
@@ -56,7 +55,6 @@ let view model =
             [];
         ];
       p [] [ button [ onClick Move ] [ text "Submit Answer!" ] ];
-      p [] [ Printf.sprintf "%s." model.text |> text ];
       let rec print_guesses = function
       | [] -> p [] []
       | guess :: rest ->
