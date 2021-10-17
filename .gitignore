@@ -14,6 +14,7 @@
 .merlin
 src/main.bs.js
 release/main.js
+src/author.bs.js
 
 # misc
 .DS_Store
