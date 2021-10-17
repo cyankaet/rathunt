@@ -1,0 +1,9 @@
+.git
+node_modules
+lib
+.vscode
+build
+.merlin
+src/main.bs.js
+release/main.js
+src/author.bs.js
