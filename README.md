@@ -1,5 +1,5 @@
-# Getting Started With Rathunt
-A puzzlehunt website created with OCAML, Bucklescript, and Bucklescript-TEA.
+# Rat Hunt (CS 3110)
+Rat Hunt is a puzzlehunt website created with OCaml, Bucklescript, and Bucklescript-TEA.
 
 ## Available Scripts
 
