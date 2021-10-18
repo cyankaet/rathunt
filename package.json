@@ -34,11 +34,6 @@
     ]
   },
   "devDependencies": {
-    "bs-platform": "^2.1.0",
-    "bucklescript-tea": "^0.15.0",
-    "npm-run-all": "^4.1.5",
-    "rollup": "^2.58.0",
-    "rollup-plugin-node-resolve": "^5.2.0",
-    "serve": "^12.0.1"
+
   }
 }

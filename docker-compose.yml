@@ -1,0 +1,7 @@
+version: "3"
+
+services:
+  rathunt:
+    image: rathunt:ms1test
+    ports:
+      - "5000:5000"
