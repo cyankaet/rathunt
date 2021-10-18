@@ -72,7 +72,7 @@ let view model =
             ]
             [];
         ];
-      p [] [ button [ onClick Move ] [ text "Submit Answer!" ] ];
+      div [] [ button [ onClick Move ] [ text "Submit Answer!" ] ];
       (let rec print_guesses = function
          | [] -> p [] []
          | guess :: rest ->
