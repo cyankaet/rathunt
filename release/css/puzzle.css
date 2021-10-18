@@ -1,7 +1,25 @@
 button {
+  all: unset;
+}
+
+.submit {
   border: 1px solid #444;
-  background-color: #00aaaa;
+  background-color: #83c9ec;
+  height: 50px;
+  width: 50px;
+  border-radius: 10px;
+}
+
+.submit:hover {
+  background-color: #35aeeb;
+}
+
+.grid {
+  background-color: #aaffd7;
   height: 100px;
   width: 100px;
   border-radius: 10px;
+}
+.grid:hover {
+  background-color: #5bcc97;
 }

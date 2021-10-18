@@ -72,7 +72,9 @@ let view model =
             ]
             [];
         ];
-      div [] [ button [ onClick Move ] [ text "Submit Answer!" ] ];
+      div
+        [ classList [ ("submit", true) ] ]
+        [ button [ onClick Move ] [ text "Submit Answer!" ] ];
       (let rec print_guesses = function
          | [] -> p [] []
          | guess :: rest ->
@@ -90,16 +92,20 @@ let view model =
           tr [] [ th [] [ text "Guess" ]; th [] [ text "Correctness" ] ];
           tr []
             [
-              td []
+              td
+                [ classList [ ("grid", true) ] ]
                 [ button [ onClick Move ] [ text "Submit Answer!" ] ];
-              td []
+              td
+                [ classList [ ("grid", true) ] ]
                 [ button [ onClick Move ] [ text "Submit Answer!" ] ];
             ];
           tr []
             [
-              td []
+              td
+                [ classList [ ("grid", true) ] ]
                 [ button [ onClick Move ] [ text "Submit Answer!" ] ];
-              td []
+              td
+                [ classList [ ("grid", true) ] ]
                 [ button [ onClick Move ] [ text "Submit Answer!" ] ];
             ];
         ];
