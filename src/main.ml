@@ -85,23 +85,26 @@ let view model =
                ]
        in
        print_guesses model.guesses);
-       table [] [
-         tr [] [ 
-           th [] [ text "Guess" ];
-           th [] [ text "Correctness" ];
-         ];
-         tr [] [ 
-            td [] [ button [ onClick Move ] [ text "Submit Answer!" ] ];
-            td [] [ button [ onClick Move ] [ text "Submit Answer!" ] ];
-          ];
-          tr [] [ 
-            td [] [ button [ onClick Move ] [ text "Submit Answer!" ] ];
-            td [] [ button [ onClick Move ] [ text "Submit Answer!" ] ];
-          ];
-         ];
-         a [ href ("http://localhost:5000") ] [ text "Hi" ];
-       ]
-    
+      table []
+        [
+          tr [] [ th [] [ text "Guess" ]; th [] [ text "Correctness" ] ];
+          tr []
+            [
+              td []
+                [ button [ onClick Move ] [ text "Submit Answer!" ] ];
+              td []
+                [ button [ onClick Move ] [ text "Submit Answer!" ] ];
+            ];
+          tr []
+            [
+              td []
+                [ button [ onClick Move ] [ text "Submit Answer!" ] ];
+              td []
+                [ button [ onClick Move ] [ text "Submit Answer!" ] ];
+            ];
+        ];
+      a [ href "http://localhost:5000" ] [ text "Hi" ];
+    ]
 
 (** [main] starts the web app *)
 let main =
