@@ -1,5 +1,4 @@
 open Tea
-open Puzzlepage
 
 type model = { puzzle : Puzzlepage.model }
 (** [model] is a type representing a model of the entire site containing
@@ -23,7 +22,8 @@ let update model = function
     website *)
 let view model =
   let open Html in
-  div []
+  div
+    [ classList [ ("center", true) ] ]
     [
       h1 [] [ Printf.sprintf "Rat Hunt" |> text ];
       p [] [ Puzzlepage.view model.puzzle |> map puzzlepage_msg ];

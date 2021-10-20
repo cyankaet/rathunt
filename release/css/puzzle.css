@@ -1,3 +1,7 @@
+.center {
+  text-align: center;
+
+}
 button {
   all: unset;
 }
@@ -6,8 +10,9 @@ button {
   border: 1px solid #444;
   background-color: #83c9ec;
   height: 50px;
-  width: 50px;
+  width: 100px;
   border-radius: 10px;
+  font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
 }
 
 .submit:hover {

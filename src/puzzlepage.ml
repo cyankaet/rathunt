@@ -63,7 +63,7 @@ let view model =
         ];
       div
         [ classList [ ("submit", true) ] ]
-        [ button [ onClick Submit ] [ text "Submit Answer!" ] ];
+        [ button [ onClick Submit ] [ text "Submit Answer" ] ];
       (let rec print_guesses = function
          | [] -> p [] []
          | guess :: rest ->
@@ -83,19 +83,19 @@ let view model =
             [
               td
                 [ classList [ ("grid", true) ] ]
-                [ button [ onClick Submit ] [ text "Submit Answer!" ] ];
+                [ button [ onClick Submit ] [ text "Pick me!" ] ];
               td
                 [ classList [ ("grid", true) ] ]
-                [ button [ onClick Submit ] [ text "Submit Answer!" ] ];
+                [ button [ onClick Submit ] [ text "Or me!" ] ];
             ];
           tr []
             [
               td
                 [ classList [ ("grid", true) ] ]
-                [ button [ onClick Submit ] [ text "Submit Answer!" ] ];
+                [ button [ onClick Submit ] [ text "Me too!" ] ];
               td
                 [ classList [ ("grid", true) ] ]
-                [ button [ onClick Submit ] [ text "Submit Answer!" ] ];
+                [ button [ onClick Submit ] [ text "Click me!" ] ];
             ];
         ];
     ]
