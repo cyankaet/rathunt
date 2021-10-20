@@ -1,6 +1,8 @@
-.center {
+.center-text {
   text-align: center;
-
+}
+.center-margin {
+  margin: auto;
 }
 button {
   all: unset;

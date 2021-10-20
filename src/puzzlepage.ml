@@ -47,7 +47,7 @@ let update model = function
 
 let view model =
   let open Html in
-  div []
+  div [ classList [] ]
     [
       p []
         [
@@ -62,7 +62,7 @@ let view model =
             [];
         ];
       div
-        [ classList [ ("submit", true) ] ]
+        [ classList [ ("submit", true); ("center-margin", true) ] ]
         [ button [ onClick Submit ] [ text "Submit Answer" ] ];
       (let rec print_guesses = function
          | [] -> p [] []
@@ -76,7 +76,8 @@ let view model =
                ]
        in
        print_guesses model.guesses);
-      table []
+      table
+        [ classList [ ("center-margin", true) ] ]
         [
           tr [] [ th [] [ text "Guess" ]; th [] [ text "Correctness" ] ];
           tr []

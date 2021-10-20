@@ -23,7 +23,7 @@ let update model = function
 let view model =
   let open Html in
   div
-    [ classList [ ("center", true) ] ]
+    [ classList [ ("center-text", true) ] ]
     [
       h1 [] [ Printf.sprintf "Rat Hunt" |> text ];
       p [] [ Puzzlepage.view model.puzzle |> map puzzlepage_msg ];
