@@ -4,7 +4,7 @@ type model = { puzzle : Puzzlepage.model }
 (** [model] is a type representing a model of the entire site containing
     a single [puzzle] so far *)
 
-(** [init] is the initial state of the webpage*)
+(** [init] is the initial state of the webpage *)
 let init () = ({ puzzle = fst (Puzzlepage.init "answer") }, Cmd.none)
 
 (** [msg] is the type containing different types of event handlers *)

@@ -9,21 +9,20 @@
 
     @author Peter Cao (ppc49), Bryan Lu (byl29), Noah Braun (ncb48), Kate Meuse (kmm522) *)
 
-(* TODO: complete the academic integrity statement below, then delete
-   this TODO comment. *)
-
 (************************************************************
 
    Academic Integrity Statement
 
    We, the people named in the author comment above, have fully reviewed the
-   course academic integrity policies.  I have adhered to those policies in
+   course academic integrity policies. We have adhered to those policies in
    solving the assignment.
 
    The policies do permit some limited collaboration among students currently
-   enrolled in the course. If I did engage in such collaboration, here is the
-   list of other students with whom I collaborated, and a brief summary of that
+   enrolled in the course. If we did engage in such collaboration, here is the
+   list of other students with whom we collaborated, and a brief summary of that
    collaboration:
+
+   N/A
 
  ************************************************************)
 
