@@ -19,7 +19,8 @@
     "build": "run-s build:bsb build:js",
     "watch:bsb": "bsb -make-world -w",
     "watch:js": "rollup -c -w",
-    "watch": "run-p watch:bsb watch:js serve"
+    "watch": "run-p watch:bsb watch:js serve",
+    "deploy": "heroku container:push web --app rathunt-ms1 && heroku container:release web --app rathunt-ms1"
   },
   "browserslist": {
     "production": [
