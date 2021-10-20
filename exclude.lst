@@ -12,9 +12,7 @@ coverage/*
 
 build/*
 .merlin
-src/main.bs.js
-release/main.js
-src/author.bs.js
+*.js
 
 .DS_Store
 .vscode
