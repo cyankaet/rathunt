@@ -1,8 +1,5 @@
 open Tea
 
-type guess
-(** The abstract type of values representing guesses made on the puzzle *)
-
 type model
 (** The abstract type of values representing a puzzle to be solved *)
 
