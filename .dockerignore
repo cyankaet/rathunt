@@ -4,6 +4,5 @@ lib
 .vscode
 build
 .merlin
-src/main.bs.js
+*.bs.js
 release/main.js
-src/author.bs.js
