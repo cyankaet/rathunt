@@ -22,7 +22,7 @@ npm install yarn
 ```
 `yarn` will help with installing all the necessary libraries, which are already included in the `package.json` file. Run `yarn install` to install of these dependencies. 
 
-Finally, build the project with ```yarn run build```. This should complete the setup of RatHunt.
+Finally, build the project with ```make build```. This should complete the setup of RatHunt.
 
 ## Local Hosting
-In the project directory, you can run `yarn run watch`, which will display the current state of the web app in `localhost:5000`. 
+In the project directory, you can run `make run`, which will display the current state of the web app in `localhost:5000`. 
