@@ -12,7 +12,8 @@ coverage/*
 
 build/*
 .merlin
-*.js
+release/main.js
+*.bs.js
 
 .DS_Store
 .vscode
