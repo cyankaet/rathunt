@@ -6,7 +6,7 @@ module T : Puzzle.S = struct
     toggled : bool;
   }
 
-  type t = (string * button) list
+  type t = button list
 
   type model = t
 
@@ -24,16 +24,17 @@ module T : Puzzle.S = struct
       left-right up-down *)
   let questions = [ "a"; "b"; "c"; "d"; "e"; "f"; "g"; "h"; "i" ]
 
-  let new_button s = (s, { label = s; toggled = false })
+  let new_button s = { label = s; toggled = false }
 
   let init () = (List.map new_button questions, Cmd.none)
+
+(** [toggle s b] flips the state of button b if it has label s *)  
+let toggle s b = if b.label <> s then b else {b with toggled = not b.toggled}
 
   (** [update model msg] returns the puzzle model updated according to
       the accompanying message, along with a command to be executed *)
   let update t = function
-    (* this can be done more defensively *)
-    | Toggle q -> let b = List.assoc q t in ((q, {b with toggled = not b.toggled}) :: List.remove_assoc q t, Cmd.none)
-
+    | Toggle q -> (List.map (toggle q) t, Cmd.none) 
 
     (** [get_first_n lst k] returns up to the first k elements of lst, if they exist. *)
     let rec get_first_k lst k = 
@@ -41,11 +42,10 @@ module T : Puzzle.S = struct
     | [] -> []
     | h :: t -> h :: get_first_k t (k-1)
 
-    (** [button_elt_of_button key] takes a key which is a tuple of a string s with some other information, and generates a button
+    (** [button_elt_of_button butt] takes a button and generates an HTML button
     with s as the label. *)
-    let button_elt_of_button key = 
-      let open Html in td [ classList [ ("grid", true) ] ]
-    [ button [ onClick (Toggle (fst key))] [ text (fst key) ] ] 
+    let button_elt_of_button butt = 
+      let open Html in td [ classList [ ("grid", true); ("selected", butt.toggled) ] ] [ button [ onClick (Toggle butt.label)] [ text butt.label ] ] 
 
     (** [show_row button_list] generates the HTML for the row of n buttons 
     created from the first n elements of button_list. Requires: button_list contains at least n elements. *)
