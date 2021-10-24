@@ -1,6 +1,6 @@
 open Tea
 
-module Puzzlepage (P : Puzzle.Puzzle) = struct
+module T (P : Puzzle.S) = struct
   type guess = {
     text : string;
     correct : bool;

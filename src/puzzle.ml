@@ -1,4 +1,4 @@
-module type Puzzle = sig
+module type S = sig
   type t
   (** The abstract type of values representing a puzzle to be solved *)
 
