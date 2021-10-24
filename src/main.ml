@@ -1,5 +1,5 @@
 open Tea
-module Metapuzzle = Puzzlepage.T (Meta.T)
+module Metapuzzle = Puzzlepage.M (Meta.M)
 
 type model = { meta : Metapuzzle.model }
 (** [model] is a type representing a model of the entire site containing

@@ -1,6 +1,6 @@
 open Tea
 
-module T (P : Puzzle.S) = struct
+module M (P : Puzzle.S) = struct
   type guess = {
     text : string;
     correct : bool;

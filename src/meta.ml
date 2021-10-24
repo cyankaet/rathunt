@@ -1,6 +1,6 @@
 open Tea 
 
-module T : Puzzle.S = struct
+module M : Puzzle.S = struct
   type button = {
     label : string;
     toggled : bool;
