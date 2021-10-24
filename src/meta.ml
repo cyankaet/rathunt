@@ -44,7 +44,7 @@ module T : Puzzle.S = struct
     (** [button_elt_of_button key] takes a key which is a tuple of a string s with some other information, and generates a button
     with s as the label. *)
     let button_elt_of_button key = 
-      let open Html in td [ classList [ ("grid", true) ] ]
+      let open Html in td [ classList [ ("grid", true); ("selected", (snd key).toggled) ] ]
     [ button [ onClick (Toggle (fst key))] [ text (fst key) ] ] 
 
     (** [show_row button_list] generates the HTML for the row of n buttons 
