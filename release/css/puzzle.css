@@ -22,11 +22,15 @@ button {
 }
 
 .grid {
-  background-color: #aaffd7;
+  background-color: #ff9391;
   height: 100px;
   width: 100px;
   border-radius: 10px;
 }
 .grid:hover {
   background-color: #5bcc97;
+}
+
+.selected {
+  background-color: #aaffd7;
 }
