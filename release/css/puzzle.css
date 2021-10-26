@@ -14,7 +14,7 @@ button {
   height: 50px;
   width: 100px;
   border-radius: 10px;
-  font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+  font: sans-serif;
 }
 
 .submit:hover {
@@ -23,9 +23,10 @@ button {
 
 .grid {
   background-color: #ff9391;
-  height: 100px;
-  width: 100px;
+  height: 130px;
+  width: 130px;
   border-radius: 10px;
+  padding: 15px;
 }
 .grid:hover {
   background-color: #5bcc97;
