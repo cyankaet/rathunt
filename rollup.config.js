@@ -1,4 +1,9 @@
 import resolve from 'rollup-plugin-node-resolve';
+import nodePolyfills from 'rollup-plugin-node-polyfills';
+
+import brfs from 'rollup-plugin-brfs';
+
+
 
 export default {
   input: './src/main.bs.js',
@@ -8,6 +13,8 @@ export default {
     name: 'starter'
   },
   plugins: [
-    resolve()
+    brfs(),
+    // nodePolyfills({fs: true}),
+    resolve({preferBuiltins: true}), 
   ]
 };

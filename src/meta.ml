@@ -1,18 +1,14 @@
 open Tea
 
 module M : Puzzle.S = struct
-  type button = {
-    label : string;
-    toggled : bool;
-  }
+  type button = { label : string; toggled : bool }
 
   type t = button list
 
   type model = t
 
   type msg =
-    | Toggle of string
-        (** All of the possile webpage signals to handle *)
+    | Toggle of string  (** All of the possile webpage signals to handle *)
 
   (** the height of the grid of buttons *)
   let m = 5
@@ -24,28 +20,8 @@ module M : Puzzle.S = struct
       left-right up-down *)
 
   let questions =
-    [
-      "Have you ever lost your own name before?";
-      "Do you have a geographic feature named after you?";
-      "Have you ever had your tarts stolen?";
-      "Do you enjoy playing chess?";
-      "Has your brother disappeared mysteriously?";
-      "Can you run at superhuman speeds?";
-      "Have you ridden on a geyser?";
-      "Have you inherited a great fortune?";
-      "Are you an ancient nihilist?";
-      "Have you ever bombed an apartment building?";
-      "Have you ever been crowned emperor?";
-      "Have you ever seen a living mastodon?";
-      "Have you ever shoplifted?";
-      "Have you had a drug dependency cured by fire?";
-      "Do you own a family heirloom that is a sword?";
-      "Do you enjoy croquet?";
-      "Do you play the violin?";
-      "Do you kick people in the shins?";
-      "Are you actually a black kitten?";
-      "Do you have a sacred partner?";
-    ]
+    "twenty_questions.txt" |> Node.Fs.readFileAsUtf8Sync
+    |> String.split_on_char '\n'
 
   let new_button s = { label = s; toggled = false }
 
@@ -57,17 +33,13 @@ module M : Puzzle.S = struct
 
   (** [update model msg] returns the puzzle model updated according to
       the accompanying message, along with a command to be executed *)
-  let update t = function
-    | Toggle q -> (List.map (toggle q) t, Cmd.none)
+  let update t = function Toggle q -> (List.map (toggle q) t, Cmd.none)
 
   (** [get_first_n lst k] returns up to the first k elements of lst, if
       they exist. *)
   let rec get_first_k lst k =
     if k = 0 then []
-    else
-      match lst with
-      | [] -> []
-      | h :: t -> h :: get_first_k t (k - 1)
+    else match lst with [] -> [] | h :: t -> h :: get_first_k t (k - 1)
 
   (** [button_elt_of_button butt] takes a button and generates an HTML
       button with s as the label. *)
@@ -86,10 +58,7 @@ module M : Puzzle.S = struct
       if they exist.*)
   let rec remove_first_k lst k =
     if k = 0 then lst
-    else
-      match lst with
-      | [] -> []
-      | _ :: t -> remove_first_k t (k - 1)
+    else match lst with [] -> [] | _ :: t -> remove_first_k t (k - 1)
 
   (** [show_buttons_help lst r] recursively returns the r rows of
       buttons given by the list of buttons lst. Requires that lst have
@@ -99,17 +68,14 @@ module M : Puzzle.S = struct
     match lst with
     | [] -> []
     | _ :: _ ->
-        tr [] (show_row lst)
-        :: show_buttons_help (remove_first_k lst n) (r - 1)
+        tr [] (show_row lst) :: show_buttons_help (remove_first_k lst n) (r - 1)
 
   (** [show_buttons lst] generates the HTML code needed to display the
       button list in an m x n grid, where m and n are as defined within
       the module. Requires: button_list contains m * n elements. *)
   let show_buttons lst =
     let open Html in
-    table
-      [ classList [ ("center-margin", true) ] ]
-      (show_buttons_help lst m)
+    table [ classList [ ("center-margin", true) ] ] (show_buttons_help lst m)
 
   (** [view model] returns a Vdom object that contains the html
       representing this puzzle [model] object *)
