@@ -14,7 +14,7 @@ export default {
   },
   plugins: [
     brfs(),
-    // nodePolyfills({fs: true}),
+    nodePolyfills({fs: true}),
     resolve({preferBuiltins: true}), 
   ]
 };
