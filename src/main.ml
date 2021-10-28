@@ -9,8 +9,7 @@ type model = { meta : Metapuzzle.model }
 let init () = ({ meta = fst (Metapuzzle.init "answer") }, Cmd.none)
 
 (** [msg] is the type containing different types of event handlers *)
-type msg = Puzzlepage_msg of Metapuzzle.msg
-[@@bs.deriving { accessors }]
+type msg = Puzzlepage_msg of Metapuzzle.msg [@@bs.deriving { accessors }]
 
 (** [update model] is the update loop that is called whenever an event
     is happened in the model *)
