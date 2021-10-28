@@ -20,7 +20,7 @@ module M : Puzzle.S = struct
       left-right up-down *)
 
   let questions =
-    "twenty_questions.txt" |> Node.Fs.readFileAsUtf8Sync
+    "resources/twenty_questions.txt" |> Node.Fs.readFileAsUtf8Sync
     |> String.split_on_char '\n'
 
   let new_button s = { label = s; toggled = false }
