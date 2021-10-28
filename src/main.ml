@@ -26,7 +26,7 @@ let view model =
   div
     [ classList [ ("center-text", true) ] ]
     [
-      h1 [] [ Printf.sprintf "Rat Hunt" |> text ];
+      h1 [] [ Printf.sprintf "Rat Hunt AUTO PROD" |> text ];
       p [] [ Metapuzzle.view model.meta |> map puzzlepage_msg ];
       a [ href "http://localhost:5000" ] [ text "Hi" ];
     ]
