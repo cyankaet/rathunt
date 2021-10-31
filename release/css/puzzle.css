@@ -7,6 +7,9 @@
 button {
   all: unset;
 }
+* {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
 
 .submit {
   border: 1px solid #444;
@@ -14,7 +17,6 @@ button {
   height: 50px;
   width: 100px;
   border-radius: 10px;
-  font: sans-serif;
 }
 
 .submit:hover {
