@@ -38,6 +38,19 @@ let update model = function
   | UrlChange loc ->
       ({ model with page = loc.Web.Location.hash }, Cmd.none)
 
+let home_view =
+  let open Html in
+  div []
+    [
+      h2 []
+        [
+          Printf.sprintf
+            "Welcome to RatHunt. Select a puzzle to start with (hint: \
+             not the meta)."
+          |> text;
+        ];
+    ]
+
 (** [view model] renders the [model] into HTML, which will become a
     website *)
 let view model =
@@ -49,6 +62,7 @@ let view model =
       p []
         [
           ( match model.page with
+          | "#home" -> home_view
           | "#meta" ->
               Metapuzzle.view model.meta |> map metapuzzlepage_msg
           | "#navtest" -> Navtest.view model.navtest |> map navtest_msg
