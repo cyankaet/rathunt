@@ -1,0 +1,7 @@
+singleton
+numeralv
+dozen
+unlucky
+firstperfect
+evenprime
+twentytwo
