@@ -49,6 +49,8 @@ let home_view =
              not the meta)."
           |> text;
         ];
+      p [] [ a [ href ("#" ^ "meta") ] [ text "metapuzzle" ] ];
+      p [] [ a [ href ("#" ^ "navtest") ] [ text "navigation test" ] ];
     ]
 
 (** [view model] renders the [model] into HTML, which will become a
@@ -58,6 +60,13 @@ let view model =
   div
     [ classList [ ("center-text", true) ] ]
     [
+      div
+        [ classList [ ("topnav", true) ] ]
+        [
+          a [ href ("#" ^ "home") ] [ text "Home" ];
+          a [ href ("#" ^ "meta") ] [ text "metapuzzle" ];
+          a [ href ("#" ^ "navtest") ] [ text "navigation test" ];
+        ];
       h1 [] [ Printf.sprintf "Rat Hunt" |> text ];
       p []
         [
@@ -68,8 +77,6 @@ let view model =
           | "#navtest" -> Navtest.view model.navtest |> map navtest_msg
           | _ -> Printf.sprintf "Page Not Found" |> text );
         ];
-      p [] [ a [ href ("#" ^ "meta") ] [ text "metapuzzle" ] ];
-      p [] [ a [ href ("#" ^ "navtest") ] [ text "navigation test" ] ];
     ]
 
 (** [main] starts the web app *)
