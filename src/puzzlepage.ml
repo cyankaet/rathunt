@@ -1,7 +1,10 @@
 open Tea
 
 module M (P : Puzzle.S) = struct
-  type guess = { text : string; correct : bool }
+  type guess = {
+    text : string;
+    correct : bool;
+  }
 
   type t = {
     box_text : string;
@@ -16,7 +19,8 @@ module M (P : Puzzle.S) = struct
   (** [string_clean str] takes a string [str] and returned a capitalized
       string with only capitalized characters *)
   let string_clean str =
-    Js.String.(toUpperCase str |> trim |> replaceByRe [%bs.re "/[^A-Za]/g"] "")
+    Js.String.(
+      toUpperCase str |> trim |> replaceByRe [%bs.re "/[^A-Za]/g"] "")
 
   (** [submit_guess submission answer] takes a [submission] and compares
       it to the correct [answer] *)
@@ -26,7 +30,10 @@ module M (P : Puzzle.S) = struct
       correct = string_clean submission = string_clean model.answer;
     }
 
-  type msg = Submit | UpdateText of string | Puzzle_msg of P.msg
+  type msg =
+    | Submit
+    | UpdateText of string
+    | Puzzle_msg of P.msg
   [@@bs.deriving { accessors }]
 
   let init (ans : string) =
@@ -41,12 +48,15 @@ module M (P : Puzzle.S) = struct
 
   let update model = function
     | Submit ->
-        ( {
-            model with
-            box_text = "";
-            guesses = submit_guess model model.box_text :: model.guesses;
-          },
-          Cmd.none )
+        if string_clean model.box_text <> "" then
+          ( {
+              model with
+              box_text = "";
+              guesses =
+                submit_guess model model.box_text :: model.guesses;
+            },
+            Cmd.none )
+        else (model, Cmd.none)
     | UpdateText s ->
         ({ model with box_text = s; guesses = model.guesses }, Cmd.none)
     | Puzzle_msg msg ->
