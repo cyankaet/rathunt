@@ -1,6 +1,8 @@
 open Tea
 
 module M (* : Puzzle.S *) = struct
+  (** variant corresponding to all of the different types of subpuzzles
+      present*)
   type puzzle =
     | Root
     | Busts
@@ -18,13 +20,21 @@ module M (* : Puzzle.S *) = struct
     puzzle_type : puzzle;
     children : node list option;
   }
+  (** AF: a [node] consists of its parent [prev], its [id], a string
+      [value] consisting of the correct answer at that stage, a puzzle
+      type, and a list of children which may be None if it is not
+      generated, or Some node list if it is generated. *)
 
   type t = node
 
   type model = t
 
-  (** All of the possile webpage signals to handle *)
-  type msg = Generate of node | Rng of puzzle | Forward | Backward
+  (** All of the possile webpage signals to handle. *)
+  type msg =
+    | Generate of node
+    | Rng of puzzle
+    | Forward
+    | Backward
   [@@bs.deriving { accessors }]
 
   (** [rootFeeders] is the list of feeders to each of the root puzzles
@@ -45,6 +55,9 @@ module M (* : Puzzle.S *) = struct
     "resources/natophonetic.txt" |> Node.Fs.readFileAsUtf8Sync
     |> String.split_on_char '\n'
 
+  (** [numberSwitch n] outputs a puzzle type corresponding to a
+      one-indexed initial ordering they are presented. Requires: n is
+      between 1 and 7, inclusive. *)
   let numberSwitch = function
     | 2 -> Compass
     | 3 -> CrossFlag
@@ -54,6 +67,7 @@ module M (* : Puzzle.S *) = struct
     | 7 -> GraphDec
     | _ -> Busts
 
+  (** [head] is the node corresponding to the root of the tree.*)
   let head =
     {
       prev = None;
@@ -76,6 +90,8 @@ module M (* : Puzzle.S *) = struct
           children = None;
         })
 
+  (** [find_busts_root c] finds all words in [dictionary] that have a
+      double letter c in the word. *)
   let find_busts_word c =
     let rx = "/^\\w*" ^ String.make 2 c ^ "\\w*/" in
     let valids =
@@ -89,6 +105,11 @@ module M (* : Puzzle.S *) = struct
     let idx = Rng.generate (List.length valids) in
     List.nth valids idx
 
+  (** [make_busts answer n] creates the list of children of node n
+      assuming that n has puzzle type Busts. The children has previous
+      node n, and have puzzle types that are randomly generated, seeded
+      by the id of the puzzle. The values of each string are created
+      based on them being valid solutions to the puzzle. *)
   let make_busts answer n =
     Rng.seed n.id;
     List.init (String.length answer) (fun x ->
@@ -103,6 +124,11 @@ module M (* : Puzzle.S *) = struct
           children = None;
         })
 
+  (** [make_compass answer n] creates the list of children of node n
+      assuming that n has puzzle type Compass. The children has previous
+      node n, and have puzzle types that are randomly generated, seeded
+      by the id of the puzzle. The values of each string are created
+      based on them being valid solutions to the puzzle. *)
   let make_compass answer n =
     Rng.seed n.id;
     List.init (String.length answer) (fun x ->
@@ -124,7 +150,7 @@ module M (* : Puzzle.S *) = struct
       of [puzzle] type with random seed given by [seed]. *)
   let generate answer prev = function
     | Root -> make_root prev
-    | Busts -> []
+    | Busts -> make_busts answer prev
     | Compass -> make_compass answer prev
     | CrossFlag -> []
     | Desktop -> []
