@@ -1,8 +1,12 @@
 open Tea
-module Metapuzzle = Puzzlepage.M (Meta.N)
-module Navtest = Puzzlepage.M (Navtest.N)
+module Metapuzzle = Puzzlepage.M (Meta.M)
+module Navtest = Puzzlepage.M (Navtest.M)
 
-type model = { meta : Metapuzzle.model; navtest : Navtest.model; page : string }
+type model = {
+  meta : Metapuzzle.model;
+  navtest : Navtest.model;
+  page : string;
+}
 (** [model] is a type representing a model of the entire site containing
     a single [puzzle] so far *)
 
@@ -48,8 +52,8 @@ let home_view =
       h2 []
         [
           Printf.sprintf
-            "Welcome to RatHunt. Select a puzzle to start with (hint: not the \
-             meta)."
+            "Welcome to RatHunt. Select a puzzle to start with (hint: \
+             not the meta)."
           |> text;
         ];
       p [] [ a [ href ("#" ^ "meta") ] [ text "metapuzzle" ] ];

@@ -1,14 +1,18 @@
 open Tea
 
-module N : Puzzle.S = struct
-  type button = { label : string; toggled : bool }
+module M : Puzzle.S = struct
+  type button = {
+    label : string;
+    toggled : bool;
+  }
 
   type t = button list
 
   type model = t
 
   type msg =
-    | Toggle of string  (** All of the possile webpage signals to handle *)
+    | Toggle of string
+        (** All of the possile webpage signals to handle *)
 
   (** the height of the grid of buttons *)
   let m = 5
@@ -33,7 +37,8 @@ module N : Puzzle.S = struct
 
   (** [update model msg] returns the puzzle model updated according to
       the accompanying message, along with a command to be executed *)
-  let update t = function Toggle q -> (List.map (toggle q) t, Cmd.none)
+  let update t = function
+    | Toggle q -> (List.map (toggle q) t, Cmd.none)
 
   (** [view model] returns a Vdom object that contains the html
       representing this puzzle [model] object *)
