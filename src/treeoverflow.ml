@@ -55,6 +55,12 @@ module M (* : Puzzle.S *) = struct
     "resources/natophonetic.txt" |> Node.Fs.readFileAsUtf8Sync
     |> String.split_on_char '\n'
 
+  (** [flagsList] is a list of the semaphore flag positions
+      corresponding to each letter in English. *)
+  let flagsList =
+    "resources/semaphore.txt" |> Node.Fs.readFileAsUtf8Sync
+    |> String.split_on_char '\n'
+
   (** [numberSwitch n] outputs a puzzle type corresponding to a
       one-indexed initial ordering they are presented. Requires: n is
       between 1 and 7, inclusive. *)
@@ -90,7 +96,7 @@ module M (* : Puzzle.S *) = struct
           children = None;
         })
 
-  (** [find_busts_root c] finds all words in [dictionary] that have a
+  (** [find_busts_word c] finds all words in [dictionary] that have a
       double letter c in the word. *)
   let find_busts_word c =
     let rx = "/^\\w*" ^ String.make 2 c ^ "\\w*/" in
@@ -105,61 +111,58 @@ module M (* : Puzzle.S *) = struct
     let idx = Rng.generate (List.length valids) in
     List.nth valids idx
 
-  (** [make_busts answer n] creates the list of children of node n
-      assuming that n has puzzle type Busts. The children has previous
-      node n, and have puzzle types that are randomly generated, seeded
-      by the id of the puzzle. The values of each string are created
-      based on them being valid solutions to the puzzle. *)
-  let make_busts answer n =
-    Rng.seed n.id;
-    List.init (String.length answer) (fun x ->
-        {
-          prev = Some n;
-          id = (16 * n.id) + x + 1;
-          value =
-            answer |> String.lowercase_ascii
-            |> (fun s -> s.[x])
-            |> find_busts_word;
-          puzzle_type = numberSwitch (Rng.generate 7 + 1);
-          children = None;
-        })
+  (** [find_compass_word c] returns the NATO phonetic word corresponding
+      to the character [c]. *)
+  let find_compass_word c =
+    List.nth compassList (Char.code c - Char.code 'a')
 
-  (** [make_compass answer n] creates the list of children of node n
-      assuming that n has puzzle type Compass. The children has previous
-      node n, and have puzzle types that are randomly generated, seeded
-      by the id of the puzzle. The values of each string are created
-      based on them being valid solutions to the puzzle. *)
-  let make_compass answer n =
-    Rng.seed n.id;
-    List.init (String.length answer) (fun x ->
-        {
-          prev = Some n;
-          id = (16 * n.id) + x + 1;
-          value =
-            List.nth compassList
-              ( ( answer |> String.lowercase_ascii
-                |> (fun s -> s.[x])
-                |> Char.code )
-              - Char.code 'a' );
-          puzzle_type = numberSwitch (Rng.generate 7 + 1);
-          children = None;
-        })
+  (** [find_crossflags_word c] finds all words in [dictionary] that
+      contain as substrings the semaphore directions corresponding to
+      [c], but otherwise no other characters [n, s, e, w]. CURRENTLY NOT
+      IMPLEMENTED CORRECTLY.*)
+  let find_crossflags_word c =
+    let rx = "/^\\w*" ^ String.make 2 c ^ "\\w*/" in
+    let valids =
+      List.filter
+        (fun s ->
+          match Js.String.match_ (Js.Re.fromString rx) s with
+          | None -> false
+          | Some _ -> true)
+        dictionary
+    in
+    let idx = Rng.generate (List.length valids) in
+    List.nth valids idx
 
   (** [generate seed prev puzzle] takes a seed and puzzle type and
       returns the randomly generated list of appropriate children nodes
       of [puzzle] type with random seed given by [seed]. *)
-  let generate answer prev = function
-    | Root -> make_root prev
-    | Busts -> make_busts answer prev
-    | Compass -> make_compass answer prev
-    | CrossFlag -> []
-    | Desktop -> []
-    | LRArrow -> []
-    | SOS -> []
-    | GraphDec -> []
+  let generate answer prev puzztype =
+    Rng.seed prev.id;
+    let value_creator =
+      match puzztype with
+      | Busts -> find_busts_word
+      | Compass -> find_crossflags_word
+      | CrossFlag -> find_busts_word
+      | Desktop -> find_busts_word
+      | LRArrow -> find_busts_word
+      | SOS -> find_busts_word
+      | GraphDec -> find_busts_word
+      | _ -> raise (Failure "Root already generated")
+    in
+    List.init (String.length answer) (fun x ->
+        {
+          prev = Some prev;
+          id = (16 * prev.id) + x + 1;
+          value =
+            answer |> String.lowercase_ascii
+            |> (fun s -> s.[x])
+            |> value_creator;
+          puzzle_type = numberSwitch (Rng.generate 7 + 1);
+          children = None;
+        })
 
   let init () =
-    ({ head with children = Some (generate "" head Root) }, Cmd.none)
+    ({ head with children = Some (make_root head) }, Cmd.none)
 
   (** [update model msg] returns the puzzle model updated according to
       the accompanying message, along with a command to be executed *)
