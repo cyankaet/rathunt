@@ -41,14 +41,19 @@ module M (P : Puzzle.S) = struct
 
   let update model = function
     | Submit ->
-        ( {
-            model with
-            box_text = "";
-            guesses = submit_guess model model.box_text :: model.guesses;
-          },
-          Cmd.none )
+        if string_clean model.box_text <> "" && not model.solved then
+          let guess = submit_guess model model.box_text in
+          ( {
+              model with
+              box_text = "";
+              guesses = guess :: model.guesses;
+              solved = guess.correct;
+            },
+            Cmd.none )
+        else ({ model with box_text = " " }, Cmd.none)
     | UpdateText s ->
-        ({ model with box_text = s; guesses = model.guesses }, Cmd.none)
+        if model.solved then ({ model with box_text = "" }, Cmd.none)
+        else ({ model with box_text = s }, Cmd.none)
     | Puzzle_msg msg ->
         let p, cmd = P.update model.puzzle msg in
         ({ model with puzzle = p }, Cmd.map puzzle_msg cmd)
@@ -57,21 +62,26 @@ module M (P : Puzzle.S) = struct
     let open Html in
     div []
       [
-        p []
-          [
-            input'
-              [
-                type' "text";
-                id "answer-bar";
-                value model.box_text;
-                onInput (fun s -> UpdateText s);
-                placeholder "Enter Answer Here";
-              ]
-              [];
-          ];
-        div
-          [ classList [ ("submit", true); ("center-margin", true) ] ]
-          [ button [ onClick Submit ] [ text "Submit Answer" ] ];
+        ( if not model.solved then
+          div []
+            [
+              p []
+                [
+                  input'
+                    [
+                      type' "text";
+                      id "answer-bar";
+                      value model.box_text;
+                      onInput (fun s -> UpdateText s);
+                      placeholder "Enter Answer Here";
+                    ]
+                    [];
+                ];
+              div
+                [ classList [ ("submit", true); ("center-margin", true) ] ]
+                [ button [ onClick Submit ] [ text "Submit Answer" ] ];
+            ]
+        else p [] [] );
         (let rec print_guesses = function
            | [] -> p [] []
            | guess :: rest ->

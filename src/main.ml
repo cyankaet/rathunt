@@ -1,20 +1,16 @@
 open Tea
-module Metapuzzle = Puzzlepage.M (Meta.M)
+module Metapuzzle = Puzzlepage.M (Meta.N)
 module Navtest = Puzzlepage.M (Navtest.N)
 
-type model = {
-  meta : Metapuzzle.model;
-  navtest : Navtest.model;
-  page : string;
-}
+type model = { meta : Metapuzzle.model; navtest : Navtest.model; page : string }
 (** [model] is a type representing a model of the entire site containing
     a single [puzzle] so far *)
 
 (** [init] is the initial state of the webpage *)
-let init () url =
+let init () _ =
   ( {
       meta = fst (Metapuzzle.init "answer");
-      navtest = fst (Navtest.init "answer");
+      navtest = fst (Navtest.init "hi");
       page = "#home";
     },
     Cmd.none )
@@ -30,12 +26,19 @@ type msg =
     is happened in the model *)
 let update model = function
   | Metapuzzlepage_msg msg ->
-      let meta, cmd = Metapuzzle.update model.meta msg in
-      ({ model with meta }, Cmd.map metapuzzlepage_msg cmd)
+      print_endline "1";
+      if model.page = "#meta" then
+        let meta, cmd = Metapuzzle.update model.meta msg in
+        ({ model with meta }, Cmd.map metapuzzlepage_msg cmd)
+      else (model, Cmd.none)
   | Navtest_msg msg ->
-      let navtest, cmd = Navtest.update model.navtest msg in
-      ({ model with navtest }, Cmd.map navtest_msg cmd)
+      print_endline "2";
+      if model.page = "#navtest" then
+        let navtest, cmd = Navtest.update model.navtest msg in
+        ({ model with navtest }, Cmd.map navtest_msg cmd)
+      else (model, Cmd.none)
   | UrlChange loc ->
+      print_endline "page changing";
       ({ model with page = loc.Web.Location.hash }, Cmd.none)
 
 let home_view =
@@ -45,8 +48,8 @@ let home_view =
       h2 []
         [
           Printf.sprintf
-            "Welcome to RatHunt. Select a puzzle to start with (hint: \
-             not the meta)."
+            "Welcome to RatHunt. Select a puzzle to start with (hint: not the \
+             meta)."
           |> text;
         ];
       p [] [ a [ href ("#" ^ "meta") ] [ text "metapuzzle" ] ];
@@ -73,8 +76,15 @@ let view model =
           ( match model.page with
           | "#home" -> home_view
           | "#meta" ->
+              print_endline "Going to meta";
+              (* Metapuzzle.view model.meta |> map metapuzzlepage_msg; *)
+              print_endline "";
               Metapuzzle.view model.meta |> map metapuzzlepage_msg
-          | "#navtest" -> Navtest.view model.navtest |> map navtest_msg
+          | "#navtest" ->
+              print_endline "going to navtest";
+              (* Navtest.view model.navtest |> map navtest_msg; *)
+              print_endline "";
+              Navtest.view model.navtest |> map navtest_msg
           | _ -> Printf.sprintf "Page Not Found" |> text );
         ];
     ]
