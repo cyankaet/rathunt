@@ -24,11 +24,7 @@ module M (* : Puzzle.S *) = struct
   type model = t
 
   (** All of the possile webpage signals to handle *)
-  type msg =
-    | Generate of node
-    | Rng of puzzle
-    | Forward
-    | Backward
+  type msg = Generate of node | Rng of puzzle | Forward | Backward
   [@@bs.deriving { accessors }]
 
   (** [rootFeeders] is the list of feeders to each of the root puzzles
