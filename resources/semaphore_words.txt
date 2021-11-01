@@ -17361,6 +17361,7 @@ g ophthalmomycoses
 g pseudohistorical
 h wordsworth
 h swallowtail
+i swanwick
 j acne
 j aden
 j aeon
@@ -25675,6 +25676,13 @@ m swimmable
 m swaybacked
 m switchable
 m switchblade
+n arriswise
+n swoose
+n thuswise
+n thiswise
+n biaswise
+n lookswise
+n switchcase
 o downward
 o wainwright
 p dawn
