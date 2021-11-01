@@ -1,0 +1,31 @@
+.cross-grid table, td, tr {
+  border-collapse: collapse;
+  border: 1px solid black;
+  width: 20px;
+}
+
+.cross-grid input {
+  border-top-style: hidden;
+  border-right-style: hidden;
+  border-left-style: hidden;
+  border-bottom-style: hidden;
+  height: 25px;
+  width: 25px;
+  text-align: center;
+}
+
+.cross-grid input:focus {
+  outline: none;
+}
+
+.invalid {
+  background-color: black;
+}
+
+.element {
+  background-color: #aaffd7;
+}
+
+.element * {
+  background-color: #aaffd7;
+}
