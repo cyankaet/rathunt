@@ -2281,6 +2281,7 @@ semi
 send
 sent
 sept
+seqq
 sera
 serb
 sere
@@ -16519,6 +16520,7 @@ saxony
 saxton
 sayers
 saying
+sayyid
 scabby
 scalae
 scalar
@@ -29895,6 +29897,7 @@ sapphic
 sappier
 sapping
 sapwood
+saqqara
 saracen
 sarapus
 sarcasm
@@ -32261,6 +32264,7 @@ ulsters
 ultimum
 ululate
 ulysses
+umayyad
 umbered
 umbonal
 umbones

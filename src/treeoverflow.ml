@@ -67,11 +67,6 @@ module M (* : Puzzle.S *) = struct
       children = None;
     }
 
-  (* let make_children parent lst = let open Random in
-     Random.initialSeed parent.id; List.map (fun s -> { prev = Some
-     parent; value = s; puzzle_type = numberSwitch () children = None;
-     }) lst *)
-
   (** [make_root n] takes the list of answers in rootfeeders.txt, stored
       in list [rootFeeders], and generates the children list of node [n]
       using the answers in [rootFeeders]. *)
@@ -85,13 +80,45 @@ module M (* : Puzzle.S *) = struct
           children = None;
         })
 
-  let make_compass answer n =
-    ignore (Random.initialSeed n.id);
+  let find_busts_word c =
+    let rx = "/^\\w*" ^ String.make 2 c ^ "\\w*/" in
+    let valids =
+      List.filter
+        (fun s ->
+          match Js.String.match_ (Js.Re.fromString rx) s with
+          | None -> false
+          | Some _ -> true)
+        dictionary
+    in
+    let idx = Rng.generate (List.length valids) in
+    List.nth valids idx
+
+  let make_busts answer n =
+    Rng.seed n.id;
     List.init (String.length answer) (fun x ->
         {
           prev = Some n;
           id = (16 * n.id) + x + 1;
-          value = List.nth rootFeeders x;
+          value =
+            answer |> String.lowercase_ascii
+            |> (fun s -> s.[x])
+            |> find_busts_word;
+          puzzle_type = numberSwitch (Rng.generate 7 + 1);
+          children = None;
+        })
+
+  let make_compass answer n =
+    Rng.seed n.id;
+    List.init (String.length answer) (fun x ->
+        {
+          prev = Some n;
+          id = (16 * n.id) + x + 1;
+          value =
+            List.nth compassList
+              ( ( answer |> String.lowercase_ascii
+                |> (fun s -> s.[x])
+                |> Char.code )
+              - Char.code 'a' );
           puzzle_type = numberSwitch (Rng.generate 7 + 1);
           children = None;
         })
@@ -99,7 +126,7 @@ module M (* : Puzzle.S *) = struct
   (** [generate seed prev puzzle] takes a seed and puzzle type and
       returns the randomly generated list of appropriate children nodes
       of [puzzle] type with random seed given by [seed]. *)
-  let generate seed answer prev = function
+  let generate answer prev = function
     | Root -> make_root prev
     | Busts -> []
     | Compass -> make_compass answer prev
@@ -110,7 +137,7 @@ module M (* : Puzzle.S *) = struct
     | GraphDec -> []
 
   let init () =
-    ({ head with children = Some (generate 0 "" head Root) }, Cmd.none)
+    ({ head with children = Some (generate "" head Root) }, Cmd.none)
 
   (** [update model msg] returns the puzzle model updated according to
       the accompanying message, along with a command to be executed *)
