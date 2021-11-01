@@ -85,11 +85,12 @@ module M (P : Puzzle.S) = struct
                     [];
                 ];
               div
+                [ classList [ ("center-margin", true) ] ]
                 [
-                  classList
-                    [ ("submit", true); ("center-margin", true) ];
-                ]
-                [ button [ onClick Submit ] [ text "Submit" ] ];
+                  button
+                    [ onClick Submit; classList [ ("submit", true) ] ]
+                    [ text "Submit" ];
+                ];
             ]
         else p [] [] );
         (let rec print_guesses = function

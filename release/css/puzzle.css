@@ -1,16 +1,25 @@
 .center-text {
   text-align: center;
 }
+
 .center-margin {
   margin: auto;
 }
+
 button {
   all: unset;
 }
+
 * {
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
+.meta {
+  border-top-style: hidden;
+  border-right-style: hidden;
+  border-left-style: hidden;
+  border-bottom-style: hidden;
+}
 .submit {
   border: 1px solid #444;
   background-color: #83c9ec;
@@ -38,6 +47,7 @@ button {
   border-left-style: hidden;
   border-bottom-style: hidden;
 }
+
 .grid:hover {
   background-color: #5bcc97;
 }
