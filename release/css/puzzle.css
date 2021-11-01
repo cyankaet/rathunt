@@ -14,9 +14,13 @@ button {
 .submit {
   border: 1px solid #444;
   background-color: #83c9ec;
-  height: 50px;
-  width: 100px;
+  padding: 12px 28px;
+  width: 50px;
   border-radius: 10px;
+  border-top-style: hidden;
+  border-right-style: hidden;
+  border-left-style: hidden;
+  border-bottom-style: hidden;
 }
 
 .submit:hover {
@@ -29,6 +33,10 @@ button {
   width: 130px;
   border-radius: 10px;
   padding: 15px;
+  border-top-style: hidden;
+  border-right-style: hidden;
+  border-left-style: hidden;
+  border-bottom-style: hidden;
 }
 .grid:hover {
   background-color: #5bcc97;
