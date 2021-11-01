@@ -17,6 +17,7 @@
 /release/main.js
 /.cache
 /dist
+yarn.lock
 
 # misc
 .DS_Store
