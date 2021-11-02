@@ -1,20 +1,20 @@
 open Tea
 module Metapuzzle = Puzzlepage.M (Meta.M)
-module Navtest = Puzzlepage.M (Navtest.N)
+module Crossword = Puzzlepage.M (Crossword.M)
 
 type model = {
   meta : Metapuzzle.model;
-  navtest : Navtest.model;
+  crossword : Crossword.model;
   page : string;
 }
 (** [model] is a type representing a model of the entire site containing
     a single [puzzle] so far *)
 
 (** [init] is the initial state of the webpage *)
-let init () url =
+let init () _ =
   ( {
       meta = fst (Metapuzzle.init "answer");
-      navtest = fst (Navtest.init "answer");
+      crossword = fst (Crossword.init "angery");
       page = "#home";
     },
     Cmd.none )
@@ -22,7 +22,7 @@ let init () url =
 (** [msg] is the type containing different types of event handlers *)
 type msg =
   | Metapuzzlepage_msg of Metapuzzle.msg
-  | Navtest_msg of Navtest.msg
+  | Crossword_msg of Crossword.msg
   | UrlChange of Web.Location.location
 [@@bs.deriving { accessors }]
 
@@ -30,12 +30,19 @@ type msg =
     is happened in the model *)
 let update model = function
   | Metapuzzlepage_msg msg ->
-      let meta, cmd = Metapuzzle.update model.meta msg in
-      ({ model with meta }, Cmd.map metapuzzlepage_msg cmd)
-  | Navtest_msg msg ->
-      let navtest, cmd = Navtest.update model.navtest msg in
-      ({ model with navtest }, Cmd.map navtest_msg cmd)
+      print_endline "1";
+      if model.page = "#meta" then
+        let meta, cmd = Metapuzzle.update model.meta msg in
+        ({ model with meta }, Cmd.map metapuzzlepage_msg cmd)
+      else (model, Cmd.none)
+  | Crossword_msg msg ->
+      print_endline "2";
+      if model.page = "#crossword" then
+        let crossword, cmd = Crossword.update model.crossword msg in
+        ({ model with crossword }, Cmd.map crossword_msg cmd)
+      else (model, Cmd.none)
   | UrlChange loc ->
+      print_endline "page changing";
       ({ model with page = loc.Web.Location.hash }, Cmd.none)
 
 let home_view =
@@ -50,7 +57,7 @@ let home_view =
           |> text;
         ];
       p [] [ a [ href ("#" ^ "meta") ] [ text "metapuzzle" ] ];
-      p [] [ a [ href ("#" ^ "navtest") ] [ text "navigation test" ] ];
+      p [] [ a [ href ("#" ^ "crossword") ] [ text "crossword" ] ];
     ]
 
 (** [view model] renders the [model] into HTML, which will become a
@@ -64,8 +71,8 @@ let view model =
         [ classList [ ("topnav", true) ] ]
         [
           a [ href ("#" ^ "home") ] [ text "Home" ];
-          a [ href ("#" ^ "meta") ] [ text "metapuzzle" ];
-          a [ href ("#" ^ "navtest") ] [ text "navigation test" ];
+          (* a [ href ("#" ^ "meta") ] [ text "metapuzzle" ]; a [ href
+             ("#" ^ "crossword") ] [ text "crossword" ]; *)
         ];
       h1 [] [ Printf.sprintf "Rat Hunt" |> text ];
       p []
@@ -73,8 +80,15 @@ let view model =
           ( match model.page with
           | "#home" -> home_view
           | "#meta" ->
+              print_endline "Going to meta";
+              (* Metapuzzle.view model.meta |> map metapuzzlepage_msg; *)
+              print_endline "";
               Metapuzzle.view model.meta |> map metapuzzlepage_msg
-          | "#navtest" -> Navtest.view model.navtest |> map navtest_msg
+          | "#crossword" ->
+              print_endline "Going to crossword";
+              (* Metapuzzle.view model.meta |> map metapuzzlepage_msg; *)
+              print_endline "";
+              Crossword.view model.crossword |> map crossword_msg
           | _ -> Printf.sprintf "Page Not Found" |> text );
         ];
     ]
