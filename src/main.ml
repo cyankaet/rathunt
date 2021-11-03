@@ -71,8 +71,8 @@ let view model =
         [ classList [ ("topnav", true) ] ]
         [
           a [ href ("#" ^ "home") ] [ text "Home" ];
-          a [ href ("#" ^ "meta") ] [ text "metapuzzle" ];
-          a [ href ("#" ^ "crossword") ] [ text "crossword" ];
+          (* a [ href ("#" ^ "meta") ] [ text "metapuzzle" ]; a [ href
+             ("#" ^ "crossword") ] [ text "crossword" ]; *)
         ];
       h1 [] [ Printf.sprintf "Rat Hunt" |> text ];
       p []

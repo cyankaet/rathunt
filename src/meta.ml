@@ -54,8 +54,15 @@ module M : Puzzle.S = struct
   let button_elt_of_button butt =
     let open Html in
     td
-      [ classList [ ("grid", true); ("selected", butt.toggled) ] ]
-      [ button [ onClick (Toggle butt.label) ] [ text butt.label ] ]
+      [ classList [ ("meta", true) ] ]
+      [
+        button
+          [
+            onClick (Toggle butt.label);
+            classList [ ("grid", true); ("selected", butt.toggled) ];
+          ]
+          [ text butt.label ];
+      ]
 
   (** [show_row button_list] generates the HTML for the row of n buttons
       created from the first n elements of button_list. Requires:

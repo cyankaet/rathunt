@@ -1,0 +1,3 @@
+(library
+ (name rathunt)
+ (public_name rathunt))
