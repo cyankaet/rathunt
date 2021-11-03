@@ -22,13 +22,35 @@ module M : Puzzle.S = struct
   type model = t
 
   (** the row and column size of the crossword (must be square)*)
-  let size = 16
+  let size = 11
 
   (** a list of tuples denoting the invalid black squares of the
       crossword. each tuple is a 0 indexed coordinate pair, where the
       first number denotes the UP-DOWN height and the second the
       LEFT-RIGHT position, starting from the lower left hand corner*)
-  let invalid_squares = [ (1, 2) ]
+  let invalid_squares =
+    [
+      (0, 5);
+      (0, 6);
+      (1, 5);
+      (2, 7);
+      (2, 8);
+      (3, 6);
+      (3, 10);
+      (4, 9);
+      (4, 10);
+      (5, 5);
+      (6, 0);
+      (6, 1);
+      (7, 0);
+      (7, 4);
+      (8, 2);
+      (8, 3);
+      (8, 8);
+      (9, 5);
+      (10, 4);
+      (10, 5);
+    ]
 
   type msg =
     | ChangeSquare of {
