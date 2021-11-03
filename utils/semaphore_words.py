@@ -27,7 +27,7 @@ print({i: len(toExp[i]) for i in toExp})
 print(sum([len(toExp[i]) for i in toExp]))
 print(toExp['u'])
 
-with open("resources/semaphore_words.txt", "w") as f:
-    for i in toExp:
-        for j in toExp[i]:
-            f.write(i + " " + j + '\n')
+# with open("resources/semaphore_words.txt", "w") as f:
+#     for i in toExp:
+#         for j in toExp[i]:
+#             f.write(i + " " + j + '\n')
