@@ -25,4 +25,4 @@ npm install yarn
 Finally, build the project with ```make build```. This should complete the setup of RatHunt.
 
 ## Local Hosting
-In the project directory, you can run `make run`, which will display the current state of the web app in `localhost:5000`. 
+In the project directory, you can run `make run`, which will display the current state of the web app in `localhost:1234`. 
