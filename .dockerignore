@@ -6,3 +6,6 @@ build
 .merlin
 *.bs.js
 release/main.js
+dist
+.cache
+_build
