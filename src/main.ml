@@ -24,6 +24,7 @@ type msg =
   | Metapuzzlepage_msg of Metapuzzle.msg
   | Crossword_msg of Crossword.msg
   | UrlChange of Web.Location.location
+  | Key_pressed of Keyboard.key_event
 [@@bs.deriving { accessors }]
 
 (** [update model] is the update loop that is called whenever an event
@@ -44,6 +45,16 @@ let update model = function
   | UrlChange loc ->
       print_endline "page changing";
       ({ model with page = loc.Web.Location.hash }, Cmd.none)
+  | Key_pressed e -> (
+      ( model,
+        match (e.ctrl, e.key_code) with
+        | _, 13 ->
+            if model.page = "#meta" then
+              Cmd.msg (Metapuzzlepage_msg Metapuzzle.Submit)
+            else if model.page = "#crossword" then
+              Cmd.msg (Crossword_msg Crossword.Submit)
+            else Cmd.none
+        | _ -> Cmd.none ) )
 
 let home_view =
   let open Html in
@@ -52,8 +63,8 @@ let home_view =
       h2 []
         [
           Printf.sprintf
-            "Welcome to RatHunt. Select a puzzle to start with (hint: \
-             not the meta)."
+            "Welcome to RatHunt. Select a puzzle to start with (hint: not the \
+             meta)."
           |> text;
         ];
       p [] [ a [ href ("#" ^ "meta") ] [ text "metapuzzle" ] ];
@@ -93,13 +104,9 @@ let view model =
         ];
     ]
 
+let subscriptions model = [ Keyboard.downs key_pressed ] |> Sub.batch
+
 (** [main] starts the web app *)
 let main =
   Navigation.navigationProgram urlChange
-    {
-      init;
-      update;
-      view;
-      subscriptions = (fun _ -> Sub.none);
-      shutdown = (fun _ -> Cmd.none);
-    }
+    { init; update; view; subscriptions; shutdown = (fun _ -> Cmd.none) }

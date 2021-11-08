@@ -1,10 +1,7 @@
 open Tea
 
 module M (P : Puzzle.S) = struct
-  type guess = {
-    text : string;
-    correct : bool;
-  }
+  type guess = { text : string; correct : bool }
 
   type t = {
     box_text : string;
@@ -19,8 +16,7 @@ module M (P : Puzzle.S) = struct
   (** [string_clean str] takes a string [str] and returned a capitalized
       string with only capitalized characters *)
   let string_clean str =
-    Js.String.(
-      toUpperCase str |> trim |> replaceByRe [%bs.re "/[^A-Za]/g"] "")
+    Js.String.(toUpperCase str |> trim |> replaceByRe [%bs.re "/[^A-Za]/g"] "")
 
   (** [submit_guess submission answer] takes a [submission] and compares
       it to the correct [answer] *)
@@ -34,6 +30,7 @@ module M (P : Puzzle.S) = struct
     | Submit
     | UpdateText of string
     | Puzzle_msg of P.msg
+    | Key_pressed of Keyboard.key_event
   [@@bs.deriving { accessors }]
 
   let init (ans : string) =
@@ -48,6 +45,7 @@ module M (P : Puzzle.S) = struct
 
   let update model = function
     | Submit ->
+        print_endline "Submitting answer";
         if string_clean model.box_text <> "" && not model.solved then
           let guess = submit_guess model model.box_text in
           ( {
