@@ -73,8 +73,8 @@ let home_view =
       h2 []
         [
           Printf.sprintf
-            "Welcome to RatHunt. Select a puzzle to start with (hint: not the \
-             meta)."
+            "Welcome to RatHunt. Select a puzzle to start with (hint: \
+             not the meta)."
           |> text;
         ];
       p [] [ a [ href ("#" ^ "meta") ] [ text "metapuzzle" ] ];
@@ -121,4 +121,10 @@ let subscriptions model = [ Keyboard.downs key_pressed ] |> Sub.batch
 (** [main] starts the web app *)
 let main =
   Navigation.navigationProgram urlChange
-    { init; update; view; subscriptions; shutdown = (fun _ -> Cmd.none) }
+    {
+      init;
+      update;
+      view;
+      subscriptions;
+      shutdown = (fun _ -> Cmd.none);
+    }
