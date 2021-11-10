@@ -11,10 +11,7 @@ module M : Puzzle.S = struct
       [is_element] denoting whether the text is a valid chemical element
       abbreviation *)
 
-  type t = {
-    squares : square array array;
-    elements : string list;
-  }
+  type t = { squares : square array array }
   (** internal representation of the model state, containing a grid of
       crossword squares and a saved list of all chemical element
       abbreviations *)
@@ -85,7 +82,7 @@ module M : Puzzle.S = struct
 
   (** [load_elements] loads in a resource file with a list of elements,
       eliminating uppercase*)
-  let load_elements () =
+  let elements =
     "resources/elements.txt" |> Node.Fs.readFileAsUtf8Sync
     |> String.split_on_char '\n'
     |> List.map String.lowercase_ascii
@@ -108,15 +105,14 @@ module M : Puzzle.S = struct
             (Array.make_matrix size size
                { valid = true; text = ""; is_element = false })
             invalid_squares;
-        elements = load_elements ();
       },
       Cmd.none )
 
   (** [check_periodic str] checks to see if provided string matches the
       abbreviation of a chemical element on a standard periodic table,
       case indifferent *)
-  let check_periodic t str =
-    List.mem (String.lowercase_ascii str) t.elements
+  let check_periodic str =
+    List.mem (String.lowercase_ascii str) elements
 
   (** [update model msg] returns the puzzle model updated with any text
       change events, along with a command to be executed *)
@@ -126,7 +122,7 @@ module M : Puzzle.S = struct
           {
             (t.squares.(r).(c)) with
             text;
-            is_element = check_periodic t text;
+            is_element = check_periodic text;
           };
         (t, Cmd.none)
 
@@ -199,18 +195,30 @@ module M : Puzzle.S = struct
     let across', down' = pad across down in
     table
       [ classList [ ("center-margin", true) ] ]
-      (clues_helper across' down')
+      ( tr [] [ th [] [ text "Across" ]; th [] [ text "Down" ] ]
+      :: clues_helper across' down' )
 
   (** [view model] returns a Vdom object that contains the HTML
       representing this crossword puzzle [model] object *)
   let view model =
     let open Html in
-    div
-      [ classList [ ("cross-grid", true) ] ]
+    div []
       [
-        table
-          [ classList [ ("center-margin", true) ] ]
-          (grid_view model.squares (size - 1));
-        table [] [ clues_view () ];
+        div
+          [ classList [ ("cross-grid", true) ] ]
+          [
+            table
+              [ classList [ ("center-margin", true) ] ]
+              (grid_view model.squares (size - 1));
+          ];
+        div []
+          [
+            table
+              [
+                classList
+                  [ ("center-margin", true); ("clue-grid", true) ];
+              ]
+              [ clues_view () ];
+          ];
       ]
 end

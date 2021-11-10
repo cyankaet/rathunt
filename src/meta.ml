@@ -53,13 +53,13 @@ module M : Puzzle.S = struct
       button with s as the label. *)
   let button_elt_of_button butt =
     let open Html in
-    td
-      [ classList [ ("meta", true) ] ]
+    td []
       [
         button
           [
             onClick (Toggle butt.label);
-            classList [ ("grid", true); ("selected", butt.toggled) ];
+            classList
+              [ ("meta-grid", true); ("meta-selected", butt.toggled) ];
           ]
           [ text butt.label ];
       ]
