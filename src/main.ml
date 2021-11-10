@@ -6,6 +6,7 @@ type model = {
   meta : Metapuzzle.model;
   crossword : Crossword.model;
   teams : Teams.model;
+  team_reg : Team_registration.model;
   page : string;
 }
 (** [model] is a type representing a model of the entire site containing
@@ -17,6 +18,7 @@ let init () _ =
       meta = fst (Metapuzzle.init "answer");
       crossword = fst (Crossword.init "angery");
       teams = Teams.init;
+      team_reg = Team_registration.init;
       page = "#home";
     },
     Cmd.none )
@@ -26,6 +28,7 @@ type msg =
   | Metapuzzlepage_msg of Metapuzzle.msg
   | Crossword_msg of Crossword.msg
   | Teams_msg of Teams.msg
+  | Team_reg_msg of Team_registration.msg
   | UrlChange of Web.Location.location
   | Key_pressed of Keyboard.key_event
 [@@bs.deriving { accessors }]
@@ -51,12 +54,18 @@ let update model = function
         let teams, cmd = Teams.update model.teams msg in
         ({ model with teams }, Cmd.map teams_msg cmd)
       else (model, Cmd.none)
+  | Team_reg_msg msg ->
+      print_endline "4";
+      if model.page = "#register" then
+        let team_reg, cmd = Team_registration.update model.team_reg msg in
+        ({ model with team_reg }, Cmd.map team_reg_msg cmd)
+      else (model, Cmd.none)
   | UrlChange loc ->
       print_endline "page changing";
       ( { model with page = loc.Web.Location.hash },
         if loc.Web.Location.hash <> "#teams" then
           Cmd.msg (Teams_msg Teams.Clear)
-        else Cmd.msg (Teams_msg Teams.Load_games) )
+        else Cmd.msg (Teams_msg Teams.LoadGames) )
   | Key_pressed e -> (
       ( model,
         match (e.ctrl, e.key_code) with
@@ -95,6 +104,7 @@ let view model =
         [
           a [ href ("#" ^ "home") ] [ text "Home" ];
           a [ href ("#" ^ "teams") ] [ text "Teams" ];
+          a [ href ("#" ^ "register") ] [ text "Register" ];
           (* a [ href ("#" ^ "meta") ] [ text "metapuzzle" ]; a [ href
              ("#" ^ "crossword") ] [ text "crossword" ]; *)
         ];
@@ -114,6 +124,8 @@ let view model =
               print_endline "";
               Crossword.view model.crossword |> map crossword_msg
           | "#teams" -> Teams.view model.teams |> map teams_msg
+          | "#register" ->
+              Team_registration.view model.team_reg |> map team_reg_msg
           | _ -> Printf.sprintf "Page Not Found" |> text );
         ];
     ]

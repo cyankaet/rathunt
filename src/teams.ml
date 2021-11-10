@@ -3,8 +3,8 @@ open Json.Decoder
 include Http_utils
 
 type msg =
-  | Load_games
-  | Games_data of (string, string Http.error) Result.t
+  | LoadGames
+  | GamesData of (string, string Http.error) Result.t
   | Clear
 [@@bs.deriving { accessors }]
 
@@ -18,22 +18,18 @@ let init = Idle
 
 let favorite_player = "alireza2003"
 
-let get_game msg game_id =
-  let url = Printf.sprintf "https://lichess.org/game/export/%s.pgn" game_id in
-  Http_utils.make_get_request url [] msg
-
 let player_title player =
   match player.title with
   | Some title -> Printf.sprintf "%s %s" title player.name
   | None -> player.name
 
 let update model = function
-  | Load_games -> (
+  | LoadGames -> (
       match model with
-      | Received _ ->
+      | Loading | Received _ ->
           print_endline "Loading";
           (model, Cmd.none)
-      | Idle | Failed | Loading ->
+      | Idle | Failed ->
           print_endline "Hi";
           let url =
             Printf.sprintf
@@ -43,11 +39,11 @@ let update model = function
           ( Loading,
             Http_utils.make_get_request url
               [ Http.Header ("Accept", "application/x-ndjson") ]
-              games_data ) )
-  | Games_data (Error e) ->
+              gamesData ) )
+  | GamesData (Error e) ->
       Js.log (Http.string_of_error e);
       (Failed, Cmd.none)
-  | Games_data (Ok response) ->
+  | GamesData (Ok response) ->
       let id_decoder = field "id" string in
       let player_decoder color =
         field "players"
@@ -87,8 +83,8 @@ let view model =
   in
 
   match model with
-  | Idle -> p [] [ button [ onClick Load_games ] [ text "load Lichess games" ] ]
-  | Loading -> p [] [ button [ onClick Load_games ] [ text "loading..." ] ]
+  | Idle -> p [] [ button [ onClick LoadGames ] [ text "load Lichess games" ] ]
+  | Loading -> p [] [ text "loading..." ]
   | Received tournament ->
       div []
         [
@@ -109,5 +105,5 @@ let view model =
       p []
         [
           text "Games could not be loaded.";
-          button [ onClick Load_games ] [ text "retry" ];
+          button [ onClick LoadGames ] [ text "retry" ];
         ]
