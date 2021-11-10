@@ -1,6 +1,6 @@
 open Tea
 
-module M (* : Puzzle.S *) = struct
+module M : Puzzle.S = struct
   (** variant corresponding to all of the different types of subpuzzles
       present*)
   type puzzle =
@@ -17,6 +17,7 @@ module M (* : Puzzle.S *) = struct
     prev : node option;
     id : int;
     value : string;
+    solved : bool;
     puzzle_type : puzzle;
     children : node list option;
   }
@@ -32,10 +33,14 @@ module M (* : Puzzle.S *) = struct
   (** All of the possile webpage signals to handle. *)
   type msg =
     | Generate of node
-    | Rng of puzzle
-    | Forward
+    | Check of string
+    | Forward of node
     | Backward
   [@@bs.deriving { accessors }]
+
+  (** [prob] is the base probability that an answer will be hidden in
+      the second generation of children. *)
+  let prob = 0.9
 
   (** [rootFeeders] is the list of feeders to each of the root puzzles
       in order*)
@@ -121,6 +126,7 @@ module M (* : Puzzle.S *) = struct
       prev = None;
       id = 0;
       value = "bastion";
+      solved = false;
       puzzle_type = Root;
       children = None;
     }
@@ -134,6 +140,7 @@ module M (* : Puzzle.S *) = struct
           prev = Some n;
           id = x + 1;
           value = List.nth rootFeeders x;
+          solved = false;
           puzzle_type = numberSwitch (x + 1);
           children = None;
         })
@@ -197,6 +204,8 @@ module M (* : Puzzle.S *) = struct
             answer |> String.lowercase_ascii
             |> (fun s -> s.[x])
             |> value_creator;
+          solved = false;
+          (* change this to be dependent on some random generation*)
           puzzle_type = numberSwitch (Rng.generate 7 + 1);
           children = None;
         })
@@ -207,12 +216,20 @@ module M (* : Puzzle.S *) = struct
   (** [update model msg] returns the puzzle model updated according to
       the accompanying message, along with a command to be executed *)
   let update t = function
+    | Forward n -> init ()
     | Generate n ->
         ignore t.value;
         init ()
+    | Backward -> (
+        match t.prev with
+        | None -> (t, Cmd.none)
+        | Some p -> (p, Cmd.none) )
+    | Check s -> init ()
 
   (** [view model] returns a Vdom object that contains the html
       representing this puzzle [model] object *)
 
-  (* let view = () *)
+  let view model =
+    let open Html in
+    div [] []
 end
