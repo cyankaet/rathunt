@@ -1,3 +1,5 @@
+(** All code in this file from https://quernd.github.io/tutorials/tea-chess/#orgc53c9c7*)
+
 type key_event = {
   key_code : int;
   shift : bool;

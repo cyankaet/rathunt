@@ -5,6 +5,7 @@ module Crossword = Puzzlepage.M (Crossword.M)
 type model = {
   meta : Metapuzzle.model;
   crossword : Crossword.model;
+  httptest : Httptest.model;
   page : string;
 }
 (** [model] is a type representing a model of the entire site containing
@@ -15,6 +16,7 @@ let init () _ =
   ( {
       meta = fst (Metapuzzle.init "answer");
       crossword = fst (Crossword.init "angery");
+      httptest = Httptest.init;
       page = "#home";
     },
     Cmd.none )
@@ -23,6 +25,7 @@ let init () _ =
 type msg =
   | Metapuzzlepage_msg of Metapuzzle.msg
   | Crossword_msg of Crossword.msg
+  | Http_msg of Httptest.msg
   | UrlChange of Web.Location.location
   | Key_pressed of Keyboard.key_event
 [@@bs.deriving { accessors }]
@@ -42,9 +45,16 @@ let update model = function
         let crossword, cmd = Crossword.update model.crossword msg in
         ({ model with crossword }, Cmd.map crossword_msg cmd)
       else (model, Cmd.none)
+  | Http_msg msg ->
+      print_endline "3";
+      if model.page = "#httptest" then
+        let httptest, cmd = Httptest.update model.httptest msg in
+        ({ model with httptest }, Cmd.map http_msg cmd)
+      else (model, Cmd.none)
   | UrlChange loc ->
       print_endline "page changing";
-      ({ model with page = loc.Web.Location.hash }, Cmd.none)
+      ( { model with page = loc.Web.Location.hash },
+        Cmd.msg (Http_msg Httptest.Clear) )
   | Key_pressed e -> (
       ( model,
         match (e.ctrl, e.key_code) with
@@ -69,6 +79,7 @@ let home_view =
         ];
       p [] [ a [ href ("#" ^ "meta") ] [ text "metapuzzle" ] ];
       p [] [ a [ href ("#" ^ "crossword") ] [ text "crossword" ] ];
+      p [] [ a [ href ("#" ^ "httptest") ] [ text "httptest" ] ];
     ]
 
 (** [view model] renders the [model] into HTML, which will become a
@@ -100,6 +111,7 @@ let view model =
               (* Metapuzzle.view model.meta |> map metapuzzlepage_msg; *)
               print_endline "";
               Crossword.view model.crossword |> map crossword_msg
+          | "#httptest" -> Httptest.view model.httptest |> map http_msg
           | _ -> Printf.sprintf "Page Not Found" |> text );
         ];
     ]
