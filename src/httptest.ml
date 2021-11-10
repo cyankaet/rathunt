@@ -10,9 +10,17 @@ type msg =
   | Clear
 [@@bs.deriving { accessors }]
 
-type player = { name : string; rating : int; title : string option }
+type player = {
+  name : string;
+  rating : int;
+  title : string option;
+}
 
-type game = { id : string; white : player; black : player }
+type game = {
+  id : string;
+  white : player;
+  black : player;
+}
 
 type model = game list transfer
 
@@ -23,7 +31,9 @@ let tournament_id = "1JebhZhW"
 let favorite_player = "alireza2003"
 
 let get_game msg game_id =
-  let url = Printf.sprintf "https://lichess.org/game/export/%s.pgn" game_id in
+  let url =
+    Printf.sprintf "https://lichess.org/game/export/%s.pgn" game_id
+  in
   Http_utils.make_get_request url [] msg
 
 let player_title player =
@@ -37,7 +47,9 @@ let update model = function
       | Received _ ->
           print_endline "Loading";
           (model, Cmd.none)
-      | Idle | Failed | Loading ->
+      | Idle
+      | Failed
+      | Loading ->
           print_endline "Hi";
           let url =
             Printf.sprintf
@@ -67,11 +79,14 @@ let update model = function
       let game_decoder =
         map3
           (fun id white black -> { id; white; black })
-          id_decoder (player_decoder "white") (player_decoder "black")
+          id_decoder
+          (player_decoder "white")
+          (player_decoder "black")
       in
       let games = String.split_on_char '\n' response in
       let games_decoded =
-        List.map (decodeString game_decoder) games |> Http_utils.result_to_list
+        List.map (decodeString game_decoder) games
+        |> Http_utils.result_to_list
       in
       (Received games_decoded, Cmd.none)
   | Clear -> (Idle, Cmd.none)
@@ -80,7 +95,11 @@ let view model =
   let open Html in
   let game_view game =
     td []
-      [ a [ Printf.sprintf "#/lichess/%s" game.id |> href ] [ text game.id ] ]
+      [
+        a
+          [ Printf.sprintf "#/lichess/%s" game.id |> href ]
+          [ text game.id ];
+      ]
     :: List.map
          (fun player -> td [] [ text player ])
          [
@@ -93,8 +112,11 @@ let view model =
   in
 
   match model with
-  | Idle -> p [] [ button [ onClick Load_games ] [ text "load Lichess games" ] ]
-  | Loading -> p [] [ button [ onClick Load_games ] [ text "loading..." ] ]
+  | Idle ->
+      p []
+        [ button [ onClick Load_games ] [ text "load Lichess games" ] ]
+  | Loading ->
+      p [] [ button [ onClick Load_games ] [ text "loading..." ] ]
   | Received tournament ->
       div []
         [
