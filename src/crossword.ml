@@ -11,15 +11,22 @@ module M : Puzzle.S = struct
       [is_element] denoting whether the text is a valid chemical element
       abbreviation *)
 
-  type t = {
-    squares : square array array;
-    elements : string list;
-  }
+  type t = { squares : square array array }
   (** internal representation of the model state, containing a grid of
       crossword squares and a saved list of all chemical element
       abbreviations *)
 
   type model = t
+
+  (** file containing the across clues in the crossword *)
+  let across =
+    "resources/acrossclues.txt" |> Node.Fs.readFileAsUtf8Sync
+    |> String.split_on_char '\n'
+
+  (** file containing the down clues in the crossword *)
+  let down =
+    "resources/downclues.txt" |> Node.Fs.readFileAsUtf8Sync
+    |> String.split_on_char '\n'
 
   (** the row and column size of the crossword (must be square)*)
   let size = 11
@@ -30,26 +37,41 @@ module M : Puzzle.S = struct
       LEFT-RIGHT position, starting from the lower left hand corner*)
   let invalid_squares =
     [
+      (0, 0);
+      (0, 1);
       (0, 5);
       (0, 6);
+      (1, 0);
       (1, 5);
+      (2, 2);
       (2, 7);
       (2, 8);
       (3, 6);
       (3, 10);
+      (4, 3);
+      (4, 4);
       (4, 9);
       (4, 10);
+      (5, 0);
+      (5, 1);
       (5, 5);
+      (5, 9);
+      (5, 10);
       (6, 0);
       (6, 1);
+      (6, 6);
+      (6, 7);
       (7, 0);
       (7, 4);
       (8, 2);
       (8, 3);
       (8, 8);
       (9, 5);
+      (9, 10);
       (10, 4);
       (10, 5);
+      (10, 9);
+      (10, 10);
     ]
 
   type msg =
@@ -60,7 +82,7 @@ module M : Puzzle.S = struct
 
   (** [load_elements] loads in a resource file with a list of elements,
       eliminating uppercase*)
-  let load_elements () =
+  let elements =
     "resources/elements.txt" |> Node.Fs.readFileAsUtf8Sync
     |> String.split_on_char '\n'
     |> List.map String.lowercase_ascii
@@ -83,15 +105,14 @@ module M : Puzzle.S = struct
             (Array.make_matrix size size
                { valid = true; text = ""; is_element = false })
             invalid_squares;
-        elements = load_elements ();
       },
       Cmd.none )
 
   (** [check_periodic str] checks to see if provided string matches the
       abbreviation of a chemical element on a standard periodic table,
       case indifferent *)
-  let check_periodic t str =
-    List.mem (String.lowercase_ascii str) t.elements
+  let check_periodic str =
+    List.mem (String.lowercase_ascii str) elements
 
   (** [update model msg] returns the puzzle model updated with any text
       change events, along with a command to be executed *)
@@ -101,7 +122,7 @@ module M : Puzzle.S = struct
           {
             (t.squares.(r).(c)) with
             text;
-            is_element = check_periodic t text;
+            is_element = check_periodic text;
           };
         (t, Cmd.none)
 
@@ -139,15 +160,65 @@ module M : Puzzle.S = struct
     | -1 -> []
     | x -> row_view arr.(x) x :: grid_view arr (x - 1)
 
+  (** [pad alist dlist] takes in the list of across and down clues,
+      respectively, and if one is shorther than the other, it pads the
+      shorter list with enough elements to make the lists the same. *)
+  let pad alist dlist =
+    let diff = List.length alist - List.length dlist in
+    match diff with
+    | diff when diff < 0 ->
+        (alist @ List.init (abs diff) (fun _ -> ""), dlist)
+    | _ -> (alist, dlist @ List.init diff (fun _ -> ""))
+
+  (** [clues_helper alist dlist] generates the HTML for the lists of
+      across and down clues given by [alist] and [dlist], respectively.
+      Precondition: [alist] and [dlist] are the same length. *)
+  let rec clues_helper alist dlist =
+    let open Html in
+    match (alist, dlist) with
+    | [], [] -> []
+    | h1 :: t1, h2 :: t2 ->
+        tr [] [ td [] [ text h1 ]; td [] [ text h2 ] ]
+        :: clues_helper t1 t2
+    | [], _
+    | _, [] ->
+        [
+          tr []
+            [
+              td [] [ text "invalid lists" ];
+              td [] [ text "invalid lists" ];
+            ];
+        ]
+
+  let clues_view () =
+    let open Html in
+    let across', down' = pad across down in
+    table
+      [ classList [ ("center-margin", true) ] ]
+      ( tr [] [ th [] [ text "Across" ]; th [] [ text "Down" ] ]
+      :: clues_helper across' down' )
+
   (** [view model] returns a Vdom object that contains the HTML
       representing this crossword puzzle [model] object *)
   let view model =
     let open Html in
-    div
-      [ classList [ ("cross-grid", true) ] ]
+    div []
       [
-        table
-          [ classList [ ("center-margin", true) ] ]
-          (grid_view model.squares (size - 1));
+        div
+          [ classList [ ("cross-grid", true) ] ]
+          [
+            table
+              [ classList [ ("center-margin", true) ] ]
+              (grid_view model.squares (size - 1));
+          ];
+        div []
+          [
+            table
+              [
+                classList
+                  [ ("center-margin", true); ("clue-grid", true) ];
+              ]
+              [ clues_view () ];
+          ];
       ]
 end

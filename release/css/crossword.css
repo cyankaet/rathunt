@@ -1,4 +1,4 @@
-.cross-grid table, td, tr {
+.cross-grid table, .cross-grid td, .cross-grid tr {
   border-collapse: collapse;
   border: 1px solid black;
   width: 20px;
@@ -28,4 +28,9 @@
 
 .element * {
   background-color: #aaffd7;
+}
+
+.clue-grid {
+  margin-top: 2%;
+  text-align: left;
 }
