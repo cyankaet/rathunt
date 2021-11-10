@@ -54,7 +54,9 @@ let update model = function
   | UrlChange loc ->
       print_endline "page changing";
       ( { model with page = loc.Web.Location.hash },
-        Cmd.msg (Http_msg Httptest.Clear) )
+        if loc.Web.Location.hash <> "#httptest" then
+          Cmd.msg (Http_msg Httptest.Clear)
+        else Cmd.msg (Http_msg Httptest.Load_games) )
   | Key_pressed e -> (
       ( model,
         match (e.ctrl, e.key_code) with
