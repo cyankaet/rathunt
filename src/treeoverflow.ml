@@ -41,11 +41,9 @@ module M : Puzzle.S = struct
       in the second generation of children. *)
   let baseprob = 0.9
 
-  (** [readlines s] reads in the lines in [s].txt *)
+  (** [readlines s] reads in the lines in [s] *)
   let readlines s =
-    "resources/" ^ s ^ ".txt"
-    |> Node.Fs.readFileAsUtf8Sync
-    |> String.split_on_char '\n'
+    s |> Node.Fs.readFileAsUtf8Sync |> String.split_on_char '\n'
 
   (** [charassoc_from_lns lst] creates an association list of characters
       to strings from a list of lines. Precondition: The two characters
@@ -68,40 +66,43 @@ module M : Puzzle.S = struct
 
   (** [rootFeeders] is the list of feeders to each of the root puzzles
       in order *)
-  let rootFeeders = readlines "rootfeeders"
+  let rootFeeders = readlines "resources/rootfeeders.txt"
 
   (** [dictionary] is a set of non-profane words in the English language
       between 4 and 16 characters long. *)
-  let dictionary = readlines "cleanwords"
+  let dictionary = readlines "resources/cleanwords.txt"
 
   (** [compassList] is a list of valid answers to Compass puzzles. *)
-  let compassList = readlines "natophonetic"
+  let compassList = readlines "resources/natophonetic.txt"
 
   (** [flagsList] is an association list of valid answers to CrossFlag
       puzzles and their encoded characters (in reverse order). *)
-  let flagsList = "semaphore_words" |> readlines |> charassoc_from_lns
+  let flagsList =
+    "resources/semaphore_words.txt" |> readlines |> charassoc_from_lns
 
   (** [incdecList] is an association list of valid answers to GraphDec
       puzzles and their encoded characters (in reverse order). *)
-  let incdecList = "inc_dec_words" |> readlines |> charassoc_from_lns
+  let incdecList =
+    "resources/inc_dec_words.txt" |> readlines |> charassoc_from_lns
 
   (** [desktopList] is an association list of valid answers to Desktop
       puzzles and their encoded characters (in reverse order). *)
-  let desktopList = "binary_words" |> readlines |> charassoc_from_lns
+  let desktopList =
+    "resources/binary_words.txt" |> readlines |> charassoc_from_lns
 
   (** [lrarrowList] is an association list of valid answers to LRArrow
       puzzles and their encoded characters (in reverse order).*)
   let lrarrowList =
-    ("horizontal_sym" |> readlines |> charassoc_from_lns)
-    @ ("vertical_sym" |> readlines |> charassoc_from_lns)
-    @ ("rotational_sym" |> readlines |> charassoc_from_lns)
-    @ ("none_sym" |> readlines |> charassoc_from_lns)
+    ("resources/horizontal_sym.txt" |> readlines |> charassoc_from_lns)
+    @ ("resources/vertical_sym.txt" |> readlines |> charassoc_from_lns)
+    @ ("resources/rotational_sym.txt" |> readlines |> charassoc_from_lns)
+    @ ("resources/none_sym.txt" |> readlines |> charassoc_from_lns)
 
   (**[morseList] is a list containing the Morse encoding of every letter
      in the English alphabet, in order, but with [i] instead of [-] and
      [o] instead of [.].*)
   let morseList =
-    "morse" |> readlines
+    "resources/morse.txt" |> readlines
     |> List.map (fun s ->
            String.map
              (fun c ->
@@ -286,10 +287,20 @@ module M : Puzzle.S = struct
         if s = t.value then ({ t with solved = true }, Cmd.none)
         else (t, Cmd.none)
 
+  let make_emoji = function
+    | Root -> "U+1F331"
+    | Busts -> "U+1F465"
+    | Compass -> "🧭"
+    | CrossFlag -> "🎌"
+    | Desktop -> "🖥️"
+    | LRArrow -> "↔️"
+    | SOS -> "🆘"
+    | GraphDec -> "📉"
+
   (** [view model] returns a Vdom object that contains the html
       representing this puzzle [model] object *)
 
   let view model =
     let open Html in
-    div [] []
+    div [] [ p [] [ text (make_emoji model.puzzle_type) ] ]
 end

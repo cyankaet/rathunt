@@ -1,10 +1,12 @@
 open Tea
 module Metapuzzle = Puzzlepage.M (Meta.M)
 module Crossword = Puzzlepage.M (Crossword.M)
+module Treeoverflow = Puzzlepage.M (Treeoverflow.M)
 
 type model = {
   meta : Metapuzzle.model;
   crossword : Crossword.model;
+  treeoverflow : Treeoverflow.model;
   teams : Teams.model;
   team_reg : Team_registration.model;
   page : string;
@@ -17,6 +19,7 @@ let init () _ =
   ( {
       meta = fst (Metapuzzle.init "answer");
       crossword = fst (Crossword.init "angery");
+      treeoverflow = fst (Treeoverflow.init "bastion");
       teams = Teams.init;
       team_reg = Team_registration.init;
       page = "#home";
@@ -27,6 +30,7 @@ let init () _ =
 type msg =
   | Metapuzzlepage_msg of Metapuzzle.msg
   | Crossword_msg of Crossword.msg
+  | Treeoverflow_msg of Treeoverflow.msg
   | Teams_msg of Teams.msg
   | Team_reg_msg of Team_registration.msg
   | UrlChange of Web.Location.location
@@ -48,16 +52,26 @@ let update model = function
         let crossword, cmd = Crossword.update model.crossword msg in
         ({ model with crossword }, Cmd.map crossword_msg cmd)
       else (model, Cmd.none)
-  | Teams_msg msg ->
+  | Treeoverflow_msg msg ->
       print_endline "3";
+      if model.page = "#treeoverflow" then
+        let treeoverflow, cmd =
+          Treeoverflow.update model.treeoverflow msg
+        in
+        ({ model with treeoverflow }, Cmd.map treeoverflow_msg cmd)
+      else (model, Cmd.none)
+  | Teams_msg msg ->
+      print_endline "4";
       if model.page = "#teams" then
         let teams, cmd = Teams.update model.teams msg in
         ({ model with teams }, Cmd.map teams_msg cmd)
       else (model, Cmd.none)
   | Team_reg_msg msg ->
-      print_endline "4";
+      print_endline "5";
       if model.page = "#register" then
-        let team_reg, cmd = Team_registration.update model.team_reg msg in
+        let team_reg, cmd =
+          Team_registration.update model.team_reg msg
+        in
         ({ model with team_reg }, Cmd.map team_reg_msg cmd)
       else (model, Cmd.none)
   | UrlChange loc ->
@@ -84,12 +98,13 @@ let home_view =
       h2 []
         [
           Printf.sprintf
-            "Welcome to RatHunt. Select a puzzle to start with (hint: not the \
-             meta)."
+            "Welcome to RatHunt. Select a puzzle to start with (hint: \
+             not the meta)."
           |> text;
         ];
       p [] [ a [ href ("#" ^ "meta") ] [ text "metapuzzle" ] ];
       p [] [ a [ href ("#" ^ "crossword") ] [ text "crossword" ] ];
+      p [] [ a [ href ("#" ^ "treeoverflow") ] [ text "treeoverflow" ] ];
     ]
 
 (** [view model] renders the [model] into HTML, which will become a
@@ -135,4 +150,10 @@ let subscriptions model = [ Keyboard.downs key_pressed ] |> Sub.batch
 (** [main] starts the web app *)
 let main =
   Navigation.navigationProgram urlChange
-    { init; update; view; subscriptions; shutdown = (fun _ -> Cmd.none) }
+    {
+      init;
+      update;
+      view;
+      subscriptions;
+      shutdown = (fun _ -> Cmd.none);
+    }
