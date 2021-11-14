@@ -32,65 +32,27 @@ module M : Puzzle.S = struct
 
   (** All of the possile webpage signals to handle. *)
   type msg =
-    | Generate of node
     | Check of string
     | Forward of node
     | Backward
   [@@bs.deriving { accessors }]
 
-  (** [prob] is the base probability that an answer will be hidden in
-      the second generation of children. *)
-  let prob = 0.9
+  (** [baseprob] is the base probability that an answer will be hidden
+      in the second generation of children. *)
+  let baseprob = 0.9
 
-  (** [rootFeeders] is the list of feeders to each of the root puzzles
-      in order*)
-  let rootFeeders =
-    "resources/rootfeeders.txt" |> Node.Fs.readFileAsUtf8Sync
+  (** [readlines s] reads in the lines in [s].txt *)
+  let readlines s =
+    "resources/" ^ s ^ ".txt"
+    |> Node.Fs.readFileAsUtf8Sync
     |> String.split_on_char '\n'
 
-  (** [dictionary] is a set of (hopefully) non-profane words in the
-      English language between 4 and 16 characters long. *)
-  let dictionary =
-    "resources/cleanwords.txt" |> Node.Fs.readFileAsUtf8Sync
-    |> String.split_on_char '\n'
-
-  (** [compassList] is a list of the NATO phonetic alphabet words
-      corresponding to each letter in English. *)
-  let compassList =
-    "resources/natophonetic.txt" |> Node.Fs.readFileAsUtf8Sync
-    |> String.split_on_char '\n'
-
-  (** [flagsList] is an association list of words that contain compass
-      directions, and the letter whose CrossedFlags encoding uses those
-      directions in the word. Precondition: lines in semaphore_words.txt
-      are formatted such that the first character is the letter
-      encoding, and the rest of the string (after a space) is a possible
-      word corresponding to that letter. *)
-  let flagsList =
-    "resources/semaphore_words.txt" |> Node.Fs.readFileAsUtf8Sync
-    |> String.split_on_char '\n'
-    |> List.map (fun s ->
-           (s.[0], List.nth (String.split_on_char ' ' s) 1))
-
-  (** [flagtable] is a map from English characters to words that encode
-      that letter in the CrossFlags subpuzzle. *)
-  let flagTable = Hashtbl.create 26
-
-  (** [incdecList] is an association list of words that contain compass
-      directions, and the letter whose GraphDec encoding uses those
-      directions in the word. Precondition: lines in semaphore_words.txt
-      are formatted such that the first character is the letter
-      encoding, and the rest of the string (after a space) is a possible
-      word corresponding to that letter. *)
-  let incdecList =
-    "resources/inc_dec_words.txt" |> Node.Fs.readFileAsUtf8Sync
-    |> String.split_on_char '\n'
-    |> List.map (fun s ->
-           (s.[0], List.nth (String.split_on_char ' ' s) 1))
-
-  (** [incdecTable] is a map from English characters to words that
-      encode that letter in the CrossFlags subpuzzle. *)
-  let incdecTable = Hashtbl.create 26
+  (** [charassoc_from_lns lst] creates an association list of characters
+      to strings from a list of lines. Precondition: The two characters
+      in each line are an English letter and a space, and the rest of
+      the line is a string. *)
+  let charassoc_from_lns =
+    List.map (fun s -> (s.[0], List.nth (String.split_on_char ' ' s) 1))
 
   (** [makeTable wlist] populates a map with the entries from wlist,
       which is an association list with keys mapping to one of the
@@ -104,9 +66,71 @@ module M : Puzzle.S = struct
         else Hashtbl.add tbl c [ s ];
         makeTable tbl t
 
+  (** [rootFeeders] is the list of feeders to each of the root puzzles
+      in order *)
+  let rootFeeders = readlines "rootfeeders"
+
+  (** [dictionary] is a set of non-profane words in the English language
+      between 4 and 16 characters long. *)
+  let dictionary = readlines "cleanwords"
+
+  (** [compassList] is a list of valid answers to Compass puzzles. *)
+  let compassList = readlines "natophonetic"
+
+  (** [flagsList] is an association list of valid answers to CrossFlag
+      puzzles and their encoded characters (in reverse order). *)
+  let flagsList = "semaphore_words" |> readlines |> charassoc_from_lns
+
+  (** [incdecList] is an association list of valid answers to GraphDec
+      puzzles and their encoded characters (in reverse order). *)
+  let incdecList = "inc_dec_words" |> readlines |> charassoc_from_lns
+
+  (** [desktopList] is an association list of valid answers to Desktop
+      puzzles and their encoded characters (in reverse order). *)
+  let desktopList = "binary_words" |> readlines |> charassoc_from_lns
+
+  (** [lrarrowList] is an association list of valid answers to LRArrow
+      puzzles and their encoded characters (in reverse order).*)
+  let lrarrowList =
+    ("horizontal_sym" |> readlines |> charassoc_from_lns)
+    @ ("vertical_sym" |> readlines |> charassoc_from_lns)
+    @ ("rotational_sym" |> readlines |> charassoc_from_lns)
+    @ ("none_sym" |> readlines |> charassoc_from_lns)
+
+  (**[morseList] is a list containing the Morse encoding of every letter
+     in the English alphabet, in order, but with [i] instead of [-] and
+     [o] instead of [.].*)
+  let morseList =
+    "morse" |> readlines
+    |> List.map (fun s ->
+           String.map
+             (fun c ->
+               if c = '-' then 'i' else if c = '.' then 'o' else c)
+             s)
+
+  (** [flagtable] is a map from English characters to words that encode
+      that letter in the CrossFlags subpuzzle. *)
+  let flagTable = Hashtbl.create 26
+
+  (** [incdecTable] is a map from English characters to words that
+      encode that letter in the CrossFlags subpuzzle. *)
+  let incdecTable = Hashtbl.create 26
+
+  (** [desktopTable] is a map from English characters to words that
+      encode that letter in the CrossFlags subpuzzle. *)
+  let desktopTable = Hashtbl.create 26
+
+  (** [lrarrowTable] is a map from English characters to words that
+      encode that letter in the CrossFlags subpuzzle. *)
+  let lrarrowTable = Hashtbl.create 26
+
   let () = makeTable flagTable flagsList
 
   let () = makeTable incdecTable incdecList
+
+  let () = makeTable desktopTable desktopList
+
+  let () = makeTable lrarrowTable lrarrowList
 
   (** [numberSwitch n] outputs a puzzle type corresponding to a
       one-indexed initial ordering they are presented. Requires: n is
@@ -145,40 +169,73 @@ module M : Puzzle.S = struct
           children = None;
         })
 
-  (** [find_busts_word c] finds all words in [dictionary] that have a
-      double letter c in the word. *)
+  (** [random_from_list lst] returns a random element from [lst]. *)
+  let random_from_list lst =
+    let idx = Rng.generate (List.length lst) in
+    List.nth lst idx
+
+  (** [find_busts_word c] generates a valid answer to a Busts puzzle in
+      [dictionary] that encodes character [c] *)
   let find_busts_word c =
     let rx = "/^\\w*" ^ String.make 2 c ^ "\\w*/" in
-    let valids =
-      List.filter
-        (fun s ->
-          match Js.String.match_ (Js.Re.fromString rx) s with
-          | None -> false
-          | Some _ -> true)
-        dictionary
-    in
-    let idx = Rng.generate (List.length valids) in
-    List.nth valids idx
+    random_from_list
+      (List.filter
+         (fun s ->
+           match Js.String.match_ (Js.Re.fromString rx) s with
+           | None -> false
+           | Some _ -> true)
+         dictionary)
 
-  (** [find_compass_word c] returns the NATO phonetic word corresponding
-      to the character [c]. *)
+  (** [find_compass_word c] generates a valid answer to a Compass puzzle
+      that encodes character [c]. *)
   let find_compass_word c =
     List.nth compassList (Char.code c - Char.code 'a')
 
-  (** [find_crossflags_word c] finds all words in [dictionary] that
-      contain as substrings the semaphore directions corresponding to
-      [c], but otherwise no other characters [n, s, e, w].*)
+  (** [find_crossflags_word c] generates a valid answer in [dictionary]
+      to a CrossFlags puzzle that encodes character [c]. *)
   let find_crossflags_word c =
-    let valids = Hashtbl.find flagTable c in
-    let idx = Rng.generate (List.length valids) in
-    List.nth valids idx
+    random_from_list (Hashtbl.find flagTable c)
 
-  (** [find_graphdec_word c] finds a word whose characters are all in
-      increasing/decreasing order except for c. *)
+  (** [find_graphdec_word c] generates a valid answer in [dictionary] to
+      a GraphDec puzzle that encodes character [c]. *)
   let find_graphdec_word c =
-    let valids = Hashtbl.find incdecTable c in
-    let idx = Rng.generate (List.length valids) in
-    List.nth valids idx
+    random_from_list (Hashtbl.find incdecTable c)
+
+  (** [find_desktop_word c] generates a valid answer in [dictionary] to
+      a Desktop puzzle that encodes character [c]. *)
+  let find_desktop_word c =
+    random_from_list (Hashtbl.find desktopTable c)
+
+  (** [explode s] breaks up a string s into a list of constituent
+      one-character strings, which have length 1. *)
+  let rec explode s =
+    if String.length s = 0 then []
+    else
+      let h = Char.escaped s.[0] in
+      let t = String.sub s 1 (String.length s - 1) in
+      h :: explode t
+
+  (** [find_sos_word c] generates a valid answer in [dictionary] to a
+      SOS puzzle that encodes character [c]. *)
+  let find_sos_word c =
+    let explodedList =
+      explode (List.nth morseList (Char.code c - Char.code 'a'))
+    in
+    let rx =
+      "/\b([^oi]*" ^ String.concat "[^oi]*" explodedList ^ "[^oi]*)\b/"
+    in
+    random_from_list
+      (List.filter
+         (fun s ->
+           match Js.String.match_ (Js.Re.fromString rx) s with
+           | None -> false
+           | Some _ -> true)
+         dictionary)
+
+  (** [find_lrarrow_word c] generates a valid answer in [dictionary] to
+      a LRArrow puzzle that encodes character [c]. *)
+  let find_lrarrow_word c =
+    random_from_list (Hashtbl.find lrarrowTable c)
 
   (** [generate seed prev puzzle] takes a seed and puzzle type and
       returns the randomly generated list of appropriate children nodes
@@ -190,9 +247,9 @@ module M : Puzzle.S = struct
       | Busts -> find_busts_word
       | Compass -> find_compass_word
       | CrossFlag -> find_crossflags_word
-      | Desktop -> find_busts_word
-      | LRArrow -> find_busts_word
-      | SOS -> find_busts_word
+      | Desktop -> find_desktop_word
+      | LRArrow -> find_lrarrow_word
+      | SOS -> find_sos_word
       | GraphDec -> find_graphdec_word
       | _ -> raise (Failure "Root already generated")
     in
@@ -204,7 +261,7 @@ module M : Puzzle.S = struct
             answer |> String.lowercase_ascii
             |> (fun s -> s.[x])
             |> value_creator;
-          solved = false;
+          solved = true;
           (* change this to be dependent on some random generation*)
           puzzle_type = numberSwitch (Rng.generate 7 + 1);
           children = None;
@@ -216,15 +273,18 @@ module M : Puzzle.S = struct
   (** [update model msg] returns the puzzle model updated according to
       the accompanying message, along with a command to be executed *)
   let update t = function
-    | Forward n -> init ()
-    | Generate n ->
-        ignore t.value;
-        init ()
+    | Forward n ->
+        if n.children = None then
+          ( { n with children = Some (generate n.value n n.puzzle_type) },
+            Cmd.none )
+        else (n, Cmd.none)
     | Backward -> (
         match t.prev with
         | None -> (t, Cmd.none)
         | Some p -> (p, Cmd.none) )
-    | Check s -> init ()
+    | Check s ->
+        if s = t.value then ({ t with solved = true }, Cmd.none)
+        else (t, Cmd.none)
 
   (** [view model] returns a Vdom object that contains the html
       representing this puzzle [model] object *)
