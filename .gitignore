@@ -19,6 +19,7 @@
 /.cache
 /dist
 .bsb.lock
+/docs
 
 # misc
 .DS_Store

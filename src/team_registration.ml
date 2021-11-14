@@ -37,9 +37,8 @@ let update model = function
       (Failed, Cmd.none)
   | PostResponse (Ok response) ->
       let response_decoder = field "response" string in
-      let r_decoder = map (fun resp -> resp) response_decoder in
       let final =
-        (decodeString r_decoder) response |> Http_utils.result_to_string
+        (decodeString response_decoder) response |> Http_utils.result_to_string
       in
       (Received final, Cmd.none)
 

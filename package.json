@@ -4,6 +4,7 @@
   "private": true,
   "dependencies": {
     "bs-platform": "9.0.2",
+    "bsdoc": "file:bsdoc-6.0.4-alpha.tgz",
     "bucklescript-tea": "^0.15.0",
     "esbuild-jest": "^0.5.0",
     "jest": "^27.3.1",
@@ -19,7 +20,8 @@
     "watch:parcel": "parcel release/index.html",
     "watch": "run-p watch:bsb watch:parcel",
     "deploy": "heroku container:push web --app rathunt-ms1 && heroku container:release web --app rathunt-ms1",
-    "test": "jest"
+    "test": "jest",
+    "docs": "bsdoc build rathunt -s src"
   },
   "browserslist": {
     "production": [
