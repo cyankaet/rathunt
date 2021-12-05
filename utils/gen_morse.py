@@ -32,3 +32,8 @@ for word in words:
 print({i: len(toExp[i]) for i in toExp})
 print(sum([len(toExp[i]) for i in toExp]))
 # print(toExp['u'])
+
+with open("morse_words.txt", "w") as f:
+    for i in toExp:
+        for j in toExp[i]:
+            f.write(i + " " + j + '\n')
