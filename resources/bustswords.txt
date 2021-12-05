@@ -1,3 +1,4 @@
+x exxon
 b abbacy
 b abbess
 b abbeys
@@ -682,6 +683,7 @@ s hassle
 t hatted
 t hatter
 i hawaii
+x haxxor
 e heeded
 e heeled
 e heeler
@@ -851,6 +853,7 @@ s lesson
 s lessor
 t letter
 e levees
+q lgbtqq
 b libbed
 b libber
 d lidded
@@ -1170,6 +1173,7 @@ m rammed
 e ranees
 p rapped
 p rapper
+q raqqah
 t rattan
 t ratted
 t ratter
@@ -1270,6 +1274,7 @@ p sapped
 s sassed
 s sasses
 e sateen
+y sayyid
 b scabby
 f schiff
 o school
@@ -1502,6 +1507,7 @@ p tipple
 s tissue
 t titter
 t tittle
+x tjmaxx
 d toddle
 f toffee
 g togged
@@ -1569,6 +1575,7 @@ e vakeel
 l valley
 s vassal
 s vassar
+x vaxxer
 e veered
 l vellum
 e vendee
@@ -3125,6 +3132,7 @@ n kenning
 t kettles
 s keyless
 l khellin
+y khayyam
 b kibbled
 b kibbles
 b kibbutz
@@ -3523,6 +3531,7 @@ f offside
 f offtake
 e oilseed
 s oldness
+y omayyad
 s omissus
 t omitted
 s oneness
@@ -3972,6 +3981,7 @@ p sapphic
 p sappier
 p sapping
 o sapwood
+q saqqara
 s sassier
 s sassing
 e sateens
@@ -4545,6 +4555,7 @@ n tyranny
 l ullaged
 s ulysses
 e umpteen
+y umayyad
 n uncanny
 s uncross
 s undress

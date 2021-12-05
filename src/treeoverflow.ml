@@ -45,20 +45,15 @@ module M = struct
   let readlines s =
     s |> Node.Fs.readFileAsUtf8Sync |> String.split_on_char '\n'
 
-  (** [charassoc_from_lns lst] creates an association list of characters
-      to strings from a list of lines. Precondition: The two characters
-      in each line are an English letter and a space, and the rest of
-      the line is a string. *)
-  let charassoc_from_lns =
-    List.rev_map (fun s ->
-        (s.[0], List.nth (String.split_on_char ' ' s) 1))
-
   (** [makeTable wlist] populates a map with the entries from wlist,
       which is an association list with keys mapping to one of the
       elements of a list of possible values. *)
   let rec makeTable tbl = function
     | [] -> ()
-    | (c, s) :: t ->
+    | str :: t ->
+        let c, s =
+          (str.[0], List.nth (String.split_on_char ' ' str) 1)
+        in
         if Hashtbl.mem tbl c then
           let old_binding = Hashtbl.find tbl c in
           Hashtbl.replace tbl c (s :: old_binding)
@@ -69,70 +64,41 @@ module M = struct
       in order *)
   let rootFeeders = readlines "resources/rootfeeders.txt"
 
-  (** [dictionary] is a set of non-profane words in the English language
-      between 4 and 16 characters long. *)
-  let dictionary = readlines "resources/cleanwords.txt"
-
-  (** [compassList] is a list of valid answers to Compass puzzles. *)
-  let compassList = readlines "resources/natophonetic.txt"
-
-  (** [flagsList] is an association list of valid answers to CrossFlag
-      puzzles and their encoded characters (in reverse order). *)
-  let flagsList =
-    "resources/semaphore_trim.txt" |> readlines |> charassoc_from_lns
-
-  (** [incdecList] is an association list of valid answers to GraphDec
-      puzzles and their encoded characters (in reverse order). *)
-  let incdecList =
-    "resources/inc_dec_words.txt" |> readlines |> charassoc_from_lns
-
-  (** [desktopList] is an association list of valid answers to Desktop
-      puzzles and their encoded characters (in reverse order). *)
-  let desktopList =
-    "resources/binary_words.txt" |> readlines |> charassoc_from_lns
-
-  (** [lrarrowList] is an association list of valid answers to LRArrow
-      puzzles and their encoded characters (in reverse order).*)
-  let lrarrowList =
-    ("resources/horizontal_sym.txt" |> readlines |> charassoc_from_lns)
-    @ ("resources/vertical_sym.txt" |> readlines |> charassoc_from_lns)
-    @ ("resources/rotational_sym.txt" |> readlines |> charassoc_from_lns)
-    @ ("resources/none_sym.txt" |> readlines |> charassoc_from_lns)
-
-  (**[morseList] is a list containing the Morse encoding of every letter
-     in the English alphabet, in order, but with [i] instead of [-] and
-     [o] instead of [.].*)
-  let morseList =
-    "resources/morse.txt" |> readlines
-    |> List.map (fun s ->
-           String.map
-             (fun c ->
-               if c = '-' then 'i' else if c = '.' then 'o' else c)
-             s)
-
-  (** [flagtable] is a map from English characters to words that encode
-      that letter in the CrossFlags subpuzzle. *)
+  (** [flagtable, incdecTable, desktopTable, lrarrowTable, bustsTable,
+      morseTable] is a map from English characters to words that encode
+      that letter in the
+      [CrossFlags, GraphDec, Desktop, LRArrow, Busts, SOS] subpuzzles,
+      respectively. *)
   let flagTable = Hashtbl.create 26
 
-  (** [incdecTable] is a map from English characters to words that
-      encode that letter in the CrossFlags subpuzzle. *)
   let incdecTable = Hashtbl.create 26
 
-  (** [desktopTable] is a map from English characters to words that
-      encode that letter in the CrossFlags subpuzzle. *)
   let desktopTable = Hashtbl.create 26
 
-  (** [lrarrowTable] is a map from English characters to words that
-      encode that letter in the CrossFlags subpuzzle. *)
   let lrarrowTable = Hashtbl.create 26
 
-  let () = makeTable flagTable flagsList
+  let bustsTable = Hashtbl.create 26
 
-  let () = makeTable incdecTable incdecList
+  let morseTable = Hashtbl.create 26
 
-  let () = makeTable desktopTable desktopList
+  (** [compassList, flagsList, incdecList, desktopList, lrarrowList,
+      bustsList, morseList] is an association list of valid answers to
+      [Compass, CrossFlag, GraphDec, Desktop, LRArrow, Busts, SOS]
+      puzzles, respectively, and their encoded characters (in reverse
+      order). *)
+  let compassList = readlines "resources/natophonetic.txt"
 
-  let () = makeTable lrarrowTable lrarrowList
+  let () =
+    "resources/semaphore_trim.txt" |> readlines |> makeTable flagTable;
+    "resources/inc_dec_words.txt" |> readlines |> makeTable incdecTable;
+    "resources/binary_words.txt" |> readlines |> makeTable desktopTable;
+    makeTable lrarrowTable
+      ( ("resources/horizontal_sym.txt" |> readlines)
+      @ ("resources/vertical_sym.txt" |> readlines)
+      @ ("resources/rotational_sym.txt" |> readlines)
+      @ ("resources/none_sym.txt" |> readlines) );
+    "resources/bustswords.txt" |> readlines |> makeTable bustsTable;
+    "resources/morse_short.txt" |> readlines |> makeTable morseTable
 
   (** [numberSwitch n] outputs a puzzle type corresponding to a
       one-indexed initial ordering they are presented. Requires: n is
@@ -176,38 +142,6 @@ module M = struct
     let idx = Rng.generate (List.length lst) in
     List.nth lst idx
 
-  (** [find_busts_word c] generates a valid answer to a Busts puzzle in
-      [dictionary] that encodes character [c] *)
-  let find_busts_word c =
-    let rx = "/^\\w*" ^ String.make 2 c ^ "\\w*/" in
-    random_from_list
-      (List.filter
-         (fun s ->
-           match Js.String.match_ (Js.Re.fromString rx) s with
-           | None -> false
-           | Some _ -> true)
-         dictionary)
-
-  (** [find_compass_word c] generates a valid answer to a Compass puzzle
-      that encodes character [c]. *)
-  let find_compass_word c =
-    List.nth compassList (Char.code c - Char.code 'a')
-
-  (** [find_crossflags_word c] generates a valid answer in [dictionary]
-      to a CrossFlags puzzle that encodes character [c]. *)
-  let find_crossflags_word c =
-    random_from_list (Hashtbl.find flagTable c)
-
-  (** [find_graphdec_word c] generates a valid answer in [dictionary] to
-      a GraphDec puzzle that encodes character [c]. *)
-  let find_graphdec_word c =
-    random_from_list (Hashtbl.find incdecTable c)
-
-  (** [find_desktop_word c] generates a valid answer in [dictionary] to
-      a Desktop puzzle that encodes character [c]. *)
-  let find_desktop_word c =
-    random_from_list (Hashtbl.find desktopTable c)
-
   (** [explode s] breaks up a string s into a list of constituent
       one-character strings, which have length 1. *)
   let rec explode s =
@@ -219,40 +153,27 @@ module M = struct
 
   (** [find_sos_word c] generates a valid answer in [dictionary] to a
       SOS puzzle that encodes character [c]. *)
-  let find_sos_word c =
-    let explodedList =
-      explode (List.nth morseList (Char.code c - Char.code 'a'))
-    in
-    let rx =
-      "/\b([^oi]*" ^ String.concat "[^oi]*" explodedList ^ "[^oi]*)\b/"
-    in
-    random_from_list
-      (List.filter
-         (fun s ->
-           match Js.String.match_ (Js.Re.fromString rx) s with
-           | None -> false
-           | Some _ -> true)
-         dictionary)
 
-  (** [find_lrarrow_word c] generates a valid answer in [dictionary] to
-      a LRArrow puzzle that encodes character [c]. *)
-  let find_lrarrow_word c =
-    random_from_list (Hashtbl.find lrarrowTable c)
+  (* let explodedList = explode (List.nth morseList (Char.code c -
+     Char.code 'a')) in let rx = "/\b([^oi]*" ^ String.concat "[^oi]*"
+     explodedList ^ "[^oi]*)\b/" in random_from_list (List.filter (fun s
+     -> match Js.String.match_ (Js.Re.fromString rx) s with | None ->
+     false | Some _ -> true) dictionary) *)
 
   (** [generate seed prev puzzle] takes a seed and puzzle type and
       returns the randomly generated list of appropriate children nodes
       of [puzzle] type with random seed given by [seed]. *)
   let generate answer prev puzztype =
     Rng.seed prev.id;
-    let value_creator =
+    let value_creator c =
       match puzztype with
-      | Busts -> find_busts_word
-      | Compass -> find_compass_word
-      | CrossFlag -> find_crossflags_word
-      | Desktop -> find_desktop_word
-      | LRArrow -> find_lrarrow_word
-      | SOS -> find_sos_word
-      | GraphDec -> find_graphdec_word
+      | Busts -> random_from_list (Hashtbl.find bustsTable c)
+      | Compass -> List.nth compassList (Char.code c - Char.code 'a')
+      | CrossFlag -> random_from_list (Hashtbl.find flagTable c)
+      | Desktop -> random_from_list (Hashtbl.find desktopTable c)
+      | LRArrow -> random_from_list (Hashtbl.find lrarrowTable c)
+      | SOS -> random_from_list (Hashtbl.find morseTable c)
+      | GraphDec -> random_from_list (Hashtbl.find incdecTable c)
       | _ -> raise (Failure "Root already generated")
     in
     List.init (String.length answer) (fun x ->
