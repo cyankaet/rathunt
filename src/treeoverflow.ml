@@ -1,6 +1,6 @@
 open Tea
 
-module M : Puzzle.S = struct
+module M = struct
   (** variant corresponding to all of the different types of subpuzzles
       present*)
   type puzzle =
@@ -50,7 +50,8 @@ module M : Puzzle.S = struct
       in each line are an English letter and a space, and the rest of
       the line is a string. *)
   let charassoc_from_lns =
-    List.map (fun s -> (s.[0], List.nth (String.split_on_char ' ' s) 1))
+    List.rev_map (fun s ->
+        (s.[0], List.nth (String.split_on_char ' ' s) 1))
 
   (** [makeTable wlist] populates a map with the entries from wlist,
       which is an association list with keys mapping to one of the
@@ -78,7 +79,7 @@ module M : Puzzle.S = struct
   (** [flagsList] is an association list of valid answers to CrossFlag
       puzzles and their encoded characters (in reverse order). *)
   let flagsList =
-    "resources/semaphore_words.txt" |> readlines |> charassoc_from_lns
+    "resources/semaphore_trim.txt" |> readlines |> charassoc_from_lns
 
   (** [incdecList] is an association list of valid answers to GraphDec
       puzzles and their encoded characters (in reverse order). *)
