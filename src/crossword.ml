@@ -1,6 +1,6 @@
 open Tea
 
-module M : Puzzle.S = struct
+module M = struct
   type square = {
     valid : bool;
     text : string;
