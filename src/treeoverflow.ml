@@ -9,15 +9,26 @@ module M = struct
     | Compass
     | CrossFlag
     | Desktop
-    | LRArrow
+    | Gemini
     | SOS
     | GraphDec
+
+  let string_of_puzzle = function
+    | Root -> "root"
+    | Busts -> "busts"
+    | Compass -> "compass"
+    | CrossFlag -> "crossflag"
+    | Desktop -> "desktop"
+    | Gemini -> "gemini"
+    | SOS -> "sos"
+    | GraphDec -> "graphdec"
 
   type node = {
     prev : node option;
     id : int;
     value : string;
     solved : bool;
+    box_text : string;
     puzzle_type : puzzle;
     children : node list option;
   }
@@ -35,6 +46,8 @@ module M = struct
     | Check of string
     | Forward of node
     | Backward
+    | UpdateText of string
+    | Submit
   [@@bs.deriving { accessors }]
 
   (** [baseprob] is the base probability that an answer will be hidden
@@ -67,7 +80,7 @@ module M = struct
   (** [flagtable, incdecTable, desktopTable, lrarrowTable, bustsTable,
       morseTable] is a map from English characters to words that encode
       that letter in the
-      [CrossFlags, GraphDec, Desktop, LRArrow, Busts, SOS] subpuzzles,
+      [CrossFlags, GraphDec, Desktop, Gemini, Busts, SOS] subpuzzles,
       respectively. *)
   let flagTable = Hashtbl.create 26
 
@@ -75,7 +88,7 @@ module M = struct
 
   let desktopTable = Hashtbl.create 26
 
-  let lrarrowTable = Hashtbl.create 26
+  let geminiTable = Hashtbl.create 26
 
   let bustsTable = Hashtbl.create 26
 
@@ -83,7 +96,7 @@ module M = struct
 
   (** [compassList, flagsList, incdecList, desktopList, lrarrowList,
       bustsList, morseList] is an association list of valid answers to
-      [Compass, CrossFlag, GraphDec, Desktop, LRArrow, Busts, SOS]
+      [Compass, CrossFlag, GraphDec, Desktop, Gemini, Busts, SOS]
       puzzles, respectively, and their encoded characters (in reverse
       order). *)
   let compassList = readlines "resources/natophonetic.txt"
@@ -92,7 +105,7 @@ module M = struct
     "resources/semaphore_trim.txt" |> readlines |> makeTable flagTable;
     "resources/inc_dec_words.txt" |> readlines |> makeTable incdecTable;
     "resources/binary_words.txt" |> readlines |> makeTable desktopTable;
-    makeTable lrarrowTable
+    makeTable geminiTable
       ( ("resources/horizontal_sym.txt" |> readlines)
       @ ("resources/vertical_sym.txt" |> readlines)
       @ ("resources/rotational_sym.txt" |> readlines)
@@ -107,7 +120,7 @@ module M = struct
     | 2 -> Compass
     | 3 -> CrossFlag
     | 4 -> Desktop
-    | 5 -> LRArrow
+    | 5 -> Gemini
     | 6 -> SOS
     | 7 -> GraphDec
     | _ -> Busts
@@ -119,6 +132,7 @@ module M = struct
       id = 0;
       value = "bastion";
       solved = false;
+      box_text = "";
       puzzle_type = Root;
       children = None;
     }
@@ -132,7 +146,8 @@ module M = struct
           prev = Some n;
           id = x + 1;
           value = List.nth rootFeeders x;
-          solved = false;
+          solved = true;
+          box_text = "";
           puzzle_type = numberSwitch (x + 1);
           children = None;
         })
@@ -171,7 +186,7 @@ module M = struct
       | Compass -> List.nth compassList (Char.code c - Char.code 'a')
       | CrossFlag -> random_from_list (Hashtbl.find flagTable c)
       | Desktop -> random_from_list (Hashtbl.find desktopTable c)
-      | LRArrow -> random_from_list (Hashtbl.find lrarrowTable c)
+      | Gemini -> random_from_list (Hashtbl.find geminiTable c)
       | SOS -> random_from_list (Hashtbl.find morseTable c)
       | GraphDec -> random_from_list (Hashtbl.find incdecTable c)
       | _ -> raise (Failure "Root already generated")
@@ -186,12 +201,19 @@ module M = struct
             |> value_creator;
           solved = true;
           (* change this to be dependent on some random generation*)
+          box_text = "";
           puzzle_type = numberSwitch (Rng.generate 7 + 1);
           children = None;
         })
 
   let init () =
     ({ head with children = Some (make_root head) }, Cmd.none)
+
+  (** [string_clean str] takes a string [str] and returned a capitalized
+      string with only capitalized characters *)
+  let string_clean str =
+    Js.String.(
+      toUpperCase str |> trim |> replaceByRe [%bs.re "/[^A-Za]/g"] "")
 
   (** [update model msg] returns the puzzle model updated according to
       the accompanying message, along with a command to be executed *)
@@ -208,21 +230,105 @@ module M = struct
     | Check s ->
         if s = t.value then ({ t with solved = true }, Cmd.none)
         else (t, Cmd.none)
+    | UpdateText s ->
+        if t.solved then ({ t with box_text = "" }, Cmd.none)
+        else ({ t with box_text = s }, Cmd.none)
+    | Submit ->
+        print_endline "Submitting answer";
+        let ans = t.box_text in
+        if ans <> "" && not t.solved then
+          let guess = string_clean ans = string_clean t.value in
+          ({ t with solved = guess }, Cmd.none)
+        else ({ t with box_text = "" }, Cmd.none)
 
   let make_emoji = function
-    | Root -> "U+1F331"
-    | Busts -> "U+1F465"
-    | Compass -> "🧭"
-    | CrossFlag -> "🎌"
-    | Desktop -> "🖥️"
-    | LRArrow -> "↔️"
-    | SOS -> "🆘"
-    | GraphDec -> "📉"
+    | Root -> {js|🌱|js}
+    | Busts -> {js|👥|js}
+    | Compass -> {js|🧭|js}
+    | CrossFlag -> {js|🎌|js}
+    | Desktop -> {js|🖥️|js}
+    | Gemini -> {js|\u264A|js}
+    | SOS -> {js|🆘|js}
+    | GraphDec -> {js|📉|js}
+
+  let rec make_child_helper acc =
+    let open Html in
+    function
+    | [] -> acc
+    | n :: t ->
+        make_child_helper
+          ( div
+              [ classList [ ("center-margin", true) ] ]
+              [
+                button
+                  [
+                    onClick (Forward n); classList [ ("submit", true) ];
+                  ]
+                  [
+                    text
+                      ( make_emoji n.puzzle_type
+                      ^ " "
+                      ^ if n.solved then n.value else "????" );
+                  ];
+              ]
+          :: acc )
+          t
+
+  (** [make_child_buttons] returns a div that contains a button for each
+      of the current node's children. *)
+  let make_child_buttons t =
+    match t.children with
+    | None -> []
+    | Some nlst -> make_child_helper [] nlst
 
   (** [view model] returns a Vdom object that contains the html
       representing this puzzle [model] object *)
 
   let view model =
     let open Html in
-    div [] [ p [] [ text (make_emoji model.puzzle_type) ] ]
+    div []
+      [
+        (* title *)
+        div [] [ p [] [ text (make_emoji model.puzzle_type) ] ];
+        (* submission field *)
+        div []
+          [
+            ( if not model.solved then
+              div []
+                [
+                  p []
+                    [
+                      input'
+                        [
+                          type' "text";
+                          id "answer-bar";
+                          value model.box_text;
+                          onInput (fun s -> UpdateText s);
+                          placeholder "Enter Answer Here";
+                        ]
+                        [];
+                    ];
+                  div
+                    [ classList [ ("center-margin", true) ] ]
+                    [
+                      button
+                        [
+                          onClick Submit; classList [ ("submit", true) ];
+                        ]
+                        [ text "Submit" ];
+                    ];
+                ]
+            else p [] [ text "local metapuzzle solved :) " ] );
+          ];
+        (* list of feeders *)
+        div [] (make_child_buttons model);
+        (* back button *)
+        div
+          [ classList [ ("center-margin", true) ] ]
+          [
+            button
+              [ onClick Backward; classList [ ("submit", true) ] ]
+              [ text "back" ];
+          ];
+      ]
 end

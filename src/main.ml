@@ -138,6 +138,11 @@ let view model =
               (* Metapuzzle.view model.meta |> map metapuzzlepage_msg; *)
               print_endline "";
               Crossword.view model.crossword |> map crossword_msg
+          | "#treeoverflow" ->
+              print_endline "Going to treeoverflow";
+              print_endline "";
+              Treeoverflow.view model.treeoverflow
+              |> map treeoverflow_msg
           | "#teams" -> Teams.view model.teams |> map teams_msg
           | "#register" ->
               Team_registration.view model.team_reg |> map team_reg_msg
