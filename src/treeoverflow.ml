@@ -206,8 +206,24 @@ module M = struct
           children = None;
         })
 
+  (* factor this out with Forward *)
+
   let init () =
-    ({ head with children = Some (make_root head) }, Cmd.none)
+    let child_head = { head with children = Some (make_root head) } in
+    let child_ptrs =
+      {
+        head with
+        children =
+          ( match child_head.children with
+          | None -> None
+          | Some child_lst ->
+              Some
+                (List.map
+                   (fun c -> { c with prev = Some child_head })
+                   child_lst) );
+      }
+    in
+    (child_ptrs, Cmd.none)
 
   (** [string_clean str] takes a string [str] and returned a capitalized
       string with only capitalized characters *)
@@ -220,8 +236,27 @@ module M = struct
   let update t = function
     | Forward n ->
         if n.children = None then
-          ( { n with children = Some (generate n.value n n.puzzle_type) },
-            Cmd.none )
+          let child_head =
+            {
+              n with
+              children = Some (generate n.value n n.puzzle_type);
+            }
+          in
+          (* fix the pointers *)
+          let child_ptrs =
+            {
+              child_head with
+              children =
+                ( match child_head.children with
+                | None -> None
+                | Some child_lst ->
+                    Some
+                      (List.map
+                         (fun c -> { c with prev = Some child_head })
+                         child_lst) );
+            }
+          in
+          (child_ptrs, Cmd.none)
         else (n, Cmd.none)
     | Backward -> (
         match t.prev with
@@ -254,7 +289,7 @@ module M = struct
   let rec make_child_helper acc =
     let open Html in
     function
-    | [] -> acc
+    | [] -> List.rev acc
     | n :: t ->
         make_child_helper
           ( div
