@@ -1,12 +1,14 @@
 open Tea
 module Metapuzzle = Puzzlepage.M (Meta.M)
 module Crossword = Puzzlepage.M (Crossword.M)
+module KilledThreads = Puzzlepage.M (Killedthreads.M)
 
 type model = {
   meta : Metapuzzle.model;
   crossword : Crossword.model;
   teams : Teams.model;
   team_reg : Team_registration.model;
+  killed_threads : KilledThreads.model;
   page : string;
 }
 (** [model] is a type representing a model of the entire site containing
@@ -17,6 +19,7 @@ let init () _ =
   ( {
       meta = fst (Metapuzzle.init "answer");
       crossword = fst (Crossword.init "angery");
+      killed_threads = fst (KilledThreads.init "turtle");
       teams = Teams.init;
       team_reg = Team_registration.init;
       page = "#home";
@@ -27,6 +30,7 @@ let init () _ =
 type msg =
   | Metapuzzlepage_msg of Metapuzzle.msg
   | Crossword_msg of Crossword.msg
+  | Killedthreads_msg of KilledThreads.msg
   | Teams_msg of Teams.msg
   | Team_reg_msg of Team_registration.msg
   | UrlChange of Web.Location.location
@@ -47,6 +51,14 @@ let update model = function
       if model.page = "#crossword" then
         let crossword, cmd = Crossword.update model.crossword msg in
         ({ model with crossword }, Cmd.map crossword_msg cmd)
+      else (model, Cmd.none)
+  | Killedthreads_msg msg ->
+      print_endline "5";
+      if model.page = "#killed" then
+        let killed_threads, cmd =
+          KilledThreads.update model.killed_threads msg
+        in
+        ({ model with killed_threads }, Cmd.map killedthreads_msg cmd)
       else (model, Cmd.none)
   | Teams_msg msg ->
       print_endline "3";
@@ -74,6 +86,8 @@ let update model = function
               Cmd.msg (Metapuzzlepage_msg Metapuzzle.Submit)
             else if model.page = "#crossword" then
               Cmd.msg (Crossword_msg Crossword.Submit)
+            else if model.page = "#killed" then
+              Cmd.msg (Killedthreads_msg KilledThreads.Submit)
             else Cmd.none
         | _ -> Cmd.none ) )
 
@@ -105,6 +119,7 @@ let view model =
           a [ href ("#" ^ "home") ] [ text "Home" ];
           a [ href ("#" ^ "teams") ] [ text "Teams" ];
           a [ href ("#" ^ "register") ] [ text "Register" ];
+          a [ href ("#" ^ "killed") ] [ text "Killed Threads" ];
           (* a [ href ("#" ^ "meta") ] [ text "metapuzzle" ]; a [ href
              ("#" ^ "crossword") ] [ text "crossword" ]; *)
         ];
@@ -123,6 +138,9 @@ let view model =
               (* Metapuzzle.view model.meta |> map metapuzzlepage_msg; *)
               print_endline "";
               Crossword.view model.crossword |> map crossword_msg
+          | "#killed" ->
+              print_endline "Going to killed";
+              KilledThreads.view model.killed_threads |> map killedthreads_msg
           | "#teams" -> Teams.view model.teams |> map teams_msg
           | "#register" ->
               Team_registration.view model.team_reg |> map team_reg_msg
