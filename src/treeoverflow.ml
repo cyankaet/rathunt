@@ -67,7 +67,9 @@ module M = struct
     | [] -> ()
     | str :: t ->
         let c, s =
-          (str.[0], List.nth (String.split_on_char ' ' str) 1)
+          ( str.[0],
+            List.nth (str |> String.trim |> String.split_on_char ' ') 1
+          )
         in
         if Hashtbl.mem tbl c then
           let old_binding = Hashtbl.find tbl c in
