@@ -27,7 +27,7 @@ module M = struct
     prev : node option;
     id : int;
     value : string;
-    solved : bool;
+    mutable solved : bool;
     box_text : string;
     puzzle_type : puzzle;
     children : node list option;
@@ -43,7 +43,6 @@ module M = struct
 
   (** All of the possile webpage signals to handle. *)
   type msg =
-    | Check of string
     | Forward of node
     | Backward
     | UpdateText of string
@@ -53,6 +52,9 @@ module M = struct
   (** [baseprob] is the base probability that an answer will be hidden
       in the second generation of children. *)
   let baseprob = 0.9
+
+  (**[debug] toggles the hiding of the answers. *)
+  let debug = false
 
   (** [readlines s] reads in the lines in [s] *)
   let readlines s =
@@ -146,7 +148,7 @@ module M = struct
           prev = Some n;
           id = x + 1;
           value = List.nth rootFeeders x;
-          solved = true;
+          solved = (if debug then true else false);
           box_text = "";
           puzzle_type = numberSwitch (x + 1);
           children = None;
@@ -156,24 +158,6 @@ module M = struct
   let random_from_list lst =
     let idx = Rng.generate (List.length lst) in
     List.nth lst idx
-
-  (** [explode s] breaks up a string s into a list of constituent
-      one-character strings, which have length 1. *)
-  let rec explode s =
-    if String.length s = 0 then []
-    else
-      let h = Char.escaped s.[0] in
-      let t = String.sub s 1 (String.length s - 1) in
-      h :: explode t
-
-  (** [find_sos_word c] generates a valid answer in [dictionary] to a
-      SOS puzzle that encodes character [c]. *)
-
-  (* let explodedList = explode (List.nth morseList (Char.code c -
-     Char.code 'a')) in let rx = "/\b([^oi]*" ^ String.concat "[^oi]*"
-     explodedList ^ "[^oi]*)\b/" in random_from_list (List.filter (fun s
-     -> match Js.String.match_ (Js.Re.fromString rx) s with | None ->
-     false | Some _ -> true) dictionary) *)
 
   (** [generate seed prev puzzle] takes a seed and puzzle type and
       returns the randomly generated list of appropriate children nodes
@@ -191,39 +175,51 @@ module M = struct
       | GraphDec -> random_from_list (Hashtbl.find incdecTable c)
       | _ -> raise (Failure "Root already generated")
     in
+
     List.init (String.length answer) (fun x ->
+        let child_id = (16 * prev.id) + x + 1 in
         {
           prev = Some prev;
-          id = (16 * prev.id) + x + 1;
+          id = child_id;
           value =
             answer |> String.lowercase_ascii
             |> (fun s -> s.[x])
             |> value_creator;
-          solved = true;
+          solved =
+            ( if debug then true
+            else
+              let r = Rng.uniform 1.0 in
+              if r > baseprob ** (child_id |> float_of_int |> log) then
+                true
+              else false );
           (* change this to be dependent on some random generation*)
           box_text = "";
           puzzle_type = numberSwitch (Rng.generate 7 + 1);
           children = None;
         })
 
-  (* factor this out with Forward *)
+  (** [fix_child_ptrs head] ensures that the [prev] pointers of each of
+      the nodes in the list in [head]'s children field points to [head].
+      Requires: [head.children] is [Some lst], and has already been
+      generated. *)
+  let fix_child_ptrs head =
+    {
+      head with
+      children =
+        ( match head.children with
+        | None ->
+            print_endline "precondition violated";
+            head.children
+        | Some child_lst ->
+            Some
+              (List.map
+                 (fun c -> { c with prev = Some head })
+                 child_lst) );
+    }
 
   let init () =
     let child_head = { head with children = Some (make_root head) } in
-    let child_ptrs =
-      {
-        head with
-        children =
-          ( match child_head.children with
-          | None -> None
-          | Some child_lst ->
-              Some
-                (List.map
-                   (fun c -> { c with prev = Some child_head })
-                   child_lst) );
-      }
-    in
-    (child_ptrs, Cmd.none)
+    (fix_child_ptrs child_head, Cmd.none)
 
   (** [string_clean str] takes a string [str] and returned a capitalized
       string with only capitalized characters *)
@@ -242,38 +238,22 @@ module M = struct
               children = Some (generate n.value n n.puzzle_type);
             }
           in
-          (* fix the pointers *)
-          let child_ptrs =
-            {
-              child_head with
-              children =
-                ( match child_head.children with
-                | None -> None
-                | Some child_lst ->
-                    Some
-                      (List.map
-                         (fun c -> { c with prev = Some child_head })
-                         child_lst) );
-            }
-          in
-          (child_ptrs, Cmd.none)
+          (fix_child_ptrs child_head, Cmd.none)
         else (n, Cmd.none)
     | Backward -> (
         match t.prev with
         | None -> (t, Cmd.none)
-        | Some p -> (p, Cmd.none) )
-    | Check s ->
-        if s = t.value then ({ t with solved = true }, Cmd.none)
-        else (t, Cmd.none)
+        | Some p -> (fix_child_ptrs p, Cmd.none) )
     | UpdateText s ->
         if t.solved then ({ t with box_text = "" }, Cmd.none)
         else ({ t with box_text = s }, Cmd.none)
     | Submit ->
         print_endline "Submitting answer";
         let ans = t.box_text in
-        if ans <> "" && not t.solved then
+        if ans <> "" && not t.solved then (
           let guess = string_clean ans = string_clean t.value in
-          ({ t with solved = guess }, Cmd.none)
+          t.solved <- guess;
+          (t, Cmd.none) )
         else ({ t with box_text = "" }, Cmd.none)
 
   let make_emoji = function
