@@ -41,8 +41,8 @@ module M = struct
   (* This is the rep type you're dealing with. I think this is
      sufficient. **)
   type t = {
-    boxes : string array;
-    grid : square array array;
+    boxes : (string * bool) array;
+    nonagram : square array array;
   }
   (** AF: [boxes] is a [string array] that holds the strings in the
       answer checking boxes at any given point, and [grid] is a
@@ -60,15 +60,43 @@ module M = struct
     | ChangeSquare of int * int
   [@@bs.deriving { accessors }]
 
+  let answers =
+    "resources/pieces.txt" |> Node.Fs.readFileAsUtf8Sync
+    |> String.split_on_char '\n'
+    |> List.map String.lowercase_ascii
+
   (**[init ()] returns the puzzle model in its initial state. *)
-  let init () = ((), Cmd.none)
+  let init () =
+    ( {
+        boxes = Array.make 20 ("", false);
+        nonagram = Array.make_matrix 25 15 Empty;
+      },
+      Cmd.none )
+
+  (* Given a square of the nonagram, return the next stage it should
+     move to if clicked on *)
+  let next_stage s =
+    match s with
+    | Empty -> Filled
+    | Filled -> Crossed
+    | Crossed -> Empty
+
+  let check_correct n s t =
+    if t.boxes.(n) = List.nth answers n then true else false
 
   (** [update model msg] returns the puzzle model updated according to
       the accompanying message, along with a command to be executed. *)
   let update t = function
-    | Check (n, s) -> init ()
-    | UpdateText (n, s) -> init ()
-    | ChangeSquare (r, c) -> init ()
+    | Check (n, s) ->
+        if not (check_correct n s t) then t.boxes.(n) <- ("", false)
+        else t.boxes.(n) <- ("", true);
+        (t, Cmd.none)
+    | UpdateText (n, s) ->
+        t.boxes.(n) <- (s, false);
+        (t, Cmd.none)
+    | ChangeSquare (r, c) ->
+        t.nonagram.(r).(c) <- next_stage t.nonagram.(r).(c);
+        (t, Cmd.none)
 
   (** [view model] returns a Vdom object that contains the html
       representing this puzzle [model] object *)
