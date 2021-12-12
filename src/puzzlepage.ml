@@ -62,6 +62,7 @@ module M (P : Puzzle.S) = struct
     | Puzzle_msg msg ->
         let p, cmd = P.update model.puzzle msg in
         ({ model with puzzle = p }, Cmd.map puzzle_msg cmd)
+    | Key_pressed _ -> (model, Cmd.none)
 
   let view model =
     let open Html in
