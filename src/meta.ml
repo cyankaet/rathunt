@@ -1,6 +1,6 @@
 open Tea
 
-module M : Puzzle.S = struct
+module M  = struct
   type button = {
     label : string;
     toggled : bool;
@@ -31,7 +31,7 @@ module M : Puzzle.S = struct
 
   let init () = (List.map new_button questions, Cmd.none)
 
-  (** [toggle s b] flips the state of button b if it has label s *)
+  (** [toggle s b] flips the state of button b if it has label s *) 
   let toggle s b =
     if b.label <> s then b else { b with toggled = not b.toggled }
 
