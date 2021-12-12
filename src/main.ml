@@ -104,6 +104,7 @@ let home_view =
         ];
       p [] [ a [ href ("#" ^ "meta") ] [ text "metapuzzle" ] ];
       p [] [ a [ href ("#" ^ "crossword") ] [ text "crossword" ] ];
+      p [] [ a [ href ("#" ^ "killed") ] [ text "Killed Threads" ] ];
     ]
 
 (** [view model] renders the [model] into HTML, which will become a
@@ -119,7 +120,6 @@ let view model =
           a [ href ("#" ^ "home") ] [ text "Home" ];
           a [ href ("#" ^ "teams") ] [ text "Teams" ];
           a [ href ("#" ^ "register") ] [ text "Register" ];
-          a [ href ("#" ^ "killed") ] [ text "Killed Threads" ];
           (* a [ href ("#" ^ "meta") ] [ text "metapuzzle" ]; a [ href
              ("#" ^ "crossword") ] [ text "crossword" ]; *)
         ];
