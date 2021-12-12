@@ -132,12 +132,7 @@ module M = struct
       @ ("resources/rotational_sym.txt" |> readlines)
       @ ("resources/none_sym.txt" |> readlines) );
     "resources/bustswords.txt" |> readlines |> makeTable bustsTable;
-    "resources/morse_short.txt" |> readlines |> makeTable morseTable;
-
-    print_endline
-      ( match Hashtbl.find_opt geminiTable 'h' with
-      | None -> "nothing"
-      | _ -> "something" )
+    "resources/morse_short.txt" |> readlines |> makeTable morseTable
 
   (** [numberSwitch n] outputs a puzzle type corresponding to a
       one-indexed initial ordering they are presented. Requires: n is
@@ -203,7 +198,7 @@ module M = struct
            if l < seedlen then s else String.sub s (l - seedlen) seedlen)
       |> int_of_string );
     let value_creator c =
-      print_endline (Char.escaped c);
+      (* print_endline (Char.escaped c); *)
       match puzztype with
       | Busts -> random_from_list (Hashtbl.find bustsTable c)
       | Compass -> List.nth compassList (Char.code c - Char.code 'a')
