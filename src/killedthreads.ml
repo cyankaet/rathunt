@@ -20,6 +20,19 @@ module M : Puzzle.S = struct
 
   let zero_to_five = [ 0; 1; 2; 3; 4; 5 ]
 
+  let one_to_six = [ 1; 2; 3; 4; 5; 6 ]
+
+  let gacha_chars =
+    "resources/gacha_chars.txt" |> Node.Fs.readFileAsUtf8Sync
+    |> String.split_on_char '\n'
+
+  let g_map =
+    let rec gacha_map chars = function
+      | [] -> []
+      | num :: rest -> (num, List.hd chars) :: gacha_map (List.tl chars) rest
+    in
+    gacha_map gacha_chars one_to_six
+
   let init_rolls =
     "resources/gacha.txt" |> Node.Fs.readFileAsUtf8Sync
     |> String.split_on_char '\n' |> List.map int_of_string |> Rng.shuffle
@@ -43,6 +56,28 @@ module M : Puzzle.S = struct
       },
       Cmd.none )
 
+  let update_count mapping char =
+    match CharMap.find_opt char mapping with
+    | None -> CharMap.add char 1 mapping
+    | Some num -> CharMap.add char (num + 1) mapping
+
+  let rec pull model pulls =
+    match pulls with
+    | 0 -> model
+    | num ->
+        let m = pull model (pulls - 1) in
+        let curr_roll = List.hd m.next_rolls in
+        {
+          m with
+          rolls = m.rolls + 1;
+          next_rolls = List.tl m.next_rolls @ [ curr_roll ];
+          chars_collected =
+            update_count m.chars_collected
+              ( match List.assoc_opt curr_roll g_map with
+              | None -> failwith "Impossible"
+              | Some char -> char );
+        }
+
   let update model = function
     | Solve cell ->
         if List.mem cell model.solved then (model, Cmd.none)
@@ -53,7 +88,7 @@ module M : Puzzle.S = struct
         else ({ model with box_text = "" }, Cmd.none)
     | Select cell -> ({ model with selected = cell; box_text = "" }, Cmd.none)
     | UpdateText str -> ({ model with box_text = str }, Cmd.none)
-    | Pull num -> failwith "unimplemented"
+    | Pull num -> (pull model num, Cmd.none)
     | _ -> (model, Cmd.none)
 
   let load_puzzle_content puzzle =
@@ -250,7 +285,8 @@ module M : Puzzle.S = struct
                            | (char, count) :: rest ->
                                div []
                                  [
-                                   p [] [ text (char ^ string_of_int count) ];
+                                   p []
+                                     [ text (char ^ " " ^ string_of_int count) ];
                                    display_counts rest;
                                  ]
                          in
@@ -258,7 +294,6 @@ module M : Puzzle.S = struct
                        in
                        if model.rolls <> 0 then show_counts else p [] []);
                     ] );
-                (*TODO: implement last subpuzzle*)
                 button
                   [ onClick (Select (-1)); classList [ ("submit", true) ] ]
                   [ text "Go back" ];
