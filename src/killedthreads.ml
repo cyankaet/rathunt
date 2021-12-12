@@ -293,6 +293,13 @@ module M : Puzzle.S = struct
                          display_counts bindings
                        in
                        if model.rolls <> 0 then show_counts else p [] []);
+                      strong []
+                        [
+                          p []
+                            [
+                              text ("Total rolls: " ^ string_of_int model.rolls);
+                            ];
+                        ];
                     ] );
                 button
                   [ onClick (Select (-1)); classList [ ("submit", true) ] ]
