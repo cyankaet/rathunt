@@ -55,7 +55,7 @@ module M = struct
       needed when implementing update, or if you want to change the type
       of the messages. *)
   type msg =
-    | Check of int * string
+    | Check of int
     | UpdateText of int * string
     | ChangeSquare of int * int
   [@@bs.deriving { accessors }]
@@ -81,14 +81,14 @@ module M = struct
     | Filled -> Crossed
     | Crossed -> Empty
 
-  let check_correct n s t =
-    if t.boxes.(n) = List.nth answers n then true else false
+  let check_correct n t =
+    if fst t.boxes.(n) = List.nth answers n then true else false
 
   (** [update model msg] returns the puzzle model updated according to
       the accompanying message, along with a command to be executed. *)
   let update t = function
-    | Check (n, s) ->
-        if not (check_correct n s t) then t.boxes.(n) <- ("", false)
+    | Check n ->
+        if not (check_correct n t) then t.boxes.(n) <- ("", false)
         else t.boxes.(n) <- ("", true);
         (t, Cmd.none)
     | UpdateText (n, s) ->
