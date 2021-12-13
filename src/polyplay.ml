@@ -38,14 +38,9 @@ module M = struct
     | Crossed
     | Empty
 
-  (* This is the rep type you're dealing with. I think this is
-     sufficient. **)
-  type t = {
-    boxes : (string * bool) array;
-    nonagram : square array array;
-  }
+  type t = { nonagram : square array array }
   (** AF: [boxes] is a [string array] that holds the strings in the
-      answer checking boxes at any given point, and [grid] is a
+      answer checking boxes at any given poit, and [grid] is a
       [square array array] that holds the state of buttons in the grid. *)
 
   type model = t
@@ -54,24 +49,15 @@ module M = struct
       this is everything one might want, please think and add more if
       needed when implementing update, or if you want to change the type
       of the messages. *)
-  type msg =
-    | Check of int
-    | UpdateText of int * string
-    | ChangeSquare of int * int
-  [@@bs.deriving { accessors }]
+  type msg = ChangeSquare of int * int [@@bs.deriving { accessors }]
 
-  let answers =
+  let enums =
     "resources/pieces.txt" |> Node.Fs.readFileAsUtf8Sync
     |> String.split_on_char '\n'
     |> List.map String.lowercase_ascii
 
   (**[init ()] returns the puzzle model in its initial state. *)
-  let init () =
-    ( {
-        boxes = Array.make 20 ("", false);
-        nonagram = Array.make_matrix 25 15 Empty;
-      },
-      Cmd.none )
+  let init () = ({ nonagram = Array.make_matrix 25 15 Empty }, Cmd.none)
 
   (* Given a square of the nonagram, return the next stage it should
      move to if clicked on *)
@@ -81,26 +67,77 @@ module M = struct
     | Filled -> Crossed
     | Crossed -> Empty
 
-  let check_correct n t =
-    if fst t.boxes.(n) = List.nth answers n then true else false
-
   (** [update model msg] returns the puzzle model updated according to
       the accompanying message, along with a command to be executed. *)
   let update t = function
-    | Check n ->
-        if not (check_correct n t) then t.boxes.(n) <- ("", false)
-        else t.boxes.(n) <- ("", true);
-        (t, Cmd.none)
-    | UpdateText (n, s) ->
-        t.boxes.(n) <- (s, false);
-        (t, Cmd.none)
     | ChangeSquare (r, c) ->
         t.nonagram.(r).(c) <- next_stage t.nonagram.(r).(c);
         (t, Cmd.none)
+
+  let emoji_lookup =
+    [|
+      {js|🏛️|js};
+      {js|🐆|js};
+      {js|🎃|js};
+      {js|⭐|js};
+      {js|🌸|js};
+      {js|⚔️|js};
+      {js|🏫|js};
+      {js|🎖️|js};
+      {js|🍂|js};
+      {js|♟️|js};
+      {js|🚂|js};
+      {js|🍣|js};
+      {js|🕊️|js};
+      {js|🛣️|js};
+      {js|💣|js};
+      {js|🏵️|js};
+      {js|🦅|js};
+      {js|🏙️|js};
+      {js|🐀|js};
+      {js|🔄|js};
+    |]
+
+  (**[img_rows pos len] generates [len] rows starting at index [pos] in
+     the ordering of the emojis above with the appropriate emoji, image,
+     and enumeration, with wrap-around (starts back again at 0 after
+     reaching the end of the array). *)
+  let img_rows pos len =
+    List.init len (fun x ->
+        let open Html in
+        let idx = (x + pos) mod Array.length emoji_lookup in
+        tr []
+          [
+            text emoji_lookup.(idx);
+            img
+              [
+                src
+                  "https://raw.githubusercontent.com/cyankaet/rathunt/dev/resources/rats.jpeg";
+                classList [ ("rat-img", true) ];
+              ]
+              [];
+            text (List.nth enums idx);
+          ])
 
   (** [view model] returns a Vdom object that contains the html
       representing this puzzle [model] object *)
   let view model =
     let open Html in
-    div [] []
+    div []
+      [
+        (* table *)
+        div []
+          [
+            table []
+              [
+                tr []
+                  [
+                    table [] (img_rows 0 10); table [] (img_rows 10 10);
+                  ];
+              ];
+          ];
+        hr [] [];
+        (* nonogram *)
+        div [] [];
+      ]
 end
