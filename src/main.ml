@@ -61,7 +61,7 @@ let update model = function
         in
         ({ model with killed_threads }, Cmd.map killedthreads_msg cmd)
       else (model, Cmd.none)
-  | About_msg msg -> (model, Cmd.none)
+  | About_msg _ -> (model, Cmd.none)
   | Teams_msg msg ->
       print_endline "3";
       if model.page = "#teams" then
@@ -93,7 +93,7 @@ let update model = function
             else if model.page = "#killed" then
               Cmd.msg (Killedthreads_msg KilledThreads.Submit)
             else Cmd.none
-        | _ -> Cmd.none ))
+        | _ -> Cmd.none ) )
 
 let home_view =
   let open Html in
@@ -131,18 +131,16 @@ let view model =
       h1 [] [ Printf.sprintf "Rat Hunt" |> text ];
       p []
         [
-          (match model.page with
+          ( match model.page with
           | "#home" -> home_view
           | "#meta" ->
               print_endline "Going to meta";
-              (* Metapuzzle.view model.meta |> map
-                 metapuzzlepage_msg; *)
+              (* Metapuzzle.view model.meta |> map metapuzzlepage_msg; *)
               print_endline "";
               Metapuzzle.view model.meta |> map metapuzzlepage_msg
           | "#crossword" ->
               print_endline "Going to crossword";
-              (* Metapuzzle.view model.meta |> map
-                 metapuzzlepage_msg; *)
+              (* Metapuzzle.view model.meta |> map metapuzzlepage_msg; *)
               print_endline "";
               Crossword.view model.crossword |> map crossword_msg
           | "#killed" ->
@@ -153,7 +151,7 @@ let view model =
           | "#teams" -> Teams.view model.teams |> map teams_msg
           | "#register" ->
               Team_registration.view model.team_reg |> map team_reg_msg
-          | _ -> Printf.sprintf "Page Not Found" |> text);
+          | _ -> Printf.sprintf "Page Not Found" |> text );
         ];
     ]
 
