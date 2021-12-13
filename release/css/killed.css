@@ -1,0 +1,19 @@
+.clues {
+  text-align: left;
+}
+
+.submit-subpuzzle {
+  border: 1px solid #444;
+  background-color: #dcd0ff;
+  padding: 12px 28px;
+  width: 50px;
+  border-radius: 10px;
+  border-top-style: hidden;
+  border-right-style: hidden;
+  border-left-style: hidden;
+  border-bottom-style: hidden;
+}
+
+.submit-subpuzzle:hover {
+  background-color: #967bb6;
+}

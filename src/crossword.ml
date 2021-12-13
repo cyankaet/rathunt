@@ -1,11 +1,7 @@
 open Tea
 
 module M = struct
-  type square = {
-    valid : bool;
-    text : string;
-    is_element : bool;
-  }
+  type square = { valid : bool; text : string; is_element : bool }
   (** internal representation of a crossword square, which is either
       [valid] (black) or not. It contains text and a boolean
       [is_element] denoting whether the text is a valid chemical element
@@ -20,12 +16,12 @@ module M = struct
 
   (** file containing the across clues in the crossword *)
   let across =
-    "resources/acrossclues.txt" |> Node.Fs.readFileAsUtf8Sync
+    "static/acrossclues.txt" |> Node.Fs.readFileAsUtf8Sync
     |> String.split_on_char '\n'
 
   (** file containing the down clues in the crossword *)
   let down =
-    "resources/downclues.txt" |> Node.Fs.readFileAsUtf8Sync
+    "static/downclues.txt" |> Node.Fs.readFileAsUtf8Sync
     |> String.split_on_char '\n'
 
   (** the row and column size of the crossword (must be square)*)
@@ -74,16 +70,12 @@ module M = struct
       (10, 10);
     ]
 
-  type msg =
-    | ChangeSquare of {
-        text : string;
-        pos : int * int;
-      }
+  type msg = ChangeSquare of { text : string; pos : int * int }
 
-  (** [load_elements] loads in a resource file with a list of elements,
+  (** [load_elements] loads in a staticrce file with a list of elements,
       eliminating uppercase*)
   let elements =
-    "resources/elements.txt" |> Node.Fs.readFileAsUtf8Sync
+    "static/elements.txt" |> Node.Fs.readFileAsUtf8Sync
     |> String.split_on_char '\n'
     |> List.map String.lowercase_ascii
 
@@ -111,19 +103,14 @@ module M = struct
   (** [check_periodic str] checks to see if provided string matches the
       abbreviation of a chemical element on a standard periodic table,
       case indifferent *)
-  let check_periodic str =
-    List.mem (String.lowercase_ascii str) elements
+  let check_periodic str = List.mem (String.lowercase_ascii str) elements
 
   (** [update model msg] returns the puzzle model updated with any text
       change events, along with a command to be executed *)
   let update t = function
     | ChangeSquare { text; pos = r, c } ->
         t.squares.(r).(c) <-
-          {
-            (t.squares.(r).(c)) with
-            text;
-            is_element = check_periodic text;
-          };
+          { (t.squares.(r).(c)) with text; is_element = check_periodic text };
         (t, Cmd.none)
 
   (** [square_view r c sq] returns the HTML representing a square [sq]
@@ -156,9 +143,7 @@ module M = struct
       with number of columns [c]. Requires: [arr] contains at least
       (c+1) columns, and [arr] is square.*)
   let rec grid_view arr c =
-    match c with
-    | -1 -> []
-    | x -> row_view arr.(x) x :: grid_view arr (x - 1)
+    match c with -1 -> [] | x -> row_view arr.(x) x :: grid_view arr (x - 1)
 
   (** [pad alist dlist] takes in the list of across and down clues,
       respectively, and if one is shorther than the other, it pads the
@@ -166,8 +151,7 @@ module M = struct
   let pad alist dlist =
     let diff = List.length alist - List.length dlist in
     match diff with
-    | diff when diff < 0 ->
-        (alist @ List.init (abs diff) (fun _ -> ""), dlist)
+    | diff when diff < 0 -> (alist @ List.init (abs diff) (fun _ -> ""), dlist)
     | _ -> (alist, dlist @ List.init diff (fun _ -> ""))
 
   (** [clues_helper alist dlist] generates the HTML for the lists of
@@ -178,16 +162,11 @@ module M = struct
     match (alist, dlist) with
     | [], [] -> []
     | h1 :: t1, h2 :: t2 ->
-        tr [] [ td [] [ text h1 ]; td [] [ text h2 ] ]
-        :: clues_helper t1 t2
-    | [], _
-    | _, [] ->
+        tr [] [ td [] [ text h1 ]; td [] [ text h2 ] ] :: clues_helper t1 t2
+    | [], _ | _, [] ->
         [
           tr []
-            [
-              td [] [ text "invalid lists" ];
-              td [] [ text "invalid lists" ];
-            ];
+            [ td [] [ text "invalid lists" ]; td [] [ text "invalid lists" ] ];
         ]
 
   let clues_view () =
@@ -214,10 +193,7 @@ module M = struct
         div []
           [
             table
-              [
-                classList
-                  [ ("center-margin", true); ("clue-grid", true) ];
-              ]
+              [ classList [ ("center-margin", true); ("clue-grid", true) ] ]
               [ clues_view () ];
           ];
       ]

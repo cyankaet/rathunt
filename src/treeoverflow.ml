@@ -31,11 +31,7 @@ module M : Puzzle.S = struct
   type model = t
 
   (** All of the possile webpage signals to handle. *)
-  type msg =
-    | Generate of node
-    | Check of string
-    | Forward of node
-    | Backward
+  type msg = Generate of node | Check of string | Forward of node | Backward
   [@@bs.deriving { accessors }]
 
   (** [prob] is the base probability that an answer will be hidden in
@@ -45,19 +41,19 @@ module M : Puzzle.S = struct
   (** [rootFeeders] is the list of feeders to each of the root puzzles
       in order*)
   let rootFeeders =
-    "resources/rootfeeders.txt" |> Node.Fs.readFileAsUtf8Sync
+    "static/rootfeeders.txt" |> Node.Fs.readFileAsUtf8Sync
     |> String.split_on_char '\n'
 
   (** [dictionary] is a set of (hopefully) non-profane words in the
       English language between 4 and 16 characters long. *)
   let dictionary =
-    "resources/cleanwords.txt" |> Node.Fs.readFileAsUtf8Sync
+    "static/cleanwords.txt" |> Node.Fs.readFileAsUtf8Sync
     |> String.split_on_char '\n'
 
   (** [compassList] is a list of the NATO phonetic alphabet words
       corresponding to each letter in English. *)
   let compassList =
-    "resources/natophonetic.txt" |> Node.Fs.readFileAsUtf8Sync
+    "static/natophonetic.txt" |> Node.Fs.readFileAsUtf8Sync
     |> String.split_on_char '\n'
 
   (** [flagsList] is an association list of words that contain compass
@@ -67,10 +63,9 @@ module M : Puzzle.S = struct
       encoding, and the rest of the string (after a space) is a possible
       word corresponding to that letter. *)
   let flagsList =
-    "resources/semaphore_words.txt" |> Node.Fs.readFileAsUtf8Sync
+    "static/semaphore_words.txt" |> Node.Fs.readFileAsUtf8Sync
     |> String.split_on_char '\n'
-    |> List.map (fun s ->
-           (s.[0], List.nth (String.split_on_char ' ' s) 1))
+    |> List.map (fun s -> (s.[0], List.nth (String.split_on_char ' ' s) 1))
 
   (** [flagtable] is a map from English characters to words that encode
       that letter in the CrossFlags subpuzzle. *)
@@ -83,10 +78,9 @@ module M : Puzzle.S = struct
       encoding, and the rest of the string (after a space) is a possible
       word corresponding to that letter. *)
   let incdecList =
-    "resources/inc_dec_words.txt" |> Node.Fs.readFileAsUtf8Sync
+    "static/inc_dec_words.txt" |> Node.Fs.readFileAsUtf8Sync
     |> String.split_on_char '\n'
-    |> List.map (fun s ->
-           (s.[0], List.nth (String.split_on_char ' ' s) 1))
+    |> List.map (fun s -> (s.[0], List.nth (String.split_on_char ' ' s) 1))
 
   (** [incdecTable] is a map from English characters to words that
       encode that letter in the CrossFlags subpuzzle. *)
@@ -162,8 +156,7 @@ module M : Puzzle.S = struct
 
   (** [find_compass_word c] returns the NATO phonetic word corresponding
       to the character [c]. *)
-  let find_compass_word c =
-    List.nth compassList (Char.code c - Char.code 'a')
+  let find_compass_word c = List.nth compassList (Char.code c - Char.code 'a')
 
   (** [find_crossflags_word c] finds all words in [dictionary] that
       contain as substrings the semaphore directions corresponding to
@@ -210,8 +203,7 @@ module M : Puzzle.S = struct
           children = None;
         })
 
-  let init () =
-    ({ head with children = Some (make_root head) }, Cmd.none)
+  let init () = ({ head with children = Some (make_root head) }, Cmd.none)
 
   (** [update model msg] returns the puzzle model updated according to
       the accompanying message, along with a command to be executed *)
@@ -221,9 +213,7 @@ module M : Puzzle.S = struct
         ignore t.value;
         init ()
     | Backward -> (
-        match t.prev with
-        | None -> (t, Cmd.none)
-        | Some p -> (p, Cmd.none) )
+        match t.prev with None -> (t, Cmd.none) | Some p -> (p, Cmd.none) )
     | Check s -> init ()
 
   (** [view model] returns a Vdom object that contains the html
