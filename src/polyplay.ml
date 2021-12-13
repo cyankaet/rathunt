@@ -138,6 +138,6 @@ module M = struct
           ];
         hr [] [];
         (* nonogram *)
-        div [] [];
+        div [] [ table [] [] ];
       ]
 end
