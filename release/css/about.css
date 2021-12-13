@@ -10,7 +10,7 @@
 
 
 .rat-img {
-  background-image: url("../img/rats.jpeg");
+  /* background-image: url("../img/rats.jpeg"); */
   background-size: contain;
   min-width: 130px; 
   min-height: 150px;
