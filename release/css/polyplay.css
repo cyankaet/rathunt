@@ -1,0 +1,32 @@
+#container {
+  width: 200px;
+  height: 200px;
+  display: table;
+  background-color: #ccc;         
+}
+
+#container .image-container {
+  text-align: center;
+  vertical-align: middle;
+  display: table-cell;
+}
+
+#container .image-container img {
+  text-align: center;
+  max-width: 100%;
+  max-height: auto;      
+}
+
+.emoji-size {
+  font-size: x-large;
+}
+.square-empty {
+
+  border: 1px solid #444;
+  width: 50px;
+  border-top-style: hidden;
+  border-right-style: hidden;
+  border-left-style: hidden;
+  border-bottom-style: hidden;
+}
+

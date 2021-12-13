@@ -2,17 +2,7 @@ open Tea
 
 (* SPEC: The page should consist of the following two parts:
 
-   1. A table storing 20 rows with four elements in each row. Each row
-   consists of an emoji, an image, a text field that can be typed into,
-   and a button that validates whether or not the string inputted into
-   the text field is some pre-fixed intended string. You can find the
-   list of these strings in pieces.txt in resources - the text field in
-   row n is checking whether the nth string in this text file matches
-   whatever is inside it, for 1 <= n <= 20. Still working on the images
-   and figuring out which emojis go in which rows, but that isn't
-   important until you get to [view].
-
-   2. A nonogram grid. This is a common type of logic puzzle - look this
+   1. A nonogram grid. This is a common type of logic puzzle - look this
    up for some references. This is a 25 x 15 grid (rows x columns) with
    clues on the top and to the left that indicate the runs of filled
    squares in the solution to the nonogram. You can find the intended
@@ -32,7 +22,7 @@ open Tea
    (read: like 80%) is still base OCaml and should quite frankly not be
    difficult. *)
 
-module M = struct
+module M : Puzzle.S = struct
   type square =
     | Filled
     | Crossed
@@ -51,13 +41,22 @@ module M = struct
       of the messages. *)
   type msg = ChangeSquare of int * int [@@bs.deriving { accessors }]
 
+  let total_clues = 20
+
+  (**[enums] is a list of the length of the enumerations of the answers
+     to each clue. Requires: length of enums is [total_clues].*)
   let enums =
-    "resources/pieces.txt" |> Node.Fs.readFileAsUtf8Sync
+    "static/pieces.txt" |> Node.Fs.readFileAsUtf8Sync
     |> String.split_on_char '\n'
     |> List.map String.lowercase_ascii
 
+  let rows = 25
+
+  let cols = 15
+
   (**[init ()] returns the puzzle model in its initial state. *)
-  let init () = ({ nonagram = Array.make_matrix 25 15 Empty }, Cmd.none)
+  let init () =
+    ({ nonagram = Array.make_matrix rows cols Empty }, Cmd.none)
 
   (* Given a square of the nonagram, return the next stage it should
      move to if clicked on *)
@@ -74,6 +73,8 @@ module M = struct
         t.nonagram.(r).(c) <- next_stage t.nonagram.(r).(c);
         (t, Cmd.none)
 
+  (**[emoji_lookup] is a list of emojis corresponding to each clue.
+     Requires: length of [emoji_lookup] is [total_clues].*)
   let emoji_lookup =
     [|
       {js|🏛️|js};
@@ -98,26 +99,82 @@ module M = struct
       {js|🔄|js};
     |]
 
-  (**[img_rows pos len] generates [len] rows starting at index [pos] in
-     the ordering of the emojis above with the appropriate emoji, image,
-     and enumeration, with wrap-around (starts back again at 0 after
-     reaching the end of the array). *)
-  let img_rows pos len =
-    List.init len (fun x ->
+  (**[img_rows pos elts] generates [elts]/2 rows starting at index [pos]
+     in the ordering of the emojis above with the appropriate emoji,
+     image, and enumeration, with wrap-around (starts back again at 0
+     after reaching the end of the array), paired such that each row
+     containts two elements that are [elts]/2 apart in the list.
+     Precondition: the number of intended elements to display is even,
+     and the number of images to load is exactly [elts] *)
+  let img_rows pos elts =
+    List.init (elts / 2) (fun x ->
         let open Html in
-        let idx = (x + pos) mod Array.length emoji_lookup in
+        let idx1 = (x + pos) mod elts in
+        let idx2 = (x + pos + (elts / 2)) mod elts in
         tr []
           [
-            text emoji_lookup.(idx);
-            img
+            td
+              [ classList [ ("emoji-size", true) ] ]
+              [ text emoji_lookup.(idx1) ];
+            div [ id "container" ]
               [
-                src
-                  "https://raw.githubusercontent.com/cyankaet/rathunt/dev/resources/rats.jpeg";
-                classList [ ("rat-img", true) ];
-              ]
-              [];
-            text (List.nth enums idx);
+                td
+                  [ classList [ ("image-container", true) ] ]
+                  [
+                    img
+                      [
+                        src
+                          ( "play_imgs_final/img-"
+                          ^ string_of_int (idx1 + 1)
+                          ^ ".png" );
+                        classList [ ("rat-img", true) ];
+                      ]
+                      [];
+                  ];
+              ];
+            td [] [ text (List.nth enums idx1) ];
+            td
+              [ classList [ ("emoji-size", true) ] ]
+              [ text emoji_lookup.(idx2) ];
+            div [ id "container" ]
+              [
+                td
+                  [ classList [ ("image-container", true) ] ]
+                  [
+                    img
+                      [
+                        src
+                          ( "play_imgs_final/img-"
+                          ^ string_of_int (idx2 + 1)
+                          ^ ".png" );
+                        (* figure out what actually goes here once we
+                           figure out static serving of images *)
+                        classList [ ("rat-img", true) ];
+                      ]
+                      [];
+                  ];
+              ];
+            td [] [ text (List.nth enums idx2) ];
           ])
+
+  (**[get_button_class square] returns the class name for the CSS
+     styling corresponding to [square] *)
+  let get_button_class = function
+    | Filled -> ("square-empty", true)
+    | Crossed -> ("square-empty", true)
+    | Empty -> ("square-empty", true)
+
+  (**[button_row model] returns a row of buttons *)
+  let button_row model row =
+    let open Html in
+    tr []
+      (List.init cols (fun x ->
+           button
+             [
+               onClick (ChangeSquare (row, x));
+               classList [ get_button_class model.(row).(x) ];
+             ]
+             []))
 
   (** [view model] returns a Vdom object that contains the html
       representing this puzzle [model] object *)
@@ -128,16 +185,16 @@ module M = struct
         (* table *)
         div []
           [
-            table []
-              [
-                tr []
-                  [
-                    table [] (img_rows 0 10); table [] (img_rows 10 10);
-                  ];
-              ];
+            table
+              [ classList [ ("center-margin", true) ] ]
+              (img_rows 0 20);
           ];
         hr [] [];
         (* nonogram *)
-        div [] [ table [] [] ];
+        div []
+          [
+            table []
+              (List.init rows (fun r -> button_row model.nonagram r));
+          ];
       ]
 end

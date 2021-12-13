@@ -20,12 +20,12 @@ module M = struct
 
   (** file containing the across clues in the crossword *)
   let across =
-    "resources/acrossclues.txt" |> Node.Fs.readFileAsUtf8Sync
+    "static/acrossclues.txt" |> Node.Fs.readFileAsUtf8Sync
     |> String.split_on_char '\n'
 
   (** file containing the down clues in the crossword *)
   let down =
-    "resources/downclues.txt" |> Node.Fs.readFileAsUtf8Sync
+    "static/downclues.txt" |> Node.Fs.readFileAsUtf8Sync
     |> String.split_on_char '\n'
 
   (** the row and column size of the crossword (must be square)*)
@@ -83,7 +83,7 @@ module M = struct
   (** [load_elements] loads in a resource file with a list of elements,
       eliminating uppercase*)
   let elements =
-    "resources/elements.txt" |> Node.Fs.readFileAsUtf8Sync
+    "static/elements.txt" |> Node.Fs.readFileAsUtf8Sync
     |> String.split_on_char '\n'
     |> List.map String.lowercase_ascii
 

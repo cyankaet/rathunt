@@ -1,10 +1,12 @@
 open Tea
 module Metapuzzle = Puzzlepage.M (Meta.M)
 module Crossword = Puzzlepage.M (Crossword.M)
+module Polyplay = Puzzlepage.M (Polyplay.M)
 
 type model = {
   meta : Metapuzzle.model;
   crossword : Crossword.model;
+  polyplay : Polyplay.model;
   teams : Teams.model;
   team_reg : Team_registration.model;
   page : string;
@@ -17,6 +19,7 @@ let init () _ =
   ( {
       meta = fst (Metapuzzle.init "answer");
       crossword = fst (Crossword.init "angery");
+      polyplay = fst (Polyplay.init "omegalul");
       teams = Teams.init;
       team_reg = Team_registration.init;
       page = "#home";
@@ -27,6 +30,7 @@ let init () _ =
 type msg =
   | Metapuzzlepage_msg of Metapuzzle.msg
   | Crossword_msg of Crossword.msg
+  | Polyplay_msg of Polyplay.msg
   | Teams_msg of Teams.msg
   | Team_reg_msg of Team_registration.msg
   | UrlChange of Web.Location.location
@@ -57,8 +61,16 @@ let update model = function
   | Team_reg_msg msg ->
       print_endline "4";
       if model.page = "#register" then
-        let team_reg, cmd = Team_registration.update model.team_reg msg in
+        let team_reg, cmd =
+          Team_registration.update model.team_reg msg
+        in
         ({ model with team_reg }, Cmd.map team_reg_msg cmd)
+      else (model, Cmd.none)
+  | Polyplay_msg msg ->
+      print_endline "17";
+      if model.page = "#polyplay" then
+        let polyplay, cmd = Polyplay.update model.polyplay msg in
+        ({ model with polyplay }, Cmd.map polyplay_msg cmd)
       else (model, Cmd.none)
   | UrlChange loc ->
       print_endline "page changing";
@@ -84,12 +96,13 @@ let home_view =
       h2 []
         [
           Printf.sprintf
-            "Welcome to RatHunt. Select a puzzle to start with (hint: not the \
-             meta)."
+            "Welcome to RatHunt. Select a puzzle to start with (hint: \
+             not the meta)."
           |> text;
         ];
       p [] [ a [ href ("#" ^ "meta") ] [ text "metapuzzle" ] ];
       p [] [ a [ href ("#" ^ "crossword") ] [ text "crossword" ] ];
+      p [] [ a [ href ("#" ^ "polyplay") ] [ text "polyplay" ] ];
     ]
 
 (** [view model] renders the [model] into HTML, which will become a
@@ -123,6 +136,11 @@ let view model =
               (* Metapuzzle.view model.meta |> map metapuzzlepage_msg; *)
               print_endline "";
               Crossword.view model.crossword |> map crossword_msg
+          | "#polyplay" ->
+              print_endline "Going to polyplay";
+              (* Metapuzzle.view model.meta |> map metapuzzlepage_msg; *)
+              print_endline "";
+              Polyplay.view model.polyplay |> map polyplay_msg
           | "#teams" -> Teams.view model.teams |> map teams_msg
           | "#register" ->
               Team_registration.view model.team_reg |> map team_reg_msg
@@ -135,4 +153,10 @@ let subscriptions model = [ Keyboard.downs key_pressed ] |> Sub.batch
 (** [main] starts the web app *)
 let main =
   Navigation.navigationProgram urlChange
-    { init; update; view; subscriptions; shutdown = (fun _ -> Cmd.none) }
+    {
+      init;
+      update;
+      view;
+      subscriptions;
+      shutdown = (fun _ -> Cmd.none);
+    }
