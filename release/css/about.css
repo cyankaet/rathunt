@@ -8,12 +8,16 @@
   display: flex;
 }
 
+
 .rat-img {
-  max-width: 100%;
-  opacity: 70%;
-  filter: blur(80%);
-  background-image: url("/img/rats.jpeg");
+  background-image: url("../img/rats.jpeg");
+  background-size: contain;
+  min-width: 130px; 
+  min-height: 150px;
+  width: auto;
+  overflow: hidden;
 }
+
 .about-background {
   position: absolute;
   top: 0;
