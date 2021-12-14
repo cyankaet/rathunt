@@ -127,7 +127,6 @@ module M : Puzzle.S = struct
                           ( "play_imgs_final/img-"
                           ^ string_of_int (idx1 + 1)
                           ^ ".png" );
-                        classList [ ("rat-img", true) ];
                       ]
                       [];
                   ];
