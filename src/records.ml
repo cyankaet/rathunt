@@ -35,6 +35,13 @@ module M = struct
            in
            (List.nth pairs 0, List.nth pairs 1))
 
+  (**[guest_nums] is a list of integers of length [num_dates] that
+     stores how many images need to be displayed in each of the lines. *)
+  let guest_nums =
+    "static/guest_nums.txt" |> Node.Fs.readFileAsUtf8Sync
+    |> String.split_on_char '\n'
+    |> List.map int_of_string
+
   (** [init] returns an initialized empty puzzle with a command to be
       executed *)
   let init () =
@@ -70,14 +77,22 @@ module M = struct
         date_checker t 0 party_dates;
         (t, Cmd.none)
 
-  let party_rows model =
+  (**[image_list n] returns the list of img classes that are to be
+     displayed in row [n].*)
+  let image_list n =
     let open Html in
+    List.init (List.nth guest_nums n) (fun x -> img [] [])
+
+  (**[party_rows model] returns the list of table rows to be displayed. *)
+  let party_rows model =
+    let open Html2 in
     List.init num_dates (fun x ->
         tr []
           [
             audio
               [
-                src
+                Attributes.controls true;
+                Attributes.src
                   ( "records_audio/song-"
                   ^ string_of_int (x + 1)
                   ^ ".ogg" );
@@ -90,5 +105,10 @@ module M = struct
       representing this crossword puzzle [model] object *)
   let view model =
     let open Html in
-    div [] [ table [] (party_rows model) ]
+    div []
+      [
+        table
+          [ classList [ ("center-margin", true) ] ]
+          (party_rows model);
+      ]
 end
