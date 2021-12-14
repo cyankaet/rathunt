@@ -77,29 +77,64 @@ module M = struct
         date_checker t 0 party_dates;
         (t, Cmd.none)
 
+  (**[emoji_of_row n] returns the emoji associated with row [n], if any.*)
+  let emoji_of_row = function
+    | 0 -> {js|🦔|js}
+    | 1 -> {js|🌑|js}
+    | 2 -> {js|➕|js}
+    | 3 -> {js|☀️|js}
+    | 4 -> {js|🍀|js}
+    | 5 -> {js|🦃|js}
+    | 6 -> {js|👻|js}
+    | 7 -> {js|☪️|js}
+    | 8 -> {js|🌎|js}
+    | 9 -> {js|🌟|js}
+    | _ -> {js|❌|js}
+
   (**[image_list n] returns the list of img classes that are to be
      displayed in row [n].*)
   let image_list n =
     let open Html in
-    List.init (List.nth guest_nums n) (fun x ->
-        td [ id "container" ]
-          [
-            td
-              [ classList [ ("guest-box", true) ] ]
-              [
-                img
-                  [
-                    src
-                      ( "records_guests/"
-                      ^ string_of_int (n + 1)
-                      ^ "-"
-                      ^ string_of_int (x + 1)
-                      ^ ".png" );
-                    classList [ ("guest-imgs", true) ];
-                  ]
-                  [];
-              ];
-          ])
+    td [ id "container" ]
+      (List.init (List.nth guest_nums n) (fun x ->
+           td
+             [ classList [ ("guest-box", true) ] ]
+             [
+               img
+                 [
+                   src
+                     ( "records_guests/"
+                     ^ string_of_int (n + 1)
+                     ^ "-"
+                     ^ string_of_int (x + 1)
+                     ^ ".png" );
+                   classList [ ("guest-imgs", true) ];
+                 ]
+                 [];
+             ]))
+
+  (**[selector model n month] makes the month selector for row [n] in
+     the table if [m] is true, with the selected value given as in
+     [model], and otherwise makes the date selector. *)
+  let selector model n m =
+    let open Html in
+    select
+      [
+        onChange (fun x ->
+            if m then ChangeMonth (n, int_of_string x)
+            else ChangeDate (n, int_of_string x));
+      ]
+      (List.init
+         (if m then 12 else 31)
+         (fun x ->
+           option'
+             [
+               string_of_int (x + 1) |> value;
+               Attributes.selected
+                 ( if m then model.(n).month = x + 1
+                 else model.(n).date = x + 1 );
+             ]
+             [ x + 1 |> string_of_int |> text ]))
 
   (**[party_rows model] returns the list of table rows to be displayed. *)
   let party_rows model =
@@ -107,6 +142,15 @@ module M = struct
     List.init num_dates (fun x ->
         tr []
           ( [
+              td
+                [ Attributes.classList [ ("emoji-box", true) ] ]
+                [
+                  ( if model.(x).correct then emoji_of_row x
+                  else {js|❌|js} )
+                  |> text;
+                ];
+              selector model x true;
+              selector model x false;
               td []
                 [
                   audio
@@ -120,7 +164,12 @@ module M = struct
                     [];
                 ];
             ]
-          @ image_list x ))
+          @ [ image_list x ] ))
+
+  (**[all_correct_check model] returns true if all of the dropdowns are
+     set correctly after a [Check], and false otherwise.*)
+  let all_correct_check model =
+    Array.fold_left (fun b drop -> drop.correct && b) true model
 
   (** [view model] returns a Vdom object that contains the HTML
       representing this crossword puzzle [model] object *)
@@ -128,8 +177,21 @@ module M = struct
     let open Html in
     div []
       [
-        table
-          [ classList [ ("center-margin", true) ] ]
-          (party_rows model);
+        div []
+          [
+            button
+              [ onClick Check; classList [ ("button-box", true) ] ]
+              [
+                ( if all_correct_check model then {js|💎|js}
+                else {js|🎉|js} )
+                |> text;
+              ];
+          ];
+        div []
+          [
+            table
+              [ classList [ ("center-margin", true) ] ]
+              (party_rows model);
+          ];
       ]
 end

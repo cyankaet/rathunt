@@ -15,3 +15,15 @@
   max-width: 100%;
   max-height: auto;
 }
+
+.emoji-box, .button-box {
+  background-color: #ffe986;
+  height: 30px;
+  width: 30px;
+  border-radius: 3px;
+  padding: 3px;
+}
+
+.button-box:hover {
+  background-color: #eed150;
+}
