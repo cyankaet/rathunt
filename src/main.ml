@@ -63,13 +63,9 @@ let update model = function
         in
         ({ model with killed_threads }, Cmd.map killedthreads_msg cmd)
       else (model, Cmd.none)
-<<<<<<< HEAD
-  | About_msg msg -> (model, Cmd.none)
-  | Faq_msg msg -> (model, Cmd.none)
-  | Rules_msg msg -> (model, Cmd.none)
-=======
   | About_msg _ -> (model, Cmd.none)
->>>>>>> 60399b99485e3b89ae2353073c66e2b869e3346f
+  | Faq_msg _ -> (model, Cmd.none)
+  | Rules_msg _ -> (model, Cmd.none)
   | Teams_msg msg ->
       print_endline "3";
       if model.page = "#teams" then
@@ -79,7 +75,9 @@ let update model = function
   | Team_reg_msg msg ->
       print_endline "4";
       if model.page = "#register" then
-        let team_reg, cmd = Team_registration.update model.team_reg msg in
+        let team_reg, cmd =
+          Team_registration.update model.team_reg msg
+        in
         ({ model with team_reg }, Cmd.map team_reg_msg cmd)
       else (model, Cmd.none)
   | UrlChange loc ->
@@ -108,12 +106,13 @@ let home_view =
       h2 []
         [
           Printf.sprintf
-            "Welcome to RatHunt. Select a puzzle to start with (hint: not the \
-             meta)."
+            "Welcome to RatHunt. Select a puzzle to start with (hint: \
+             not the meta)."
           |> text;
         ];
-      p [] [ a [ href ("#" ^ "meta") ] [ text "metapuzzle" ] ];
-      p [] [ a [ href ("#" ^ "crossword") ] [ text "crossword" ] ];
+      p []
+        [ a [ href ("#" ^ "meta") ] [ text "META: Twenty Questions" ] ];
+      p [] [ a [ href ("#" ^ "crossword") ] [ text "Grid Elements" ] ];
       p [] [ a [ href ("#" ^ "killed") ] [ text "Killed Threads" ] ];
     ]
 
@@ -153,7 +152,8 @@ let view model =
               Crossword.view model.crossword |> map crossword_msg
           | "#killed" ->
               print_endline "Going to killed";
-              KilledThreads.view model.killed_threads |> map killedthreads_msg
+              KilledThreads.view model.killed_threads
+              |> map killedthreads_msg
           | "#about" -> About.view () |> map about_msg
           | "#faq" -> Faq.view () |> map faq_msg
           | "#rules" -> Rules.view () |> map rules_msg
@@ -164,9 +164,15 @@ let view model =
         ];
     ]
 
-let subscriptions model = [ Keyboard.downs key_pressed ] |> Sub.batch
+let subscriptions _ = [ Keyboard.downs key_pressed ] |> Sub.batch
 
 (** [main] starts the web app *)
 let main =
   Navigation.navigationProgram urlChange
-    { init; update; view; subscriptions; shutdown = (fun _ -> Cmd.none) }
+    {
+      init;
+      update;
+      view;
+      subscriptions;
+      shutdown = (fun _ -> Cmd.none);
+    }
