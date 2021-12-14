@@ -63,9 +63,13 @@ let update model = function
         in
         ({ model with killed_threads }, Cmd.map killedthreads_msg cmd)
       else (model, Cmd.none)
+<<<<<<< HEAD
   | About_msg msg -> (model, Cmd.none)
   | Faq_msg msg -> (model, Cmd.none)
   | Rules_msg msg -> (model, Cmd.none)
+=======
+  | About_msg _ -> (model, Cmd.none)
+>>>>>>> 60399b99485e3b89ae2353073c66e2b869e3346f
   | Teams_msg msg ->
       print_endline "3";
       if model.page = "#teams" then
@@ -139,14 +143,12 @@ let view model =
           | "#home" -> home_view
           | "#meta" ->
               print_endline "Going to meta";
-              (* Metapuzzle.view model.meta |> map
-                 metapuzzlepage_msg; *)
+              (* Metapuzzle.view model.meta |> map metapuzzlepage_msg; *)
               print_endline "";
               Metapuzzle.view model.meta |> map metapuzzlepage_msg
           | "#crossword" ->
               print_endline "Going to crossword";
-              (* Metapuzzle.view model.meta |> map
-                 metapuzzlepage_msg; *)
+              (* Metapuzzle.view model.meta |> map metapuzzlepage_msg; *)
               print_endline "";
               Crossword.view model.crossword |> map crossword_msg
           | "#killed" ->
