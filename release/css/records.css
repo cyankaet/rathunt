@@ -1,3 +1,17 @@
-.guest-imgs {
-  scale: 50%; 
+#container {
+  width: 100px; 
+  height: 100px; 
+  display: table; 
+}
+
+#container .guest-box {
+  text-align: center;
+  vertical-align: middle;
+  display: table-cell; 
+}
+
+#container .guest-box img {
+  text-align: center;
+  max-width: 100%;
+  max-height: auto;
 }

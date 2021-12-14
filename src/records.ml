@@ -82,17 +82,24 @@ module M = struct
   let image_list n =
     let open Html in
     List.init (List.nth guest_nums n) (fun x ->
-        img
+        td [ id "container" ]
           [
-            src
-              ( "records_guests/"
-              ^ string_of_int (n + 1)
-              ^ "-"
-              ^ string_of_int (x + 1)
-              ^ ".png" );
-            classList [ ("guest-imgs", true) ];
-          ]
-          [])
+            td
+              [ classList [ ("guest-box", true) ] ]
+              [
+                img
+                  [
+                    src
+                      ( "records_guests/"
+                      ^ string_of_int (n + 1)
+                      ^ "-"
+                      ^ string_of_int (x + 1)
+                      ^ ".png" );
+                    classList [ ("guest-imgs", true) ];
+                  ]
+                  [];
+              ];
+          ])
 
   (**[party_rows model] returns the list of table rows to be displayed. *)
   let party_rows model =
