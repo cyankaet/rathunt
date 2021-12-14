@@ -1,3 +1,0 @@
-(executable
- (name test)
- (libraries rathunt react ounit2))

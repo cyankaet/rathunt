@@ -1,8 +1,12 @@
-.cross-grid table, td, tr {
+.cross-grid table, .cross-grid td, .cross-grid tr {
   border-collapse: collapse;
   border: 1px solid black;
   width: 20px;
 }
+
+/* .overlay td {
+  
+} */
 
 .cross-grid input {
   border-top-style: hidden;
@@ -11,7 +15,11 @@
   border-bottom-style: hidden;
   height: 35px;
   width: 35px;
+  padding: 0px; 
   text-align: center;
+  display: grid; 
+  grid-template-columns: 35px 1fr;
+  grid-template-rows: 35px 1fr;
 }
 
 .cross-grid input:focus {
@@ -28,4 +36,17 @@
 
 .element * {
   background-color: #aaffd7;
+}
+
+.clue-num {
+  margin: 0px;
+  text-align: left;
+  height: 0px;
+  font-size: 10px; 
+  grid-area: 1/1/2/2;
+}
+
+.clue-grid {
+  margin-top: 2%;
+  text-align: left;
 }

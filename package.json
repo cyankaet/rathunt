@@ -4,9 +4,15 @@
   "private": true,
   "dependencies": {
     "bs-platform": "9.0.2",
+    "bsdoc": "file:bsdoc-6.0.4-alpha.tgz",
     "bucklescript-tea": "^0.15.0",
+    "esbuild-jest": "^0.5.0",
+    "jest": "^27.3.1",
     "npm-run-all": "^4.1.5",
-    "parcel-bundler": "^1.12.5"
+    "parcel-bundler": "^1.12.5",
+    "yarn": "^1.22.17",
+    "parcel-plugin-static-files-copy": "^2.6.0",
+    "@glennsl/bs-jest": "^0.7.0"
   },
   "scripts": {
     "clean": "bsb -clean-world",
@@ -16,7 +22,9 @@
     "watch:bsb": "bsb -make-world -w",
     "watch:parcel": "parcel release/index.html",
     "watch": "run-p watch:bsb watch:parcel",
-    "deploy": "heroku container:push web --app rathunt-ms1 && heroku container:release web --app rathunt-ms1"
+    "deploy": "heroku container:push web --app rathunt-ms1 && heroku container:release web --app rathunt-ms1",
+    "test": "jest",
+    "docs": "bsdoc build rathunt -s src"
   },
   "browserslist": {
     "production": [
@@ -29,6 +37,5 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
-  },
-  "devDependencies": {}
+  }
 }

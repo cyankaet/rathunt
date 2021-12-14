@@ -1,0 +1,48 @@
+.about-container {
+  width: 100%;
+  height: 100%;
+  align-items: center;
+  overflow-x: hidden;
+  perspective: 8px;
+  perspective-origin: 0%;
+  display: flex;
+}
+
+
+#container {
+  width: 400px;
+  height: auto;
+  display: table;
+  }
+
+#container .image-container {
+  text-align: center;
+  vertical-align: middle;
+  display: table-cell;
+}
+
+#container .image-container img {
+  text-align: center;
+  max-width: 100%;
+  max-height: auto;      
+}
+
+.about-background {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  transform: translateZ(0px);
+}
+
+.about-foreground {
+  margin-top: auto;
+  margin-bottom: 50px;
+  transform-origin: 0;
+  transform: translateZ(3px) scale(0.625);
+}
+
+.about-foreground h2 {
+  font-size: 36px;
+}
