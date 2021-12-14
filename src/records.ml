@@ -72,7 +72,19 @@ module M = struct
 
   let party_rows model =
     let open Html in
-    List.init num_dates (fun x -> tr [] [])
+    List.init num_dates (fun x ->
+        tr []
+          [
+            audio
+              [
+                src
+                  ( "records_audio/song-"
+                  ^ string_of_int (x + 1)
+                  ^ ".ogg" );
+              ]
+              [];
+            text (string_of_int x);
+          ])
 
   (** [view model] returns a Vdom object that contains the HTML
       representing this crossword puzzle [model] object *)
