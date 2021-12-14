@@ -32,6 +32,8 @@ type msg =
   | Crossword_msg of Crossword.msg
   | Killedthreads_msg of KilledThreads.msg
   | About_msg of About.msg
+  | Faq_msg of Faq.msg
+  | Rules_msg of Rules.msg
   | Teams_msg of Teams.msg
   | Team_reg_msg of Team_registration.msg
   | UrlChange of Web.Location.location
@@ -62,6 +64,8 @@ let update model = function
         ({ model with killed_threads }, Cmd.map killedthreads_msg cmd)
       else (model, Cmd.none)
   | About_msg msg -> (model, Cmd.none)
+  | Faq_msg msg -> (model, Cmd.none)
+  | Rules_msg msg -> (model, Cmd.none)
   | Teams_msg msg ->
       print_endline "3";
       if model.page = "#teams" then
@@ -71,9 +75,7 @@ let update model = function
   | Team_reg_msg msg ->
       print_endline "4";
       if model.page = "#register" then
-        let team_reg, cmd =
-          Team_registration.update model.team_reg msg
-        in
+        let team_reg, cmd = Team_registration.update model.team_reg msg in
         ({ model with team_reg }, Cmd.map team_reg_msg cmd)
       else (model, Cmd.none)
   | UrlChange loc ->
@@ -93,7 +95,7 @@ let update model = function
             else if model.page = "#killed" then
               Cmd.msg (Killedthreads_msg KilledThreads.Submit)
             else Cmd.none
-        | _ -> Cmd.none ))
+        | _ -> Cmd.none ) )
 
 let home_view =
   let open Html in
@@ -102,8 +104,8 @@ let home_view =
       h2 []
         [
           Printf.sprintf
-            "Welcome to RatHunt. Select a puzzle to start with (hint: \
-             not the meta)."
+            "Welcome to RatHunt. Select a puzzle to start with (hint: not the \
+             meta)."
           |> text;
         ];
       p [] [ a [ href ("#" ^ "meta") ] [ text "metapuzzle" ] ];
@@ -122,16 +124,18 @@ let view model =
         [ classList [ ("topnav", true) ] ]
         [
           a [ href ("#" ^ "home") ] [ text "Home" ];
+          a [ href ("#" ^ "about") ] [ text "About" ];
+          a [ href ("#" ^ "rules") ] [ text "Rules" ];
+          a [ href ("#" ^ "faq") ] [ text "FAQ" ];
           a [ href ("#" ^ "teams") ] [ text "Teams" ];
-          a [ href ("#" ^ "register") ] [ text "Register" ];
-          a [ href ("#" ^ "about") ] [ text "About" ]
+          a [ href ("#" ^ "register") ] [ text "Register" ]
           (* a [ href ("#" ^ "meta") ] [ text "metapuzzle" ]; a [ href
              ("#" ^ "crossword") ] [ text "crossword" ]; *);
         ];
       h1 [] [ Printf.sprintf "Rat Hunt" |> text ];
       p []
         [
-          (match model.page with
+          ( match model.page with
           | "#home" -> home_view
           | "#meta" ->
               print_endline "Going to meta";
@@ -147,13 +151,14 @@ let view model =
               Crossword.view model.crossword |> map crossword_msg
           | "#killed" ->
               print_endline "Going to killed";
-              KilledThreads.view model.killed_threads
-              |> map killedthreads_msg
+              KilledThreads.view model.killed_threads |> map killedthreads_msg
           | "#about" -> About.view () |> map about_msg
+          | "#faq" -> Faq.view () |> map faq_msg
+          | "#rules" -> Rules.view () |> map rules_msg
           | "#teams" -> Teams.view model.teams |> map teams_msg
           | "#register" ->
               Team_registration.view model.team_reg |> map team_reg_msg
-          | _ -> Printf.sprintf "Page Not Found" |> text);
+          | _ -> Printf.sprintf "Page Not Found" |> text );
         ];
     ]
 
@@ -162,10 +167,4 @@ let subscriptions model = [ Keyboard.downs key_pressed ] |> Sub.batch
 (** [main] starts the web app *)
 let main =
   Navigation.navigationProgram urlChange
-    {
-      init;
-      update;
-      view;
-      subscriptions;
-      shutdown = (fun _ -> Cmd.none);
-    }
+    { init; update; view; subscriptions; shutdown = (fun _ -> Cmd.none) }

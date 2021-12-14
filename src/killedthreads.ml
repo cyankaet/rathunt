@@ -246,16 +246,12 @@ module M : Puzzle.S = struct
                       (let rec load_imgs links = function
                          | [] -> p [] []
                          | image :: rest ->
-                             div [ id "container" ]
+                             div []
                                [
-                                 div
-                                   [ classList [ ("image-container", true) ] ]
-                                   [
-                                     a
-                                       [ href (List.hd links); target "_blank" ]
-                                       [ img [ src image ] [] ];
-                                     load_imgs (List.tl links) rest;
-                                   ];
+                                 a
+                                   [ href (List.hd links); target "_blank" ]
+                                   [ img [ src image ] [] ];
+                                 load_imgs (List.tl links) rest;
                                ]
                        in
                        load_imgs puzz_links puzz_img);
