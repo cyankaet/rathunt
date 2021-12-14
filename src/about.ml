@@ -6,6 +6,22 @@ let view () =
   let open Html in
   div [ classList [] ]
     [
-      img ?unique:(Some "frend") [ classList [ ("rat-img", true) ] ] [];
-      div [ classList [] ] [ h2 [] [ Printf.sprintf "About" |> text ] ];
+      div
+        [ id "container"; classList [ ("center-margin", true) ] ]
+        [
+          div
+            [ classList [ ("image-container", true) ] ]
+            [ img [ src "rats.jpeg" ] [] ];
+        ];
+      div []
+        [
+          h2 [] [ Printf.sprintf "About" |> text ];
+          p []
+            [
+              text
+                "Hello there, we are The Rats! We have been solving puzzle \
+                 hunts for about a year now, and we wanted to give creating \
+                 our own puzzles a try! ";
+            ];
+        ];
     ]
