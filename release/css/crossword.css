@@ -11,6 +11,7 @@
   border-bottom-style: hidden;
   height: 35px;
   width: 35px;
+  padding: 0px; 
   text-align: center;
 }
 
@@ -24,10 +25,17 @@
 
 .element {
   background-color: #aaffd7;
+  
 }
 
 .element * {
   background-color: #aaffd7;
+}
+
+.clue-num {
+
+  margin: 0px;
+  text-align: left;
 }
 
 .clue-grid {
