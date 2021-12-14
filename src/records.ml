@@ -81,25 +81,39 @@ module M = struct
      displayed in row [n].*)
   let image_list n =
     let open Html in
-    List.init (List.nth guest_nums n) (fun x -> img [] [])
+    List.init (List.nth guest_nums n) (fun x ->
+        img
+          [
+            src
+              ( "records_guests/"
+              ^ string_of_int (n + 1)
+              ^ "-"
+              ^ string_of_int (x + 1)
+              ^ ".png" );
+            classList [ ("guest-imgs", true) ];
+          ]
+          [])
 
   (**[party_rows model] returns the list of table rows to be displayed. *)
   let party_rows model =
     let open Html2 in
     List.init num_dates (fun x ->
         tr []
-          [
-            audio
-              [
-                Attributes.controls true;
-                Attributes.src
-                  ( "records_audio/song-"
-                  ^ string_of_int (x + 1)
-                  ^ ".ogg" );
-              ]
-              [];
-            text (string_of_int x);
-          ])
+          ( [
+              td []
+                [
+                  audio
+                    [
+                      Attributes.controls true;
+                      Attributes.src
+                        ( "records_audio/song-"
+                        ^ string_of_int (x + 1)
+                        ^ ".ogg" );
+                    ]
+                    [];
+                ];
+            ]
+          @ image_list x ))
 
   (** [view model] returns a Vdom object that contains the HTML
       representing this crossword puzzle [model] object *)
