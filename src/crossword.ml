@@ -46,6 +46,9 @@ module M = struct
            in
            (List.nth coords 0, List.nth coords 1))
 
+  (**[numbered_squares] is an association list of coordinate - number
+     pairs, where the number will be the index in the crossword at that
+     coordinate in the crossword. *)
   let numbered_squares =
     "static/numbered_sqs.txt" |> Node.Fs.readFileAsUtf8Sync
     |> String.split_on_char '\n'
