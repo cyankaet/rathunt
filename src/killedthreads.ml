@@ -16,32 +16,39 @@ module M : Puzzle.S = struct
 
   type model = t
 
-  type msg = Select of int | Solve of int | UpdateText of string | Pull of int
+  type msg =
+    | Select of int
+    | Solve of int
+    | UpdateText of string
+    | Pull of int
 
   let zero_to_five = [ 0; 1; 2; 3; 4; 5 ]
 
   let one_to_six = [ 1; 2; 3; 4; 5; 6 ]
 
   let gacha_chars =
-    "resources/gacha_chars.txt" |> Node.Fs.readFileAsUtf8Sync
+    "static/gacha_chars.txt" |> Node.Fs.readFileAsUtf8Sync
     |> String.split_on_char '\n'
 
   let g_map =
     let rec gacha_map chars = function
       | [] -> []
-      | num :: rest -> (num, List.hd chars) :: gacha_map (List.tl chars) rest
+      | num :: rest ->
+          (num, List.hd chars) :: gacha_map (List.tl chars) rest
     in
     gacha_map gacha_chars one_to_six
 
   let init_rolls =
-    "resources/gacha.txt" |> Node.Fs.readFileAsUtf8Sync
-    |> String.split_on_char '\n' |> List.map int_of_string |> Rng.shuffle
+    "static/gacha.txt" |> Node.Fs.readFileAsUtf8Sync
+    |> String.split_on_char '\n'
+    |> List.map int_of_string |> Rng.shuffle
 
   let string_clean str =
-    Js.String.(toUpperCase str |> trim |> replaceByRe [%bs.re "/[^A-Za]/g"] "")
+    Js.String.(
+      toUpperCase str |> trim |> replaceByRe [%bs.re "/[^A-Za]/g"] "")
 
   let answers =
-    "resources/killed_answers.txt" |> Node.Fs.readFileAsUtf8Sync
+    "static/killed_answers.txt" |> Node.Fs.readFileAsUtf8Sync
     |> String.split_on_char '\n'
 
   let init () =
@@ -82,11 +89,14 @@ module M : Puzzle.S = struct
     | Solve cell ->
         if List.mem cell model.solved then (model, Cmd.none)
         else if
-          string_clean model.box_text = string_clean (List.nth answers cell)
+          string_clean model.box_text
+          = string_clean (List.nth answers cell)
         then
-          ({ model with solved = cell :: model.solved; box_text = "" }, Cmd.none)
+          ( { model with solved = cell :: model.solved; box_text = "" },
+            Cmd.none )
         else ({ model with box_text = "" }, Cmd.none)
-    | Select cell -> ({ model with selected = cell; box_text = "" }, Cmd.none)
+    | Select cell ->
+        ({ model with selected = cell; box_text = "" }, Cmd.none)
     | UpdateText str -> ({ model with box_text = str }, Cmd.none)
     | Pull num -> (pull model num, Cmd.none)
     | _ -> (model, Cmd.none)
@@ -95,16 +105,16 @@ module M : Puzzle.S = struct
     let lines =
       match puzzle with
       | 2 ->
-          "resources/crime_2.txt" |> Node.Fs.readFileAsUtf8Sync
+          "static/crime_2.txt" |> Node.Fs.readFileAsUtf8Sync
           |> String.split_on_char '\n'
       | 3 ->
-          "resources/crime_3.txt" |> Node.Fs.readFileAsUtf8Sync
+          "static/crime_3.txt" |> Node.Fs.readFileAsUtf8Sync
           |> String.split_on_char '\n'
       | 4 ->
-          "resources/crime_4.txt" |> Node.Fs.readFileAsUtf8Sync
+          "static/crime_4.txt" |> Node.Fs.readFileAsUtf8Sync
           |> String.split_on_char '\n'
       | 5 ->
-          "resources/crime_5.txt" |> Node.Fs.readFileAsUtf8Sync
+          "static/crime_5.txt" |> Node.Fs.readFileAsUtf8Sync
           |> String.split_on_char '\n'
       | _ -> failwith "impossible"
     in
@@ -116,7 +126,8 @@ module M : Puzzle.S = struct
           [
             (let rec make_clues = function
                | [] -> p [] []
-               | clue :: rest -> div [] [ li [] [ text clue ]; make_clues rest ]
+               | clue :: rest ->
+                   div [] [ li [] [ text clue ]; make_clues rest ]
              in
              make_clues (List.tl lines));
           ];
@@ -124,9 +135,9 @@ module M : Puzzle.S = struct
 
   let puzz_img =
     [
-      "https://raw.githubusercontent.com/cyankaet/rathunt/killed/resources/m1.jpeg";
-      "https://raw.githubusercontent.com/cyankaet/rathunt/killed/resources/m2.jpeg";
-      "https://raw.githubusercontent.com/cyankaet/rathunt/killed/resources/m3.jpeg";
+      "https://raw.githubusercontent.com/cyankaet/rathunt/killed/static/m1.jpeg";
+      "https://raw.githubusercontent.com/cyankaet/rathunt/killed/static/m2.jpeg";
+      "https://raw.githubusercontent.com/cyankaet/rathunt/killed/static/m3.jpeg";
     ]
 
   let puzz_links =
@@ -137,7 +148,7 @@ module M : Puzzle.S = struct
     ]
 
   let autopsy_files =
-    "resources/autopsy.txt" |> Node.Fs.readFileAsUtf8Sync
+    "static/autopsy.txt" |> Node.Fs.readFileAsUtf8Sync
     |> String.split_on_char '\n'
 
   let view model =
@@ -152,9 +163,9 @@ module M : Puzzle.S = struct
                   p []
                     [
                       Printf.sprintf
-                        "There's ultimately nothing suspicious about a few new \
-                         transfer students being murdered, right? Okay, they \
-                         were a little talented."
+                        "There's ultimately nothing suspicious about a \
+                         few new transfer students being murdered, \
+                         right? Okay, they were a little talented."
                       |> text;
                     ];
                 ];
@@ -182,20 +193,35 @@ module M : Puzzle.S = struct
                            | [] -> p [] []
                            | file :: rest ->
                                div []
-                                 [ li [] [ text file ]; display_files rest ]
+                                 [
+                                   li [] [ text file ];
+                                   display_files rest;
+                                 ]
                          in
                          display_files autopsy_files);
                       ];
                   ];
                 button
-                  [ onClick (Select (-1)); classList [ ("submit", true) ] ]
+                  [
+                    onClick (Select (-1));
+                    classList [ ("submit", true) ];
+                  ]
                   [ text "Go back" ];
               ]
-        | 0 | 1 | 2 | 3 | 4 | 5 ->
+        | 0
+        | 1
+        | 2
+        | 3
+        | 4
+        | 5 ->
             div []
               [
                 h3 []
-                  [ text ("Crime Scene " ^ string_of_int (model.selected + 1)) ];
+                  [
+                    text
+                      ( "Crime Scene "
+                      ^ string_of_int (model.selected + 1) );
+                  ];
                 ( if List.mem model.selected model.solved then
                   h5 [] [ text "Solved!" ]
                 else
@@ -231,11 +257,12 @@ module M : Puzzle.S = struct
                       p []
                         [
                           text
-                            "You enter and find a book on a desk about how to \
-                             interrogate people and get answers in as few \
-                             questions as possible as well as a piece of paper \
-                             with the following: (Click on the images to get \
-                             an interactive version)";
+                            "You enter and find a book on a desk about \
+                             how to interrogate people and get answers \
+                             in as few questions as possible as well \
+                             as a piece of paper with the following: \
+                             (Click on the images to get an \
+                             interactive version)";
                         ];
                       (let rec load_imgs links = function
                          | [] -> p [] []
@@ -243,7 +270,10 @@ module M : Puzzle.S = struct
                              div []
                                [
                                  a
-                                   [ href (List.hd links); target "_blank" ]
+                                   [
+                                     href (List.hd links);
+                                     target "_blank";
+                                   ]
                                    [ img [ src image ] [] ];
                                  load_imgs (List.tl links) rest;
                                ]
@@ -256,16 +286,22 @@ module M : Puzzle.S = struct
                       p []
                         [
                           text
-                            "Are you ready to test your luck with this gacha \
-                             machine and find the common denominator for \
-                             success and riches?";
+                            "Are you ready to test your luck with this \
+                             gacha machine and find the common \
+                             denominator for success and riches?";
                         ];
                       button
-                        [ classList [ ("submit", true) ]; onClick (Pull 1) ]
+                        [
+                          classList [ ("submit", true) ];
+                          onClick (Pull 1);
+                        ]
                         [ text "Roll 1" ];
                       ( if model.rolls > 10 then
                         button
-                          [ classList [ ("submit", true) ]; onClick (Pull 10) ]
+                          [
+                            classList [ ("submit", true) ];
+                            onClick (Pull 10);
+                          ]
                           [ text "Roll 10" ]
                       else p [] [] );
                       ( if
@@ -273,7 +309,10 @@ module M : Puzzle.S = struct
                         && CharMap.cardinal model.chars_collected = 6
                       then
                         button
-                          [ classList [ ("submit", true) ]; onClick (Pull 100) ]
+                          [
+                            classList [ ("submit", true) ];
+                            onClick (Pull 100);
+                          ]
                           [ text "Roll 100" ]
                       else p [] [] );
                       (let show_counts =
@@ -286,7 +325,11 @@ module M : Puzzle.S = struct
                                div []
                                  [
                                    p []
-                                     [ text (char ^ " " ^ string_of_int count) ];
+                                     [
+                                       text
+                                         ( char ^ " "
+                                         ^ string_of_int count );
+                                     ];
                                    display_counts rest;
                                  ]
                          in
@@ -297,15 +340,21 @@ module M : Puzzle.S = struct
                         [
                           p []
                             [
-                              text ("Total rolls: " ^ string_of_int model.rolls);
+                              text
+                                ( "Total rolls: "
+                                ^ string_of_int model.rolls );
                             ];
                         ];
                     ] );
                 button
-                  [ onClick (Select (-1)); classList [ ("submit", true) ] ]
+                  [
+                    onClick (Select (-1));
+                    classList [ ("submit", true) ];
+                  ]
                   [ text "Go back" ];
               ]
-        | -1 | _ ->
+        | -1
+        | _ ->
             div []
               [
                 div []
@@ -327,7 +376,8 @@ module M : Puzzle.S = struct
                                      ^ ": "
                                      ^
                                      if List.mem curr model.solved then
-                                       string_clean (List.nth answers curr)
+                                       string_clean
+                                         (List.nth answers curr)
                                      else "????" );
                                  ];
                                make_buttons rest;
@@ -344,7 +394,10 @@ module M : Puzzle.S = struct
                             {|"Hey, that was some good work there with the crime scenes. Oh, you want the autopsy files? Here you go."|};
                         ];
                       button
-                        [ onClick (Select 6); classList [ ("submit", true) ] ]
+                        [
+                          onClick (Select 6);
+                          classList [ ("submit", true) ];
+                        ]
                         [ text "View autopsy files" ];
                     ]
                 else p [] [] );

@@ -45,19 +45,19 @@ module M : Puzzle.S = struct
   (** [rootFeeders] is the list of feeders to each of the root puzzles
       in order*)
   let rootFeeders =
-    "resources/rootfeeders.txt" |> Node.Fs.readFileAsUtf8Sync
+    "static/rootfeeders.txt" |> Node.Fs.readFileAsUtf8Sync
     |> String.split_on_char '\n'
 
   (** [dictionary] is a set of (hopefully) non-profane words in the
       English language between 4 and 16 characters long. *)
   let dictionary =
-    "resources/cleanwords.txt" |> Node.Fs.readFileAsUtf8Sync
+    "static/cleanwords.txt" |> Node.Fs.readFileAsUtf8Sync
     |> String.split_on_char '\n'
 
   (** [compassList] is a list of the NATO phonetic alphabet words
       corresponding to each letter in English. *)
   let compassList =
-    "resources/natophonetic.txt" |> Node.Fs.readFileAsUtf8Sync
+    "static/natophonetic.txt" |> Node.Fs.readFileAsUtf8Sync
     |> String.split_on_char '\n'
 
   (** [flagsList] is an association list of words that contain compass
@@ -67,7 +67,7 @@ module M : Puzzle.S = struct
       encoding, and the rest of the string (after a space) is a possible
       word corresponding to that letter. *)
   let flagsList =
-    "resources/semaphore_words.txt" |> Node.Fs.readFileAsUtf8Sync
+    "static/semaphore_words.txt" |> Node.Fs.readFileAsUtf8Sync
     |> String.split_on_char '\n'
     |> List.map (fun s ->
            (s.[0], List.nth (String.split_on_char ' ' s) 1))
@@ -83,7 +83,7 @@ module M : Puzzle.S = struct
       encoding, and the rest of the string (after a space) is a possible
       word corresponding to that letter. *)
   let incdecList =
-    "resources/inc_dec_words.txt" |> Node.Fs.readFileAsUtf8Sync
+    "static/inc_dec_words.txt" |> Node.Fs.readFileAsUtf8Sync
     |> String.split_on_char '\n'
     |> List.map (fun s ->
            (s.[0], List.nth (String.split_on_char ' ' s) 1))

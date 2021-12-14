@@ -26,7 +26,14 @@ module M = struct
 
   (**[party_dates] are the correct dates for each dropdown, stored as
      (int, int) pairs*)
-  let party_dates = ()
+  let party_dates =
+    "static/party_days.txt" |> Node.Fs.readFileAsUtf8Sync
+    |> String.split_on_char '\n'
+    |> List.map (fun s ->
+           let pairs =
+             List.map int_of_string (String.split_on_char ' ' s)
+           in
+           (List.nth pairs 0, List.nth pairs 1))
 
   (** [init] returns an initialized empty puzzle with a command to be
       executed *)
@@ -34,6 +41,19 @@ module M = struct
     ( Array.init num_dates (fun _ ->
           { month = 1; date = 1; correct = false }),
       Cmd.none )
+
+  (**[date_checker model pos lst] checks if the dates stored in the
+     array [model] starting at position [pos] match the dates stored in
+     [lst], for however many elements there are remaining in [lst], and
+     updates the stored entry in the array to be correct if it is.
+     Requires: [lst] has length shorter than [num_dates - pos]. *)
+  let rec date_checker model pos = function
+    | [] -> ()
+    | (m, d) :: t ->
+        let drop = model.(pos) in
+        model.(pos) <-
+          { drop with correct = drop.month = m && drop.date = d };
+        date_checker model (pos + 1) t
 
   (** [update model msg] returns the puzzle model updated with any text
       change events, along with a command to be executed *)
@@ -46,11 +66,17 @@ module M = struct
         let drop_p = t.(p) in
         t.(p) <- { drop_p with month = m' };
         (t, Cmd.none)
-    | Check -> (t, Cmd.none)
+    | Check ->
+        date_checker t 0 party_dates;
+        (t, Cmd.none)
+
+  let party_rows model =
+    let open Html in
+    List.init num_dates (fun x -> tr [] [])
 
   (** [view model] returns a Vdom object that contains the HTML
       representing this crossword puzzle [model] object *)
   let view model =
     let open Html in
-    div [] []
+    div [] [ table [] (party_rows model) ]
 end
