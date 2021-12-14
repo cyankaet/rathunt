@@ -155,6 +155,7 @@ module M = struct
               type' "text";
               value sq.text;
               onInput (fun x -> ChangeSquare { text = x; pos = (r, c) });
+              classList [ ("input-box", true) ];
             ]
             [];
         ]
@@ -162,7 +163,7 @@ module M = struct
       if sq.numbered then
         let clue_num = Hashtbl.find clue_nums (r, c) in
         let label =
-          h6
+          div
             [ classList [ ("clue-num", true) ] ]
             [ clue_num |> string_of_int |> text ]
         in
