@@ -150,236 +150,267 @@ module M : Puzzle.S = struct
 
   let view model =
     let open Html in
-    div []
-      [
-        ( if model.selected = -1 then
-          div []
-            [
-              i []
-                [
-                  p []
-                    [
-                      Printf.sprintf
-                        "There's ultimately nothing suspicious about a few new \
-                         transfer students being murdered, right? Okay, they \
-                         were a little talented."
-                      |> text;
-                    ];
-                ];
-              p [] [];
-              p []
-                [
-                  Printf.sprintf
-                    {|"Oh hi there, you're in charge of investigating the crime scenes
-             and identifying any information about our killer. We'll take it
-             from there."|}
-                  |> text;
-                ];
-            ]
-        else div [] [] );
-        ( match model.selected with
-        | 6 ->
+    if model.accepted then
+      div []
+        [
+          ( if model.selected = -1 then
             div []
               [
-                h3 [] [ text "Autopsy Files" ];
-                p []
+                i []
                   [
-                    ol []
+                    p []
                       [
-                        (let rec display_files = function
-                           | [] -> p [] []
-                           | file :: rest ->
-                               div []
-                                 [ li [] [ text file ]; display_files rest ]
-                         in
-                         display_files autopsy_files);
+                        Printf.sprintf
+                          "There's ultimately nothing suspicious about a few \
+                           new transfer students being murdered, right? Okay, \
+                           they were a little talented."
+                        |> text;
                       ];
                   ];
-                button
+                p [] [];
+                p []
                   [
-                    onClick (Select (-1));
-                    classList [ ("submit-subpuzzle", true) ];
-                  ]
-                  [ text "Go back" ];
+                    Printf.sprintf
+                      {|"Oh hi there, you're in charge of investigating the crime scenes
+             and identifying any information about our killer. We'll take it
+             from there."|}
+                    |> text;
+                  ];
               ]
-        | 0 | 1 | 2 | 3 | 4 | 5 ->
-            div []
-              [
-                h3 []
-                  [ text ("Crime Scene " ^ string_of_int (model.selected + 1)) ];
-                ( if List.mem model.selected model.solved then
-                  h5 [] [ text "Solved!" ]
-                else
-                  div []
-                    [
-                      p []
-                        [
-                          input'
-                            [
-                              type' "text";
-                              id "answer-bar";
-                              value model.box_text;
-                              onInput (fun s -> UpdateText s);
-                              placeholder "Enter Answer Here";
-                            ]
-                            [];
-                        ];
-                      p []
-                        [
-                          button
-                            [
-                              onClick (Solve model.selected);
-                              classList [ ("submit-subpuzzle", true) ];
-                            ]
-                            [ text "Submit" ];
-                        ];
-                    ] );
-                ( if model.selected >= 1 && model.selected <= 4 then
-                  load_puzzle_content (model.selected + 1)
-                else if model.selected = 0 then
+          else div [] [] );
+          ( match model.selected with
+          | 6 ->
+              div []
+                [
+                  h3 [] [ text "Autopsy Files" ];
                   p []
                     [
-                      i []
+                      ol []
                         [
-                          p []
-                            [
-                              text
-                                "You enter and find a book on a desk about how \
-                                 to interrogate people and get answers in as \
-                                 few questions as possible as well as a piece \
-                                 of paper with the following: (Click on the \
-                                 images to get an interactive version)";
-                            ];
+                          (let rec display_files = function
+                             | [] -> p [] []
+                             | file :: rest ->
+                                 div []
+                                   [ li [] [ text file ]; display_files rest ]
+                           in
+                           display_files autopsy_files);
                         ];
-                      (let rec load_imgs links = function
-                         | [] -> p [] []
-                         | image :: rest ->
-                             div []
-                               [
-                                 a
-                                   [ href (List.hd links); target "_blank" ]
-                                   [ img [ src image ] [] ];
-                                 load_imgs (List.tl links) rest;
-                               ]
-                       in
-                       load_imgs puzz_links puzz_img);
+                    ];
+                  button
+                    [
+                      onClick (Select (-1));
+                      classList [ ("submit-subpuzzle", true) ];
                     ]
-                else
-                  p []
+                    [ text "Go back" ];
+                ]
+          | 0 | 1 | 2 | 3 | 4 | 5 ->
+              div []
+                [
+                  h3 []
                     [
-                      i []
-                        [
-                          p []
-                            [
-                              text
-                                "Are you ready to test your luck with this \
-                                 gacha machine and find the common denominator \
-                                 for success and riches?";
-                            ];
-                        ];
-                      button
-                        [
-                          classList [ ("submit-subpuzzle", true) ];
-                          onClick (Pull 1);
-                        ]
-                        [ text "Roll 1" ];
-                      ( if model.rolls > 10 then
-                        button
+                      text ("Crime Scene " ^ string_of_int (model.selected + 1));
+                    ];
+                  ( if List.mem model.selected model.solved then
+                    h5 [] [ text "Solved!" ]
+                  else
+                    div []
+                      [
+                        p []
                           [
-                            classList [ ("submit-subpuzzle", true) ];
-                            onClick (Pull 10);
-                          ]
-                          [ text "Roll 10" ]
-                      else p [] [] );
-                      ( if
-                        model.rolls > 100
-                        && CharMap.cardinal model.chars_collected = 6
-                      then
-                        button
+                            input'
+                              [
+                                type' "text";
+                                id "answer-bar";
+                                value model.box_text;
+                                onInput (fun s -> UpdateText s);
+                                placeholder "Enter Answer Here";
+                              ]
+                              [];
+                          ];
+                        p []
                           [
-                            classList [ ("submit-subpuzzle", true) ];
-                            onClick (Pull 100);
-                          ]
-                          [ text "Roll 100" ]
-                      else p [] [] );
-                      (let show_counts =
-                         let bindings =
-                           CharMap.bindings model.chars_collected
-                         in
-                         let rec display_counts = function
+                            button
+                              [
+                                onClick (Solve model.selected);
+                                classList [ ("submit-subpuzzle", true) ];
+                              ]
+                              [ text "Submit" ];
+                          ];
+                      ] );
+                  ( if model.selected >= 1 && model.selected <= 4 then
+                    load_puzzle_content (model.selected + 1)
+                  else if model.selected = 0 then
+                    p []
+                      [
+                        i []
+                          [
+                            p []
+                              [
+                                text
+                                  "You enter and find a book on a desk about \
+                                   how to interrogate people and get answers \
+                                   in as few questions as possible as well as \
+                                   a piece of paper with the following: (Click \
+                                   on the images to get an interactive \
+                                   version)";
+                              ];
+                          ];
+                        (let rec load_imgs links = function
                            | [] -> p [] []
-                           | (char, count) :: rest ->
+                           | image :: rest ->
                                div []
                                  [
-                                   p []
-                                     [ text (char ^ " " ^ string_of_int count) ];
-                                   display_counts rest;
+                                   a
+                                     [ href (List.hd links); target "_blank" ]
+                                     [ img [ src image ] [] ];
+                                   load_imgs (List.tl links) rest;
                                  ]
                          in
-                         display_counts bindings
-                       in
-                       if model.rolls <> 0 then show_counts else p [] []);
-                      strong []
-                        [
-                          p []
+                         load_imgs puzz_links puzz_img);
+                      ]
+                  else
+                    p []
+                      [
+                        i []
+                          [
+                            p []
+                              [
+                                text
+                                  "Are you ready to test your luck with this \
+                                   gacha machine and find the common \
+                                   denominator for success and riches?";
+                              ];
+                          ];
+                        button
+                          [
+                            classList [ ("submit-subpuzzle", true) ];
+                            onClick (Pull 1);
+                          ]
+                          [ text "Roll 1" ];
+                        ( if model.rolls > 10 then
+                          button
                             [
-                              text ("Total rolls: " ^ string_of_int model.rolls);
-                            ];
-                        ];
-                    ] );
-                button
-                  [
-                    onClick (Select (-1));
-                    classList [ ("submit-subpuzzle", true) ];
-                  ]
-                  [ text "Go back" ];
-              ]
-        | -1 | _ ->
-            div []
-              [
-                div []
-                  [
-                    (let rec make_buttons = function
-                       | [] -> p [] []
-                       | curr :: rest ->
-                           div []
-                             [
-                               button
-                                 [
-                                   onClick (Select curr);
-                                   classList [ ("submit-subpuzzle", true) ];
-                                 ]
-                                 [
-                                   text
-                                     ( "Crime Scene "
-                                     ^ string_of_int (curr + 1)
-                                     ^ ": "
-                                     ^
-                                     if List.mem curr model.solved then
-                                       string_clean (List.nth answers curr)
-                                     else "????" );
-                                 ];
-                               make_buttons rest;
-                             ]
-                     in
-                     make_buttons zero_to_five);
-                  ];
-                ( if List.length model.solved = 6 then
+                              classList [ ("submit-subpuzzle", true) ];
+                              onClick (Pull 10);
+                            ]
+                            [ text "Roll 10" ]
+                        else p [] [] );
+                        ( if
+                          model.rolls > 100
+                          && CharMap.cardinal model.chars_collected = 6
+                        then
+                          button
+                            [
+                              classList [ ("submit-subpuzzle", true) ];
+                              onClick (Pull 100);
+                            ]
+                            [ text "Roll 100" ]
+                        else p [] [] );
+                        (let show_counts =
+                           let bindings =
+                             CharMap.bindings model.chars_collected
+                           in
+                           let rec display_counts = function
+                             | [] -> p [] []
+                             | (char, count) :: rest ->
+                                 div []
+                                   [
+                                     p []
+                                       [
+                                         text (char ^ " " ^ string_of_int count);
+                                       ];
+                                     display_counts rest;
+                                   ]
+                           in
+                           display_counts bindings
+                         in
+                         if model.rolls <> 0 then show_counts else p [] []);
+                        strong []
+                          [
+                            p []
+                              [
+                                text
+                                  ("Total rolls: " ^ string_of_int model.rolls);
+                              ];
+                          ];
+                      ] );
+                  button
+                    [
+                      onClick (Select (-1));
+                      classList [ ("submit-subpuzzle", true) ];
+                    ]
+                    [ text "Go back" ];
+                ]
+          | -1 | _ ->
+              div []
+                [
                   div []
                     [
-                      p []
-                        [
-                          text
-                            {|"Hey, that was some good work there with the crime scenes. Oh, you want the autopsy files? Here you go."|};
-                        ];
-                      button
-                        [
-                          onClick (Select 6);
-                          classList [ ("submit-subpuzzle", true) ];
-                        ]
-                        [ text "View autopsy files" ];
-                    ]
-                else p [] [] );
-              ] );
-      ]
+                      (let rec make_buttons = function
+                         | [] -> p [] []
+                         | curr :: rest ->
+                             div []
+                               [
+                                 button
+                                   [
+                                     onClick (Select curr);
+                                     classList [ ("submit-subpuzzle", true) ];
+                                   ]
+                                   [
+                                     text
+                                       ( "Crime Scene "
+                                       ^ string_of_int (curr + 1)
+                                       ^ ": "
+                                       ^
+                                       if List.mem curr model.solved then
+                                         string_clean (List.nth answers curr)
+                                       else "????" );
+                                   ];
+                                 make_buttons rest;
+                               ]
+                       in
+                       make_buttons zero_to_five);
+                    ];
+                  ( if List.length model.solved >= 5 then
+                    div []
+                      [
+                        p []
+                          [
+                            text
+                              {|"Hey, that was some good work there with the crime scenes. Oh, you want the autopsy files? Here you go."|};
+                          ];
+                        button
+                          [
+                            onClick (Select 6);
+                            classList [ ("submit-subpuzzle", true) ];
+                          ]
+                          [ text "View autopsy files" ];
+                      ]
+                  else p [] [] );
+                ] );
+        ]
+    else
+      div []
+        [
+          h3 [] [ text "Trigger Warning" ];
+          p
+            [ classList [ ("about", true) ] ]
+            [
+              text
+                "This puzzle contains trigger warnings for mentions of death. \
+                 We created this puzzle when the situation was not as bad as \
+                 it is now. We advise you to go back if you feel uncomfotable \
+                 with this puzzle.";
+            ];
+          a
+            [ href ("#" ^ "home") ]
+            [
+              button
+                [ classList [ ("submit-subpuzzle", true) ] ]
+                [ text "Go back" ];
+            ];
+          button
+            [ classList [ ("submit-subpuzzle", true) ]; onClick Accept ]
+            [ text "I understand. Show the puzzle!" ];
+        ]
 end
