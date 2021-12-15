@@ -16,7 +16,8 @@ let view () =
       div []
         [
           h2 [] [ Printf.sprintf "About" |> text ];
-          p []
+          p
+            [ classList [ ("about", true) ] ]
             [
               text
                 "Hello there, we are The Rats! We have been solving puzzle \

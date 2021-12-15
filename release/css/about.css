@@ -43,6 +43,11 @@
   transform: translateZ(3px) scale(0.625);
 }
 
+.about {
+  margin: 50px;
+  text-align: left;
+}
+
 .about-foreground h2 {
   font-size: 36px;
 }
