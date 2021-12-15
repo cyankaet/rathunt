@@ -96,22 +96,23 @@ module M = struct
   let image_list n =
     let open Html in
     td [ id "container" ]
-      (List.init (List.nth guest_nums n) (fun x ->
-           td
-             [ classList [ ("guest-box", true) ] ]
-             [
-               img
-                 [
-                   src
-                     ( "records_guests/"
-                     ^ string_of_int (n + 1)
-                     ^ "-"
-                     ^ string_of_int (x + 1)
-                     ^ ".png" );
-                   classList [ ("guest-imgs", true) ];
-                 ]
-                 [];
-             ]))
+      ( td [] [ "Ft. " |> text ]
+      :: List.init (List.nth guest_nums n) (fun x ->
+             td
+               [ classList [ ("guest-box", true) ] ]
+               [
+                 img
+                   [
+                     src
+                       ( "records_guests/"
+                       ^ string_of_int (n + 1)
+                       ^ "-"
+                       ^ string_of_int (x + 1)
+                       ^ ".png" );
+                     classList [ ("guest-imgs", true) ];
+                   ]
+                   [];
+               ]) )
 
   (**[selector model n month] makes the month selector for row [n] in
      the table if [m] is true, with the selected value given as in
@@ -150,9 +151,13 @@ module M = struct
                   else {js|❌|js} )
                   |> text;
                 ];
-              td
-                [ Attributes.classList [ ("mid-justify", true) ] ]
-                [ selector model x true; selector model x false ];
+              td []
+                [
+                  selector model x true;
+                  text "-";
+                  selector model x false;
+                  text "-2021";
+                ];
               td []
                 [
                   audio
@@ -181,6 +186,13 @@ module M = struct
       [
         div []
           [
+            "K. K. tour dates from earlier this year. Fun fact: K.K. \
+             loves to celebrate and party with friends, especially \
+             when it's their special day!" |> text;
+          ];
+        div
+          [ classList [ ("party-wrapper", true) ] ]
+          [
             button
               [ onClick Check; classList [ ("button-box", true) ] ]
               [
@@ -189,6 +201,9 @@ module M = struct
                 |> text;
               ];
           ];
+        h3
+          [ classList [ ("title-wrapper", true) ] ]
+          [ "2021 K. K. Holiday Tour!" |> text ];
         div []
           [
             table
