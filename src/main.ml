@@ -2,6 +2,7 @@ open Tea
 module Metapuzzle = Puzzlepage.M (Meta.M)
 module Crossword = Puzzlepage.M (Crossword.M)
 module KilledThreads = Puzzlepage.M (Killedthreads.M)
+module Records = Puzzlepage.M (Records.M)
 
 type model = {
   meta : Metapuzzle.model;
@@ -9,6 +10,7 @@ type model = {
   teams : Teams.model;
   team_reg : Team_registration.model;
   killed_threads : KilledThreads.model;
+  records : Records.model;
   page : string;
 }
 (** [model] is a type representing a model of the entire site containing
@@ -22,6 +24,7 @@ let init () _ =
       killed_threads = fst (KilledThreads.init "turtle");
       teams = Teams.init;
       team_reg = Team_registration.init;
+      records = fst (Records.init "gem");
       page = "#home";
     },
     Cmd.none )
@@ -34,6 +37,7 @@ type msg =
   | About_msg of About.msg
   | Faq_msg of Faq.msg
   | Rules_msg of Rules.msg
+  | Records_msg of Records.msg
   | Teams_msg of Teams.msg
   | Team_reg_msg of Team_registration.msg
   | UrlChange of Web.Location.location
@@ -66,6 +70,12 @@ let update model = function
   | About_msg _ -> (model, Cmd.none)
   | Faq_msg _ -> (model, Cmd.none)
   | Rules_msg _ -> (model, Cmd.none)
+  | Records_msg msg ->
+      print_endline "kk slider";
+      if model.page = "#records" then
+        let records, cmd = Records.update model.records msg in
+        ({ model with records }, Cmd.map records_msg cmd)
+      else (model, Cmd.none)
   | Teams_msg msg ->
       print_endline "3";
       if model.page = "#teams" then
@@ -75,9 +85,7 @@ let update model = function
   | Team_reg_msg msg ->
       print_endline "4";
       if model.page = "#register" then
-        let team_reg, cmd =
-          Team_registration.update model.team_reg msg
-        in
+        let team_reg, cmd = Team_registration.update model.team_reg msg in
         ({ model with team_reg }, Cmd.map team_reg_msg cmd)
       else (model, Cmd.none)
   | UrlChange loc ->
@@ -106,14 +114,14 @@ let home_view =
       h2 []
         [
           Printf.sprintf
-            "Welcome to RatHunt. Select a puzzle to start with (hint: \
-             not the meta)."
+            "Welcome to RatHunt. Select a puzzle to start with (hint: not the \
+             meta)."
           |> text;
         ];
-      p []
-        [ a [ href ("#" ^ "meta") ] [ text "META: Twenty Questions" ] ];
+      p [] [ a [ href ("#" ^ "meta") ] [ text "META: Twenty Questions" ] ];
       p [] [ a [ href ("#" ^ "crossword") ] [ text "Grid Elements" ] ];
       p [] [ a [ href ("#" ^ "killed") ] [ text "Killed Threads" ] ];
+      p [] [ a [ href ("#" ^ "records") ] [ text "K. K. Records" ] ];
     ]
 
 (** [view model] renders the [model] into HTML, which will become a
@@ -152,11 +160,13 @@ let view model =
               Crossword.view model.crossword |> map crossword_msg
           | "#killed" ->
               print_endline "Going to killed";
-              KilledThreads.view model.killed_threads
-              |> map killedthreads_msg
+              KilledThreads.view model.killed_threads |> map killedthreads_msg
           | "#about" -> About.view () |> map about_msg
           | "#faq" -> Faq.view () |> map faq_msg
           | "#rules" -> Rules.view () |> map rules_msg
+          | "#records" ->
+              print_endline "Going to records";
+              Records.view model.records |> map records_msg
           | "#teams" -> Teams.view model.teams |> map teams_msg
           | "#register" ->
               Team_registration.view model.team_reg |> map team_reg_msg
@@ -169,10 +179,4 @@ let subscriptions _ = [ Keyboard.downs key_pressed ] |> Sub.batch
 (** [main] starts the web app *)
 let main =
   Navigation.navigationProgram urlChange
-    {
-      init;
-      update;
-      view;
-      subscriptions;
-      shutdown = (fun _ -> Cmd.none);
-    }
+    { init; update; view; subscriptions; shutdown = (fun _ -> Cmd.none) }
