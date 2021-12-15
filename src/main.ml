@@ -19,8 +19,8 @@ type model = {
 (** [init] is the initial state of the webpage *)
 let init () _ =
   ( {
-      meta = fst (Metapuzzle.init "answer");
-      crossword = fst (Crossword.init "angery");
+      meta = fst (Metapuzzle.init "ocamltamer");
+      crossword = fst (Crossword.init "autoaxle");
       killed_threads = fst (KilledThreads.init "turtle");
       teams = Teams.init;
       team_reg = Team_registration.init;
