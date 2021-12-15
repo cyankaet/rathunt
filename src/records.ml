@@ -140,7 +140,8 @@ module M = struct
   let party_rows model =
     let open Html2 in
     List.init num_dates (fun x ->
-        tr []
+        tr
+          [ Attributes.id "table-row" ]
           ( [
               td
                 [ Attributes.classList [ ("emoji-box", true) ] ]
@@ -149,8 +150,9 @@ module M = struct
                   else {js|❌|js} )
                   |> text;
                 ];
-              selector model x true;
-              selector model x false;
+              td
+                [ Attributes.classList [ ("mid-justify", true) ] ]
+                [ selector model x true; selector model x false ];
               td []
                 [
                   audio
