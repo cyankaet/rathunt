@@ -7,10 +7,10 @@ let view () =
   div [ classList [] ]
     [
       div
-        [ id "container"; classList [ ("center-margin", true) ] ]
+        [ id "about-container"; classList [ ("center-margin", true) ] ]
         [
           div
-            [ classList [ ("image-container", true) ] ]
+            [ classList [ ("about-image-container", true) ] ]
             [ img [ src "rats.jpeg" ] [] ];
         ];
       div []

@@ -12,11 +12,17 @@ module M : Puzzle.S = struct
     chars_collected : c_map;
     rolls : int;
     next_rolls : int list;
+    accepted : bool;
   }
 
   type model = t
 
-  type msg = Select of int | Solve of int | UpdateText of string | Pull of int
+  type msg =
+    | Select of int
+    | Solve of int
+    | UpdateText of string
+    | Pull of int
+    | Accept
 
   let zero_to_five = [ 0; 1; 2; 3; 4; 5 ]
 
@@ -53,6 +59,7 @@ module M : Puzzle.S = struct
         chars_collected = CharMap.empty;
         rolls = 0;
         next_rolls = init_rolls;
+        accepted = false;
       },
       Cmd.none )
 
@@ -89,6 +96,7 @@ module M : Puzzle.S = struct
     | Select cell -> ({ model with selected = cell; box_text = "" }, Cmd.none)
     | UpdateText str -> ({ model with box_text = str }, Cmd.none)
     | Pull num -> (pull model num, Cmd.none)
+    | Accept -> ({ model with accepted = true }, Cmd.none)
     | _ -> (model, Cmd.none)
 
   let load_puzzle_content puzzle =

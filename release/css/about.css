@@ -9,22 +9,23 @@
 }
 
 
-#container {
-  width: 400px;
-  height: auto;
+#about-container {
+  width: 800px;
+  /* height: auto; */
   display: table;
   }
 
-#container .image-container {
+#about-container .about-image-container {
   text-align: center;
   vertical-align: middle;
   display: table-cell;
 }
 
-#container .image-container img {
-  text-align: center;
+#about-container .about-image-container img {
+  text-align: left;
+  width: 400px; 
   max-width: 100%;
-  max-height: auto;      
+  max-height: auto;    
 }
 
 .about-background {
