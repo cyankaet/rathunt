@@ -12,6 +12,7 @@ type model = {
   killed_threads : KilledThreads.model;
   records : Records.model;
   page : string;
+  mutable title : string;
 }
 (** [model] is a type representing a model of the entire site containing
     a single [puzzle] so far *)
@@ -26,6 +27,7 @@ let init () _ =
       team_reg = Team_registration.init;
       records = fst (Records.init "gem");
       page = "#home";
+      title = "RatHunt";
     },
     Cmd.none )
 
@@ -85,7 +87,9 @@ let update model = function
   | Team_reg_msg msg ->
       print_endline "4";
       if model.page = "#register" then
-        let team_reg, cmd = Team_registration.update model.team_reg msg in
+        let team_reg, cmd =
+          Team_registration.update model.team_reg msg
+        in
         ({ model with team_reg }, Cmd.map team_reg_msg cmd)
       else (model, Cmd.none)
   | UrlChange loc ->
@@ -114,11 +118,12 @@ let home_view =
       h2 []
         [
           Printf.sprintf
-            "Welcome to RatHunt. Select a puzzle to start with (hint: not the \
-             meta)."
+            "Welcome to RatHunt. Select a puzzle to start with (hint: \
+             not the meta)."
           |> text;
         ];
-      p [] [ a [ href ("#" ^ "meta") ] [ text "META: Twenty Questions" ] ];
+      p []
+        [ a [ href ("#" ^ "meta") ] [ text "META: Twenty Questions" ] ];
       p [] [ a [ href ("#" ^ "crossword") ] [ text "Grid Elements" ] ];
       p [] [ a [ href ("#" ^ "killed") ] [ text "Killed Threads" ] ];
       p [] [ a [ href ("#" ^ "records") ] [ text "K. K. Records" ] ];
@@ -139,36 +144,44 @@ let view model =
           a [ href ("#" ^ "rules") ] [ text "Rules" ];
           a [ href ("#" ^ "faq") ] [ text "FAQ" ];
           a [ href ("#" ^ "teams") ] [ text "Teams" ];
-          a [ href ("#" ^ "register") ] [ text "Register" ]
+          a [ href ("#" ^ "register") ] [ text "Login" ]
           (* a [ href ("#" ^ "meta") ] [ text "metapuzzle" ]; a [ href
              ("#" ^ "crossword") ] [ text "crossword" ]; *);
         ];
-      h1 [] [ Printf.sprintf "Rat Hunt" |> text ];
+      h1 [] [ model.title |> text ];
       p []
         [
           ( match model.page with
-          | "#home" -> home_view
+          | "#home" ->
+              model.title <- "RatHunt";
+              home_view
           | "#meta" ->
-              print_endline "Going to meta";
-              (* Metapuzzle.view model.meta |> map metapuzzlepage_msg; *)
-              print_endline "";
+              model.title <- "Twenty Questions";
               Metapuzzle.view model.meta |> map metapuzzlepage_msg
           | "#crossword" ->
-              print_endline "Going to crossword";
-              (* Metapuzzle.view model.meta |> map metapuzzlepage_msg; *)
-              print_endline "";
+              model.title <- "Grid Elements";
               Crossword.view model.crossword |> map crossword_msg
           | "#killed" ->
-              print_endline "Going to killed";
-              KilledThreads.view model.killed_threads |> map killedthreads_msg
-          | "#about" -> About.view () |> map about_msg
-          | "#faq" -> Faq.view () |> map faq_msg
-          | "#rules" -> Rules.view () |> map rules_msg
+              model.title <- "Killed Threads";
+              KilledThreads.view model.killed_threads
+              |> map killedthreads_msg
+          | "#about" ->
+              model.title <- "About";
+              About.view () |> map about_msg
+          | "#faq" ->
+              model.title <- "FAQs";
+              Faq.view () |> map faq_msg
+          | "#rules" ->
+              model.title <- "Rules";
+              Rules.view () |> map rules_msg
           | "#records" ->
-              print_endline "Going to records";
+              model.title <- "K. K. Records";
               Records.view model.records |> map records_msg
-          | "#teams" -> Teams.view model.teams |> map teams_msg
+          | "#teams" ->
+              model.title <- "Teams";
+              Teams.view model.teams |> map teams_msg
           | "#register" ->
+              model.title <- "Login";
               Team_registration.view model.team_reg |> map team_reg_msg
           | _ -> Printf.sprintf "Page Not Found" |> text );
         ];
@@ -179,4 +192,10 @@ let subscriptions _ = [ Keyboard.downs key_pressed ] |> Sub.batch
 (** [main] starts the web app *)
 let main =
   Navigation.navigationProgram urlChange
-    { init; update; view; subscriptions; shutdown = (fun _ -> Cmd.none) }
+    {
+      init;
+      update;
+      view;
+      subscriptions;
+      shutdown = (fun _ -> Cmd.none);
+    }
