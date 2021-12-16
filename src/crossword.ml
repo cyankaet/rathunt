@@ -19,6 +19,8 @@ module M = struct
 
   type model = t
 
+  let name = "bethe"
+
   (** file containing the across clues in the crossword *)
   let across =
     "static/acrossclues.txt" |> Node.Fs.readFileAsUtf8Sync
@@ -234,6 +236,16 @@ module M = struct
     let open Html in
     div []
       [
+        div
+          [ classList [ ("home-div", true) ] ]
+          [
+            p
+              [ classList [ ("home-text", true) ] ]
+              [
+                "A copy of the Cornell Sun with a crossword puzzle on \
+                 it. Should be elementary, right?" |> text;
+              ];
+          ];
         div
           [ classList [ ("cross-grid", true) ] ]
           [

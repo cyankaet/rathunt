@@ -1,0 +1,33 @@
+.home-text p {
+  text-align: left;
+  padding: 20 px;
+  width: 70%;
+  margin: auto;
+  padding-top: 10 px;
+  font-size: large;
+}
+
+.home-div {
+  width: 70%;
+  margin: auto;
+}
+.center-text {
+  text-align: center;
+}
+
+.italics {
+  font-style: italic;
+}
+
+.list-text li {
+  list-style-type: none;
+  font-size: large;
+}
+
+ul.bullets * {
+  list-style-type:disc;
+}
+
+.home-text {
+  font-size: large;
+}

@@ -1,0 +1,64 @@
+#poly-container {
+  width: 200px;
+  height: 200px;
+  display: table;
+}
+
+#poly-container .image-container {
+  text-align: center;
+  vertical-align: middle;
+  display: table-cell;
+}
+
+#poly-container .image-container img {
+  text-align: center;
+  max-width: 100%;
+  max-height: auto;      
+}
+
+.nonagram table, .nonagram td, .nonagram tr {
+  border-collapse: collapse;
+  border: 1px solid black;
+  width: 20px;
+  padding: 0px; 
+}
+
+.nonagram td, .nonagram tr {
+  height: 25px; 
+  margin: 0px;
+}
+
+.filled{
+  background-color: black;
+}
+
+.emoji-size {
+  font-size: x-large;
+}
+
+.clue-emoji-size{
+  height: 22.2px; 
+}
+
+.square-button {
+  width: 25px;
+  height: 22.2px;
+  border-top-style: hidden;
+  border-right-style: hidden;
+  border-left-style: hidden;
+  border-bottom-style: hidden;
+  margin:0px; 
+}
+
+.grid-filled {
+  background-color: #000;
+}
+
+.grid-crossed {
+  font-size: 18px; 
+  text-align: center;
+}
+
+.square-empty:hover{
+  background-color: #5bcc97;
+}

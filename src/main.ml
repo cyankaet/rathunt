@@ -1,28 +1,49 @@
 open Tea
+include Http_utils
 module Metapuzzle = Puzzlepage.M (Meta.M)
 module Crossword = Puzzlepage.M (Crossword.M)
 module KilledThreads = Puzzlepage.M (Killedthreads.M)
+module Records = Puzzlepage.M (Records.M)
+module Polyplay = Puzzlepage.M (Polyplay.M)
+module Treeoverflow = Puzzlepage.M (Treeoverflow.M)
 
 type model = {
   meta : Metapuzzle.model;
   crossword : Crossword.model;
+  polyplay : Polyplay.model;
+  treeoverflow : Treeoverflow.model;
   teams : Teams.model;
   team_reg : Team_registration.model;
   killed_threads : KilledThreads.model;
+  records : Records.model;
   page : string;
+  mutable title : string;
+  check_puzzle : string list transfer;
+  num_solves : int;
 }
 (** [model] is a type representing a model of the entire site containing
     a single [puzzle] so far *)
 
+let url name =
+  Printf.sprintf
+    "https://thingproxy.freeboard.io/fetch/https://rathunt-backend.herokuapp.com/solves/%s/"
+    name
+
 (** [init] is the initial state of the webpage *)
 let init () _ =
   ( {
-      meta = fst (Metapuzzle.init "answer");
-      crossword = fst (Crossword.init "angery");
-      killed_threads = fst (KilledThreads.init "turtle");
+      treeoverflow = fst (Treeoverflow.init ());
       teams = Teams.init;
+      polyplay = fst (Polyplay.init ());
       team_reg = Team_registration.init;
+      meta = fst (Metapuzzle.init ());
+      crossword = fst (Crossword.init ());
+      killed_threads = fst (KilledThreads.init ());
+      records = fst (Records.init ());
       page = "#home";
+      title = "RatHunt";
+      check_puzzle = Idle;
+      num_solves = 0;
     },
     Cmd.none )
 
@@ -34,15 +55,46 @@ type msg =
   | About_msg of About.msg
   | Faq_msg of Faq.msg
   | Rules_msg of Rules.msg
+  | Records_msg of Records.msg
+  | Home_msg of Home.msg
+  | Story_msg of Story.msg
+  | Polyplay_msg of Polyplay.msg
+  | Treeoverflow_msg of Treeoverflow.msg
   | Teams_msg of Teams.msg
   | Team_reg_msg of Team_registration.msg
   | UrlChange of Web.Location.location
   | Key_pressed of Keyboard.key_event
+  | PuzzleData of (string, string Http.error) Result.t
 [@@bs.deriving { accessors }]
 
 (** [update model] is the update loop that is called whenever an event
     is happened in the model *)
 let update model = function
+  | PuzzleData (Ok response) -> (
+      let open Json.Decoder in
+      let decoder = list string in
+      match decodeString decoder response with
+      | Ok x ->
+          print_endline "ok main.ml";
+          if List.mem "bethe" x then model.crossword.solved <- true
+          else ();
+          if List.mem "keeton" x then model.records.solved <- true
+          else ();
+          if List.mem "meta" x then model.meta.solved <- true else ();
+          if List.mem "rose" x then model.killed_threads.solved <- true
+          else ();
+          if List.mem "cook" x then model.polyplay.solved <- true
+          else ();
+          if List.mem "becker" x then model.treeoverflow.solved <- true
+          else ();
+          ({ model with num_solves = List.length x }, Cmd.none)
+      | Error e ->
+          print_endline e;
+          ({ model with check_puzzle = Failed }, Cmd.none) )
+  | PuzzleData (Error e) ->
+      print_endline "error sadge";
+      Js.log (Http.string_of_error e);
+      ({ model with check_puzzle = Failed }, Cmd.none)
   | Metapuzzlepage_msg msg ->
       print_endline "1";
       if model.page = "#meta" then
@@ -66,19 +118,58 @@ let update model = function
   | About_msg _ -> (model, Cmd.none)
   | Faq_msg _ -> (model, Cmd.none)
   | Rules_msg _ -> (model, Cmd.none)
-  | Teams_msg msg ->
+  | Home_msg _ -> (model, Cmd.none)
+  | Story_msg _ -> (model, Cmd.none)
+  | Records_msg msg ->
+      print_endline "kk slider";
+      if model.page = "#records" then
+        let records, cmd = Records.update model.records msg in
+        ({ model with records }, Cmd.map records_msg cmd)
+      else (model, Cmd.none)
+  | Treeoverflow_msg msg ->
       print_endline "3";
+      if model.page = "#treeoverflow" then
+        let treeoverflow, cmd =
+          Treeoverflow.update model.treeoverflow msg
+        in
+        ({ model with treeoverflow }, Cmd.map treeoverflow_msg cmd)
+      else (model, Cmd.none)
+  | Teams_msg msg ->
+      print_endline "4";
       if model.page = "#teams" then
         let teams, cmd = Teams.update model.teams msg in
         ({ model with teams }, Cmd.map teams_msg cmd)
       else (model, Cmd.none)
   | Team_reg_msg msg ->
-      print_endline "4";
+      print_endline "5";
       if model.page = "#register" then
         let team_reg, cmd =
           Team_registration.update model.team_reg msg
         in
-        ({ model with team_reg }, Cmd.map team_reg_msg cmd)
+        if team_reg.logged_in then (
+          model.meta.team <- team_reg.username;
+          model.crossword.team <- team_reg.username;
+          model.killed_threads.team <- team_reg.username;
+          model.records.team <- team_reg.username;
+          model.polyplay.team <- team_reg.username;
+          model.treeoverflow.team <- team_reg.username;
+          match model.check_puzzle with
+          | Loading
+          | Received _ ->
+              print_endline "Loading";
+              (model, Cmd.none)
+          | Idle
+          | Failed ->
+              ( { model with team_reg; check_puzzle = Loading },
+                Http_utils.make_get_request (url team_reg.username) []
+                  puzzleData ) )
+        else ({ model with team_reg }, Cmd.map team_reg_msg cmd)
+      else (model, Cmd.none)
+  | Polyplay_msg msg ->
+      print_endline "17";
+      if model.page = "#polyplay" then
+        let polyplay, cmd = Polyplay.update model.polyplay msg in
+        ({ model with polyplay }, Cmd.map polyplay_msg cmd)
       else (model, Cmd.none)
   | UrlChange loc ->
       print_endline "page changing";
@@ -110,10 +201,48 @@ let home_view =
              not the meta)."
           |> text;
         ];
-      p []
-        [ a [ href ("#" ^ "meta") ] [ text "META: Twenty Questions" ] ];
-      p [] [ a [ href ("#" ^ "crossword") ] [ text "Grid Elements" ] ];
-      p [] [ a [ href ("#" ^ "killed") ] [ text "Killed Threads" ] ];
+      div
+        [ id "list-container"; classList [ ("center-margin", true) ] ]
+        [
+          p
+            [ classList [ ("image-container", true) ] ]
+            [
+              img [ src "list_imgs/noyes.png" ] [];
+              a
+                [ href ("#" ^ "meta") ]
+                [ text "META: Twenty Questions" ];
+            ];
+          p
+            [ classList [ ("image-container", true) ] ]
+            [
+              img [ src "list_imgs/bethe.png" ] [];
+              a [ href ("#" ^ "crossword") ] [ text "Grid Elements" ];
+            ];
+          p
+            [ classList [ ("image-container", true) ] ]
+            [
+              img [ src "list_imgs/rose.png" ] [];
+              a [ href ("#" ^ "killed") ] [ text "Killed Threads" ];
+            ];
+          p
+            [ classList [ ("image-container", true) ] ]
+            [
+              img [ src "list_imgs/keeton.png" ] [];
+              a [ href ("#" ^ "records") ] [ text "K. K. Records" ];
+            ];
+          p
+            [ classList [ ("image-container", true) ] ]
+            [
+              img [ src "list_imgs/cook.png" ] [];
+              a [ href ("#" ^ "polyplay") ] [ text "Polymorphic Play" ];
+            ];
+          p
+            [ classList [ ("image-container", true) ] ]
+            [
+              img [ src "list_imgs/becker.png" ] [];
+              a [ href ("#" ^ "treeoverflow") ] [ text "Tree Overflow" ];
+            ];
+        ];
     ]
 
 (** [view model] renders the [model] into HTML, which will become a
@@ -127,38 +256,66 @@ let view model =
         [ classList [ ("topnav", true) ] ]
         [
           a [ href ("#" ^ "home") ] [ text "Home" ];
-          a [ href ("#" ^ "about") ] [ text "About" ];
+          a [ href ("#" ^ "puzzles") ] [ text "Puzzles" ];
+          a [ href ("#" ^ "story") ] [ text "Story" ];
           a [ href ("#" ^ "rules") ] [ text "Rules" ];
           a [ href ("#" ^ "faq") ] [ text "FAQ" ];
-          a [ href ("#" ^ "teams") ] [ text "Teams" ];
-          a [ href ("#" ^ "register") ] [ text "Register" ]
+          a [ href ("#" ^ "register") ] [ text "Login" ];
+          a [ href ("#" ^ "about") ] [ text "About" ];
+          a [] [ text model.team_reg.team ];
           (* a [ href ("#" ^ "meta") ] [ text "metapuzzle" ]; a [ href
-             ("#" ^ "crossword") ] [ text "crossword" ]; *);
+             ("#" ^ "crossword") ] [ text "crossword" ]; *)
         ];
-      h1 [] [ Printf.sprintf "Rat Hunt" |> text ];
+      h1 [] [ model.title |> text ];
       p []
         [
           ( match model.page with
-          | "#home" -> home_view
+          | "#home" ->
+              model.title <- "RatHunt";
+              Home.view () |> map home_msg
+          | "#puzzles" ->
+              model.title <- "Puzzles";
+              home_view
+          | "#story" ->
+              model.title <- "Story";
+              Story.view () |> map story_msg
           | "#meta" ->
-              print_endline "Going to meta";
-              (* Metapuzzle.view model.meta |> map metapuzzlepage_msg; *)
-              print_endline "";
+              model.title <- "Twenty Questions";
               Metapuzzle.view model.meta |> map metapuzzlepage_msg
           | "#crossword" ->
-              print_endline "Going to crossword";
-              (* Metapuzzle.view model.meta |> map metapuzzlepage_msg; *)
-              print_endline "";
+              model.title <- "Grid Elements";
               Crossword.view model.crossword |> map crossword_msg
           | "#killed" ->
-              print_endline "Going to killed";
+              model.title <- "Killed Threads";
               KilledThreads.view model.killed_threads
               |> map killedthreads_msg
-          | "#about" -> About.view () |> map about_msg
-          | "#faq" -> Faq.view () |> map faq_msg
-          | "#rules" -> Rules.view () |> map rules_msg
-          | "#teams" -> Teams.view model.teams |> map teams_msg
+          | "#about" ->
+              model.title <- "About";
+              About.view () |> map about_msg
+          | "#faq" ->
+              model.title <- "FAQs";
+              Faq.view () |> map faq_msg
+          | "#rules" ->
+              model.title <- "Rules";
+              Rules.view () |> map rules_msg
+          | "#records" ->
+              model.title <- "K. K. Records";
+              Records.view model.records |> map records_msg
+          | "#teams" ->
+              model.title <- "Teams";
+              Teams.view model.teams |> map teams_msg
+          | "#polyplay" ->
+              print_endline "Going to polyplay";
+              (* Metapuzzle.view model.meta |> map metapuzzlepage_msg; *)
+              print_endline "";
+              Polyplay.view model.polyplay |> map polyplay_msg
+          | "#treeoverflow" ->
+              print_endline "Going to treeoverflow";
+              print_endline "";
+              Treeoverflow.view model.treeoverflow
+              |> map treeoverflow_msg
           | "#register" ->
+              model.title <- "Login";
               Team_registration.view model.team_reg |> map team_reg_msg
           | _ -> Printf.sprintf "Page Not Found" |> text );
         ];

@@ -461,6 +461,8 @@ g wight
 g wigwam
 g yoga
 g yogi
+h aaaah
+h that
 j jato
 j java
 j jima
@@ -1431,6 +1433,8 @@ s yahwist
 s yams
 s yaws
 s youths
+x max
+x tax
 z azimuth
 z azoth
 z hazy

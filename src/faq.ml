@@ -4,16 +4,20 @@ type msg
 
 let view () =
   let open Html in
-  div []
+  div
+    [ classList [ ("list-text", true); ("home-div", true) ] ]
     [
-      h2 [] [ Printf.sprintf "FAQs" |> text ];
       ul
         [ classList [ ("clues", true) ] ]
         [
           li []
             [
               h3 []
-                [ text "What is a puzzlehunt? How do I solve these puzzles?" ];
+                [
+                  text
+                    "What is a puzzlehunt? How do I solve these \
+                     puzzles?";
+                ];
             ];
           ul []
             [
@@ -24,28 +28,31 @@ let view () =
                       p []
                         [
                           text
-                            "A puzzlehunt is a collection of puzzles. In a \
-                             puzzle, you're given information, whether it be \
-                             images, text, grids, or other information. You \
-                             then have to use this information to extract some \
-                             type of answer. No two puzzles are the same, and \
-                             a key part of the puzzle is figuring out what the \
-                             puzzle wants you to do.";
+                            "A puzzlehunt is a collection of puzzles. \
+                             In a puzzle, you're given information, \
+                             whether it be images, text, grids, or \
+                             other information. You then have to use \
+                             this information to extract some type of \
+                             answer. No two puzzles are the same, and \
+                             a key part of the puzzle is figuring out \
+                             what the puzzle wants you to do.";
                         ];
                       p []
                         [
                           text
-                            "If you want to see other (better) examples of \
-                             puzzlehunts, feel free to check out the following \
-                             ones below:";
+                            "If you want to see other (better) \
+                             examples of puzzlehunts, feel free to \
+                             check out the following ones below:";
                         ];
-                      ul []
+                      ul
+                        [ classList [ ("bullets", true) ] ]
                         [
                           li []
                             [
                               a
                                 [
-                                  href "https://galacticpuzzlehunt.com/archive";
+                                  href
+                                    "https://galacticpuzzlehunt.com/archive";
                                   target "_blank";
                                 ]
                                 [ text "Galactic Puzzle Hunt (GPH)" ];
@@ -72,7 +79,8 @@ let view () =
                             [
                               a
                                 [
-                                  href "https://puzzlehunt.club.cc.cmu.edu/";
+                                  href
+                                    "https://puzzlehunt.club.cc.cmu.edu/";
                                   target "_blank";
                                 ]
                                 [ text "Puzzlehunt CMU" ];
@@ -96,25 +104,26 @@ let view () =
                                 ]
                                 [
                                   text
-                                    "MIT Mystery Hunt (MITMH) (the biggest \
-                                     puzzle hunt of the year)";
+                                    "MIT Mystery Hunt (MITMH) (the \
+                                     biggest puzzle hunt of the year)";
                                 ];
                             ];
                         ];
                     ];
                 ];
             ];
-          li [] [ h3 [] [ text "How long and difficult is this hunt?" ] ];
+          li []
+            [ h3 [] [ text "How long and difficult is this hunt?" ] ];
           ul []
             [
               li []
                 [
                   text
                     "This is a mini-round with 5 feeder puzzles and 1 \
-                     meta-puzzle, which is a puzzle which uses the answers of \
-                     the previous puzzles. We anticipate this puzzle to be in \
-                     the middle-range of puzzles found in GPH and Teammate \
-                     Hunt.";
+                     meta-puzzle, which is a puzzle which uses the \
+                     answers of the previous puzzles. We anticipate \
+                     this puzzle to be in the middle-range of puzzles \
+                     found in GPH and Teammate Hunt.";
                 ];
             ];
           li [] [ h3 [] [ text "Who is running this hunt?" ] ];
@@ -123,9 +132,9 @@ let view () =
               li []
                 [
                   text
-                    "We are a group of 4 students really interested in puzzles \
-                     and we chose to make a mini-puzzle hunt! Learn more about \
-                     us in the about section!";
+                    "We are a group of 4 students really interested in \
+                     puzzles and we chose to make a mini-puzzle hunt! \
+                     Learn more about us in the about section!";
                 ];
             ];
           li []
@@ -142,52 +151,66 @@ let view () =
               li []
                 [
                   text
-                    ( "There will be no need to, but we won't stop you. Just \
-                       please don't send too many requests! " ^ {js|🥺|js} );
+                    ( "There will be no need to, but we won't stop \
+                       you. Just please don't send too many requests! "
+                    ^ {js|🥺|js} );
                 ];
             ];
-          li [] [ h3 [] [ text "Help! I'm stuck on a puzzle! AAAAAAAAAAAA" ] ];
-          ul []
+          li []
             [
-              li [] [ text "Here are some tips that we recommend:" ];
+              h3 [] [ text "Help! I'm stuck on a puzzle! AAAAAAAAAAAA" ];
               ul []
                 [
                   li []
                     [
-                      text
-                        "Double check your work, sometimes a small error is \
-                         just what's stopping you from continuing in the \
-                         problem.";
-                    ];
-                  li []
-                    [
-                      text
-                        "Get a different perspective, either from taking a \
-                         break or by having someone else look at the puzzles.";
-                    ];
-                  li []
-                    [
-                      text
-                        "Consider what you know, what you don't know, and how \
-                         you could use what you know in order to get something \
-                         new.";
-                    ];
-                  li []
-                    [
-                      a
-                        [ href "https://google.com"; target "_blank" ]
-                        [ text "Google" ];
-                      text " is your best friend!";
-                    ];
-                  li []
-                    [
-                      a
+                      p []
+                        [ text "Here are some tips that we recommend:" ];
+                      ul
+                        [ classList [ ("bullets", true) ] ]
                         [
-                          href
-                            "https://www.mit.edu/~puzzle/resources/haveyoutried.pdf";
-                          target "_blank";
-                        ]
-                        [ text "Have you tried..." ];
+                          li []
+                            [
+                              text
+                                "Double check your work, sometimes a \
+                                 small error is just what's stopping \
+                                 you from continuing in the problem.";
+                            ];
+                          li []
+                            [
+                              text
+                                "Get a different perspective, either \
+                                 from taking a break or by having \
+                                 someone else look at the puzzles.";
+                            ];
+                          li []
+                            [
+                              text
+                                "Consider what you know, what you \
+                                 don't know, and how you could use \
+                                 what you know in order to get \
+                                 something new.";
+                            ];
+                          li []
+                            [
+                              a
+                                [
+                                  href "https://google.com";
+                                  target "_blank";
+                                ]
+                                [ text "Google" ];
+                              text " is your best friend!";
+                            ];
+                          li []
+                            [
+                              a
+                                [
+                                  href
+                                    "https://www.mit.edu/~puzzle/resources/haveyoutried.pdf";
+                                  target "_blank";
+                                ]
+                                [ text "Have you tried..." ];
+                            ];
+                        ];
                     ];
                 ];
             ];
@@ -198,21 +221,27 @@ let view () =
           li [] [ h3 [] [ text "Is there a registration deadline?" ] ];
           ul [] [ li [] [ text "No." ] ];
           li [] [ h3 [] [ text "Is this a puzzle?" ] ];
-          ul [] [ li [] [ text ("This is NOT a puzzle. " ^ {js|🤔|js}) ] ];
+          ul []
+            [ li [] [ text ("This is NOT a puzzle. " ^ {js|🤔|js}) ] ];
           li []
             [
-              h3 [] [ text "Wait a minute, Rat Hunt? That sounds familiar..." ];
+              h3 []
+                [
+                  text
+                    "Wait a minute, Rat Hunt? That sounds familiar...";
+                ];
             ];
           ul []
             [
               li []
                 [
                   text
-                    ( "We are not affiliated with Palindrome or MITMH 2022 in \
-                       any way, shape, state, or form. " ^ {js|😳|js}
-                    ^ " However, we will be solving MITMH 2022 though! We are \
-                       just four university students who call ourselves \"The \
-                       Rats.\"" );
+                    ( "We are not affiliated with Palindrome or MITMH \
+                       2022 in any way, shape, state, or form. "
+                    ^ {js|😳|js}
+                    ^ " However, we will be solving MITMH 2022 though! \
+                       We are just four university students who call \
+                       ourselves \"The Rats.\"" );
                 ];
             ];
         ];

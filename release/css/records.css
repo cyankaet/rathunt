@@ -1,0 +1,52 @@
+#records-container { 
+  height: 75px; 
+  display: table; 
+}
+
+#records-container .guest-box {
+  text-align: left;
+  vertical-align: middle;
+  display: table-cell; 
+}
+
+#records-container .guest-box img {
+  text-align: left;
+  width: 75px; 
+  max-width: 100%;
+  max-height: auto;
+}
+
+#table-row {
+  display: table; 
+  vertical-align: middle;
+}  
+
+.emoji-box {
+  display: table-cell;
+  text-align: center;
+  vertical-align: middle;
+  height: 30px;
+  width: 30px;
+  border-radius: 3px;
+  padding: 7px;
+}
+
+.button-box {
+  background-color: #ffe986;
+  height: 30px;
+  width: 30px;
+  border-radius: 3px;
+  padding: 7px;
+}
+
+.button-box:hover {
+  background-color: #eed150;
+}
+
+.party-wrapper {
+  padding: 10px; 
+}
+
+.title-wrapper {
+  margin: 0px;
+}
