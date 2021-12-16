@@ -4,10 +4,11 @@ type msg
 
 let view () =
   let open Html in
-  div []
+  div
+    [ classList [ ("list-text", true); ("home-div", true) ] ]
     [
       p
-        [ classList [ ("clues", true) ] ]
+        [ classList [ ("home-text", true) ] ]
         [
           text
             "We don't ask for much, but there are a few things we \
