@@ -15,16 +15,11 @@
   border-collapse: collapse;
   border: 1px solid black;
   width: 20px;
+padding: 0px; 
 }
 
-.nonagram input {
-  height: 35px;
-  width: 35px;
-  text-align: center;
-}
-
-.nonagram input:focus {
-  outline: none;
+.nonagram td, .nonagram tr {
+  height: 50px; 
 }
 
 .filled{
@@ -41,25 +36,39 @@
   font-size: x-large;
 }
 
-/* .square-empty {
-  border: 1px solid #444;
+.square-empty {
   width: 50px;
   height: 50px;
-} */
+  border-top-style: hidden;
+  border-right-style: hidden;
+  border-left-style: hidden;
+  border-bottom-style: hidden;
+  margin:0px; 
+}
 
 .square-filled {
-  border: 1px solid #000;
+  background-color: #000;
   width: 50px;
   height: 50px;
+  border-top-style: hidden;
+  border-right-style: hidden;
+  border-left-style: hidden;
+  border-bottom-style: hidden;
+  margin:0px; 
 }
 
 .square-crossed {
-  border: 1px solid rgb(233, 17, 17);
+font-size: 36px; 
   text-align: center;
   width: 50px;
   height: 50px;
+  border-top-style: hidden;
+  border-right-style: hidden;
+  border-left-style: hidden;
+  border-bottom-style: hidden;
+  margin:0px; 
 }
-/* 
+
 .square-empty:hover{
   background-color: #5bcc97;
-} */
+}

@@ -146,7 +146,7 @@ module M : Puzzle.S = struct
   let get_button_class = function
     | Filled -> ("square-filled", true)
     | Crossed -> ("square-crossed", true)
-    | Empty -> ("square-filled", true)
+    | Empty -> ("square-empty", true)
 
   (** [square_view r c sq] returns the HTML representing a square [sq]
       at position ([r],[c]) in the grid*)
@@ -278,7 +278,6 @@ module M : Puzzle.S = struct
             table
               [ classList [ ("center-margin", true) ] ]
               (grid_view model.nonagram 24);
-            (* (List.init rows (fun r -> button_row model.nonagram r)); *)
           ];
       ]
 end
