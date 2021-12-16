@@ -454,6 +454,5 @@ module M : Puzzle.S = struct
       ]
 
   let view model =
-    let open Html in
     if model.accepted then puzzle_content model else trigger_warning
 end

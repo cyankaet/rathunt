@@ -111,10 +111,11 @@ module M = struct
               [ classList [ ("home-text", true) ] ]
               [
                 "You see that all of the errors you've encountered so \
-                 far lead to this little game of Twenty Questions you \
-                 made once upon a time. That time seems like a far-off \
-                 land now. You read across the prepared questions to \
-                 see what you need to do... " |> text;
+                 far lead to a little microcontroller, and on it, a \
+                 game of Twenty Questions you made once upon a time. \
+                 You read across the prepared questions to see what \
+                 you need to input, but they seem to be all mixed \
+                 up... " |> text;
               ];
           ];
         show_buttons model;

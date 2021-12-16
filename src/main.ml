@@ -44,6 +44,7 @@ type msg =
   | Rules_msg of Rules.msg
   | Records_msg of Records.msg
   | Home_msg of Home.msg
+  | Story_msg of Story.msg
   | Polyplay_msg of Polyplay.msg
   | Teams_msg of Teams.msg
   | Team_reg_msg of Team_registration.msg
@@ -78,6 +79,7 @@ let update model = function
   | Faq_msg _ -> (model, Cmd.none)
   | Rules_msg _ -> (model, Cmd.none)
   | Home_msg _ -> (model, Cmd.none)
+  | Story_msg _ -> (model, Cmd.none)
   | Records_msg msg ->
       print_endline "kk slider";
       if model.page = "#records" then
@@ -154,6 +156,7 @@ let view model =
         [
           a [ href ("#" ^ "home") ] [ text "Home" ];
           a [ href ("#" ^ "puzzles") ] [ text "Puzzles" ];
+          a [ href ("#" ^ "story") ] [ text "Story" ];
           a [ href ("#" ^ "rules") ] [ text "Rules" ];
           a [ href ("#" ^ "faq") ] [ text "FAQ" ];
           a [ href ("#" ^ "teams") ] [ text "Teams" ];
@@ -172,6 +175,9 @@ let view model =
           | "#puzzles" ->
               model.title <- "Puzzles";
               home_view
+          | "#story" ->
+              model.title <- "Story";
+              Story.view () |> map story_msg
           | "#meta" ->
               model.title <- "Twenty Questions";
               Metapuzzle.view model.meta |> map metapuzzlepage_msg

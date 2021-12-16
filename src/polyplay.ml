@@ -102,7 +102,6 @@ module M : Puzzle.S = struct
 
   (** [random_from_list lst] returns a random element from [lst]. *)
   let random_from_list lst =
-    let open Rng in
     let idx = Rng.generate (List.length lst) in
     List.nth lst idx
 
@@ -257,7 +256,7 @@ module M : Puzzle.S = struct
           [
             table
               [ classList [ ("center-margin", true) ] ]
-              (img_rows 0 20);
+              (img_rows 0 total_clues);
           ];
         hr [] [];
         (* nonogram *)
