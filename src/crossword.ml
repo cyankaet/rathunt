@@ -235,6 +235,16 @@ module M = struct
     div []
       [
         div
+          [ classList [ ("home-div", true) ] ]
+          [
+            p
+              [ classList [ ("home-text", true) ] ]
+              [
+                "A copy of the Cornell Sun with a crossword puzzle on \
+                 it. Should be elementary, right?" |> text;
+              ];
+          ];
+        div
           [ classList [ ("cross-grid", true) ] ]
           [
             table

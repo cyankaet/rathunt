@@ -1,14 +1,18 @@
 open Tea
 
 module M = struct
-  type button = { label : string; toggled : bool }
+  type button = {
+    label : string;
+    toggled : bool;
+  }
 
   type t = button list
 
   type model = t
 
   type msg =
-    | Toggle of string  (** All of the possile webpage signals to handle *)
+    | Toggle of string
+        (** All of the possile webpage signals to handle *)
 
   (** the height of the grid of buttons *)
   let m = 5
@@ -33,13 +37,17 @@ module M = struct
 
   (** [update model msg] returns the puzzle model updated according to
       the accompanying message, along with a command to be executed *)
-  let update t = function Toggle q -> (List.map (toggle q) t, Cmd.none)
+  let update t = function
+    | Toggle q -> (List.map (toggle q) t, Cmd.none)
 
   (** [get_first_n lst k] returns up to the first k elements of lst, if
       they exist. *)
   let rec get_first_k lst k =
     if k = 0 then []
-    else match lst with [] -> [] | h :: t -> h :: get_first_k t (k - 1)
+    else
+      match lst with
+      | [] -> []
+      | h :: t -> h :: get_first_k t (k - 1)
 
   (** [button_elt_of_button butt] takes a button and generates an HTML
       button with s as the label. *)
@@ -50,7 +58,8 @@ module M = struct
         button
           [
             onClick (Toggle butt.label);
-            classList [ ("meta-grid", true); ("meta-selected", butt.toggled) ];
+            classList
+              [ ("meta-grid", true); ("meta-selected", butt.toggled) ];
           ]
           [ text butt.label ];
       ]
@@ -64,7 +73,10 @@ module M = struct
       if they exist.*)
   let rec remove_first_k lst k =
     if k = 0 then lst
-    else match lst with [] -> [] | _ :: t -> remove_first_k t (k - 1)
+    else
+      match lst with
+      | [] -> []
+      | _ :: t -> remove_first_k t (k - 1)
 
   (** [show_buttons_help lst r] recursively returns the r rows of
       buttons given by the list of buttons lst. Requires that lst have
@@ -74,16 +86,37 @@ module M = struct
     match lst with
     | [] -> []
     | _ :: _ ->
-        tr [] (show_row lst) :: show_buttons_help (remove_first_k lst n) (r - 1)
+        tr [] (show_row lst)
+        :: show_buttons_help (remove_first_k lst n) (r - 1)
 
   (** [show_buttons lst] generates the HTML code needed to display the
       button list in an m x n grid, where m and n are as defined within
       the module. Requires: button_list contains m * n elements. *)
   let show_buttons lst =
     let open Html in
-    table [ classList [ ("center-margin", true) ] ] (show_buttons_help lst m)
+    table
+      [ classList [ ("center-margin", true) ] ]
+      (show_buttons_help lst m)
 
   (** [view model] returns a Vdom object that contains the html
       representing this puzzle [model] object *)
-  let view = show_buttons
+  let view model =
+    let open Html in
+    div []
+      [
+        div
+          [ classList [ ("home-div", true) ] ]
+          [
+            p
+              [ classList [ ("home-text", true) ] ]
+              [
+                "You see that all of the errors you've encountered so \
+                 far lead to this little game of Twenty Questions you \
+                 made once upon a time. That time seems like a far-off \
+                 land now. You read across the prepared questions to \
+                 see what you need to do... " |> text;
+              ];
+          ];
+        show_buttons model;
+      ]
 end
