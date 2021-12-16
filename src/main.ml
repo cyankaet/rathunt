@@ -3,10 +3,12 @@ module Metapuzzle = Puzzlepage.M (Meta.M)
 module Crossword = Puzzlepage.M (Crossword.M)
 module KilledThreads = Puzzlepage.M (Killedthreads.M)
 module Records = Puzzlepage.M (Records.M)
+module Polyplay = Puzzlepage.M (Polyplay.M)
 
 type model = {
   meta : Metapuzzle.model;
   crossword : Crossword.model;
+  polyplay : Polyplay.model;
   teams : Teams.model;
   team_reg : Team_registration.model;
   killed_threads : KilledThreads.model;
@@ -24,6 +26,7 @@ let init () _ =
       crossword = fst (Crossword.init "autoaxle");
       killed_threads = fst (KilledThreads.init "turtle");
       teams = Teams.init;
+      polyplay = fst (Polyplay.init "queenofhearts");
       team_reg = Team_registration.init;
       records = fst (Records.init "gem");
       page = "#home";
@@ -41,6 +44,7 @@ type msg =
   | Rules_msg of Rules.msg
   | Records_msg of Records.msg
   | Home_msg of Home.msg
+  | Polyplay_msg of Polyplay.msg
   | Teams_msg of Teams.msg
   | Team_reg_msg of Team_registration.msg
   | UrlChange of Web.Location.location
@@ -94,6 +98,12 @@ let update model = function
         in
         ({ model with team_reg }, Cmd.map team_reg_msg cmd)
       else (model, Cmd.none)
+  | Polyplay_msg msg ->
+      print_endline "17";
+      if model.page = "#polyplay" then
+        let polyplay, cmd = Polyplay.update model.polyplay msg in
+        ({ model with polyplay }, Cmd.map polyplay_msg cmd)
+      else (model, Cmd.none)
   | UrlChange loc ->
       print_endline "page changing";
       ( { model with page = loc.Web.Location.hash },
@@ -129,6 +139,7 @@ let home_view =
       p [] [ a [ href ("#" ^ "crossword") ] [ text "Grid Elements" ] ];
       p [] [ a [ href ("#" ^ "killed") ] [ text "Killed Threads" ] ];
       p [] [ a [ href ("#" ^ "records") ] [ text "K. K. Records" ] ];
+      p [] [ a [ href ("#" ^ "polyplay") ] [ text "Polymorphic Play" ] ];
     ]
 
 (** [view model] renders the [model] into HTML, which will become a
@@ -186,6 +197,11 @@ let view model =
           | "#teams" ->
               model.title <- "Teams";
               Teams.view model.teams |> map teams_msg
+          | "#polyplay" ->
+              print_endline "Going to polyplay";
+              (* Metapuzzle.view model.meta |> map metapuzzlepage_msg; *)
+              print_endline "";
+              Polyplay.view model.polyplay |> map polyplay_msg
           | "#register" ->
               model.title <- "Login";
               Team_registration.view model.team_reg |> map team_reg_msg
