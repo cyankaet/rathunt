@@ -35,16 +35,19 @@ module M : Puzzle.S = struct
   let g_map =
     let rec gacha_map chars = function
       | [] -> []
-      | num :: rest -> (num, List.hd chars) :: gacha_map (List.tl chars) rest
+      | num :: rest ->
+          (num, List.hd chars) :: gacha_map (List.tl chars) rest
     in
     gacha_map gacha_chars one_to_six
 
   let init_rolls =
     "static/gacha.txt" |> Node.Fs.readFileAsUtf8Sync
-    |> String.split_on_char '\n' |> List.map int_of_string |> Rng.shuffle
+    |> String.split_on_char '\n'
+    |> List.map int_of_string |> Rng.shuffle
 
   let string_clean str =
-    Js.String.(toUpperCase str |> trim |> replaceByRe [%bs.re "/[^A-Za]/g"] "")
+    Js.String.(
+      toUpperCase str |> trim |> replaceByRe [%bs.re "/[^A-Za]/g"] "")
 
   let answers =
     "static/killed_answers.txt" |> Node.Fs.readFileAsUtf8Sync
@@ -89,11 +92,14 @@ module M : Puzzle.S = struct
     | Solve cell ->
         if List.mem cell model.solved then (model, Cmd.none)
         else if
-          string_clean model.box_text = string_clean (List.nth answers cell)
+          string_clean model.box_text
+          = string_clean (List.nth answers cell)
         then
-          ({ model with solved = cell :: model.solved; box_text = "" }, Cmd.none)
+          ( { model with solved = cell :: model.solved; box_text = "" },
+            Cmd.none )
         else ({ model with box_text = "" }, Cmd.none)
-    | Select cell -> ({ model with selected = cell; box_text = "" }, Cmd.none)
+    | Select cell ->
+        ({ model with selected = cell; box_text = "" }, Cmd.none)
     | UpdateText str -> ({ model with box_text = str }, Cmd.none)
     | Pull num -> (pull model num, Cmd.none)
     | Accept -> ({ model with accepted = true }, Cmd.none)
@@ -127,7 +133,9 @@ module M : Puzzle.S = struct
                | clue :: rest ->
                    div []
                      [
-                       li [ classList [ ("clues", true) ] ] [ text clue ];
+                       li
+                         [ classList [ ("clues", true) ] ]
+                         [ text clue ];
                        make_clues rest;
                      ]
              in
@@ -161,9 +169,9 @@ module M : Puzzle.S = struct
                     p []
                       [
                         Printf.sprintf
-                          "There's ultimately nothing suspicious about a few \
-                           new transfer students being murdered, right? Okay, \
-                           they were a little talented."
+                          "There's ultimately nothing suspicious about \
+                           a few new transfer students being murdered, \
+                           right? Okay, they were a little talented."
                         |> text;
                       ];
                   ];
@@ -191,7 +199,10 @@ module M : Puzzle.S = struct
                              | [] -> p [] []
                              | file :: rest ->
                                  div []
-                                   [ li [] [ text file ]; display_files rest ]
+                                   [
+                                     li [] [ text file ];
+                                     display_files rest;
+                                   ]
                            in
                            display_files autopsy_files);
                         ];
@@ -203,12 +214,19 @@ module M : Puzzle.S = struct
                     ]
                     [ text "Go back" ];
                 ]
-          | 0 | 1 | 2 | 3 | 4 | 5 ->
+          | 0
+          | 1
+          | 2
+          | 3
+          | 4
+          | 5 ->
               div []
                 [
                   h3 []
                     [
-                      text ("Crime Scene " ^ string_of_int (model.selected + 1));
+                      text
+                        ( "Crime Scene "
+                        ^ string_of_int (model.selected + 1) );
                     ];
                   ( if List.mem model.selected model.solved then
                     h5 [] [ text "Solved!" ]
@@ -247,11 +265,12 @@ module M : Puzzle.S = struct
                             p []
                               [
                                 text
-                                  "You enter and find a book on a desk about \
-                                   how to interrogate people and get answers \
-                                   in as few questions as possible as well as \
-                                   a piece of paper with the following: (Click \
-                                   on the images to get an interactive \
+                                  "You enter and find a book on a desk \
+                                   about how to interrogate people and \
+                                   get answers in as few questions as \
+                                   possible as well as a piece of \
+                                   paper with the following: (Click on \
+                                   the images to get an interactive \
                                    version)";
                               ];
                           ];
@@ -261,7 +280,10 @@ module M : Puzzle.S = struct
                                div []
                                  [
                                    a
-                                     [ href (List.hd links); target "_blank" ]
+                                     [
+                                       href (List.hd links);
+                                       target "_blank";
+                                     ]
                                      [ img [ src image ] [] ];
                                    load_imgs (List.tl links) rest;
                                  ]
@@ -276,9 +298,10 @@ module M : Puzzle.S = struct
                             p []
                               [
                                 text
-                                  "Are you ready to test your luck with this \
-                                   gacha machine and find the common \
-                                   denominator for success and riches?";
+                                  "Are you ready to test your luck \
+                                   with this gacha machine and find \
+                                   the common denominator for success \
+                                   and riches?";
                               ];
                           ];
                         button
@@ -317,20 +340,24 @@ module M : Puzzle.S = struct
                                    [
                                      p []
                                        [
-                                         text (char ^ " " ^ string_of_int count);
+                                         text
+                                           ( char ^ " "
+                                           ^ string_of_int count );
                                        ];
                                      display_counts rest;
                                    ]
                            in
                            display_counts bindings
                          in
-                         if model.rolls <> 0 then show_counts else p [] []);
+                         if model.rolls <> 0 then show_counts
+                         else p [] []);
                         strong []
                           [
                             p []
                               [
                                 text
-                                  ("Total rolls: " ^ string_of_int model.rolls);
+                                  ( "Total rolls: "
+                                  ^ string_of_int model.rolls );
                               ];
                           ];
                       ] );
@@ -341,7 +368,8 @@ module M : Puzzle.S = struct
                     ]
                     [ text "Go back" ];
                 ]
-          | -1 | _ ->
+          | -1
+          | _ ->
               div []
                 [
                   div []
@@ -354,7 +382,8 @@ module M : Puzzle.S = struct
                                  button
                                    [
                                      onClick (Select curr);
-                                     classList [ ("submit-subpuzzle", true) ];
+                                     classList
+                                       [ ("submit-subpuzzle", true) ];
                                    ]
                                    [
                                      text
@@ -362,8 +391,10 @@ module M : Puzzle.S = struct
                                        ^ string_of_int (curr + 1)
                                        ^ ": "
                                        ^
-                                       if List.mem curr model.solved then
-                                         string_clean (List.nth answers curr)
+                                       if List.mem curr model.solved
+                                       then
+                                         string_clean
+                                           (List.nth answers curr)
                                        else "????" );
                                    ];
                                  make_buttons rest;
@@ -393,22 +424,24 @@ module M : Puzzle.S = struct
       div []
         [
           h3 [] [ text "Trigger Warning" ];
-          p
-            [ classList [ ("about", true) ] ]
+          div
+            [ classList [ ("home-div", true) ] ]
             [
-              text
-                "This puzzle contains trigger warnings for mentions of death. \
-                 We created this puzzle when the situation was not as bad as \
-                 it is now. We advise you to go back if you feel uncomfotable \
-                 with this puzzle.";
+              p []
+                [
+                  text
+                    "This puzzle contains many mentions of death! We \
+                     created this puzzle when the situation at Cornell \
+                     was not as bad as it is now. Please work on this \
+                     puzzle at your own discretion.";
+                ];
             ];
           a
-            [ href ("#" ^ "home") ]
             [
-              button
-                [ classList [ ("submit-subpuzzle", true) ] ]
-                [ text "Go back" ];
-            ];
+              href ("#" ^ "home");
+              classList [ ("submit-subpuzzle", true) ];
+            ]
+            [ text "Go back" ];
           button
             [ classList [ ("submit-subpuzzle", true) ]; onClick Accept ]
             [ text "I understand. Show the puzzle!" ];

@@ -2,6 +2,19 @@
   text-align: left;
 }
 
+.nav-subpuzzle {
+  border: 1px solid #444;
+  background-color: #dcd0ff;
+  padding: 12px 28px;
+  width: 180px;
+  border-radius: 10px;
+  border-top-style: hidden;
+  border-right-style: hidden;
+  border-left-style: hidden;
+  border-bottom-style: hidden;
+  text-align: center;
+}
+
 .submit-subpuzzle {
   border: 1px solid #444;
   background-color: #dcd0ff;
@@ -15,6 +28,6 @@
   text-align: center;
 }
 
-.submit-subpuzzle:hover {
-  background-color: #967bb6;
+.submit-subpuzzle:hover, .nav-subpuzzle:hover {
+  background-color: #c9aeeb;
 }
