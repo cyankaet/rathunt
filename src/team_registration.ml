@@ -18,14 +18,14 @@ type model = string transfer
 
 let make_form_data name solves password =
   [
-    ("name", name);
+    ("team", name);
     ("solves", string_of_int solves);
     ("password", password);
   ]
 
 let init = Idle
 
-let default = make_form_data "Galactic Trendsetters" 3 "trendy"
+let default = make_form_data "Palidrome" 3 "trendy"
 
 let url =
   "https://thingproxy.freeboard.io/fetch/https://rathunt-backend.herokuapp.com/team/new/"
@@ -64,6 +64,6 @@ let view model =
   | Failed ->
       p []
         [
-          text "Could not create team";
+          text "You've picked a username that's taken! Choose another.";
           button [ onClick CreateTeam ] [ text "retry" ];
         ]
