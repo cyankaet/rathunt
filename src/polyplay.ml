@@ -35,6 +35,8 @@ module M : Puzzle.S = struct
 
   type model = t
 
+  let name = "cook"
+
   (** All of the possible webpage signals to handle. I'm pretty sure
       this is everything one might want, please think and add more if
       needed when implementing update, or if you want to change the type

@@ -45,18 +45,17 @@
 
    module PageCross = Puzzlepage.M (Crossword) open PageCross
 
-   let () = describe "Expect" (fun () -> let open Expect in test
-   "stringclean" (fun () -> expect (PageCross.string_clean "answ3r") |>
-   toBe Js.String.("ANSWR")))
+   let sample_pagecross = fst (PageCross.init ())
 
-   let sample_pagecross = fst (PageCross.init "Boog")
-
-   let t1 = submit_guess sample_pagecross "bug"
+   (* let t1 = submit_guess sample_pagecross "bug"
 
    let () = describe "Expect" (fun () -> let open Expect in test
    "badanswer" (fun () -> expect t1.correct |> toBe false))
 
    let t2 = submit_guess sample_pagecross "2132BOO34543G#$"
+
+   let () = describe "Expect" (fun () -> let open Expect in test
+   "goodanswer" (fun () -> expect t2.correct |> toBe true)) *)
 
    let () = describe "Expect" (fun () -> let open Expect in test
    "goodanswer" (fun () -> expect t2.correct |> toBe true))

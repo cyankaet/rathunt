@@ -43,6 +43,8 @@ module M = struct
 
   type model = t
 
+  let name = "becker"
+
   let nodedict = Hashtbl.create 1000
 
   (** All of the possile webpage signals to handle. *)

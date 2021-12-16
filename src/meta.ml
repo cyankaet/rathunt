@@ -14,6 +14,8 @@ module M = struct
     | Toggle of string
         (** All of the possile webpage signals to handle *)
 
+  let name = "meta"
+
   (** the height of the grid of buttons *)
   let m = 5
 

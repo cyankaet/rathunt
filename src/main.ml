@@ -1,4 +1,5 @@
 open Tea
+include Http_utils
 module Metapuzzle = Puzzlepage.M (Meta.M)
 module Crossword = Puzzlepage.M (Crossword.M)
 module KilledThreads = Puzzlepage.M (Killedthreads.M)
@@ -17,23 +18,32 @@ type model = {
   records : Records.model;
   page : string;
   mutable title : string;
+  check_puzzle : string list transfer;
+  num_solves : int;
 }
 (** [model] is a type representing a model of the entire site containing
     a single [puzzle] so far *)
 
+let url name =
+  Printf.sprintf
+    "https://thingproxy.freeboard.io/fetch/https://rathunt-backend.herokuapp.com/solves/%s/"
+    name
+
 (** [init] is the initial state of the webpage *)
 let init () _ =
   ( {
-      meta = fst (Metapuzzle.init "ocamltamer");
-      crossword = fst (Crossword.init "autoaxle");
-      killed_threads = fst (KilledThreads.init "turtle");
-      treeoverflow = fst (Treeoverflow.init "bastion");
+      treeoverflow = fst (Treeoverflow.init ());
       teams = Teams.init;
-      polyplay = fst (Polyplay.init "queenofhearts");
+      polyplay = fst (Polyplay.init ());
       team_reg = Team_registration.init;
-      records = fst (Records.init "gem");
+      meta = fst (Metapuzzle.init ());
+      crossword = fst (Crossword.init ());
+      killed_threads = fst (KilledThreads.init ());
+      records = fst (Records.init ());
       page = "#home";
       title = "RatHunt";
+      check_puzzle = Idle;
+      num_solves = 0;
     },
     Cmd.none )
 
@@ -54,11 +64,37 @@ type msg =
   | Team_reg_msg of Team_registration.msg
   | UrlChange of Web.Location.location
   | Key_pressed of Keyboard.key_event
+  | PuzzleData of (string, string Http.error) Result.t
 [@@bs.deriving { accessors }]
 
 (** [update model] is the update loop that is called whenever an event
     is happened in the model *)
 let update model = function
+  | PuzzleData (Ok response) -> (
+      let open Json.Decoder in
+      let decoder = list string in
+      match decodeString decoder response with
+      | Ok x ->
+          print_endline "ok main.ml";
+          if List.mem "bethe" x then model.crossword.solved <- true
+          else ();
+          if List.mem "keeton" x then model.records.solved <- true
+          else ();
+          if List.mem "meta" x then model.meta.solved <- true else ();
+          if List.mem "rose" x then model.killed_threads.solved <- true
+          else ();
+          if List.mem "cook" x then model.polyplay.solved <- true
+          else ();
+          if List.mem "becker" x then model.treeoverflow.solved <- true
+          else ();
+          ({ model with num_solves = List.length x }, Cmd.none)
+      | Error e ->
+          print_endline e;
+          ({ model with check_puzzle = Failed }, Cmd.none) )
+  | PuzzleData (Error e) ->
+      print_endline "error sadge";
+      Js.log (Http.string_of_error e);
+      ({ model with check_puzzle = Failed }, Cmd.none)
   | Metapuzzlepage_msg msg ->
       print_endline "1";
       if model.page = "#meta" then
@@ -110,7 +146,24 @@ let update model = function
         let team_reg, cmd =
           Team_registration.update model.team_reg msg
         in
-        ({ model with team_reg }, Cmd.map team_reg_msg cmd)
+        if team_reg.logged_in then (
+          model.meta.team <- team_reg.username;
+          model.crossword.team <- team_reg.username;
+          model.killed_threads.team <- team_reg.username;
+          model.records.team <- team_reg.username;
+          model.polyplay.team <- team_reg.username;
+          model.treeoverflow.team <- team_reg.username;
+          match model.check_puzzle with
+          | Loading
+          | Received _ ->
+              print_endline "Loading";
+              (model, Cmd.none)
+          | Idle
+          | Failed ->
+              ( { model with team_reg; check_puzzle = Loading },
+                Http_utils.make_get_request (url team_reg.username) []
+                  puzzleData ) )
+        else ({ model with team_reg }, Cmd.map team_reg_msg cmd)
       else (model, Cmd.none)
   | Polyplay_msg msg ->
       print_endline "17";
@@ -207,9 +260,9 @@ let view model =
           a [ href ("#" ^ "story") ] [ text "Story" ];
           a [ href ("#" ^ "rules") ] [ text "Rules" ];
           a [ href ("#" ^ "faq") ] [ text "FAQ" ];
-          a [ href ("#" ^ "teams") ] [ text "Teams" ];
           a [ href ("#" ^ "register") ] [ text "Login" ];
           a [ href ("#" ^ "about") ] [ text "About" ];
+          a [] [ text model.team_reg.team ];
           (* a [ href ("#" ^ "meta") ] [ text "metapuzzle" ]; a [ href
              ("#" ^ "crossword") ] [ text "crossword" ]; *)
         ];
