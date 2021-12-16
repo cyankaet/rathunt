@@ -27,7 +27,8 @@ let init = Idle
 
 let default = make_form_data "Galactic Trendsetters" 3 "trendy"
 
-let url = "http://rathunt-backend.herokuapp.com/team/new/"
+let url =
+  "https://thingproxy.freeboard.io/fetch/https://rathunt-backend.herokuapp.com/team/new/"
 
 let update model = function
   | CreateTeam -> (
@@ -40,9 +41,7 @@ let update model = function
       | Failed ->
           print_endline "Hi";
           ( Loading,
-            Http_utils.make_post_request url
-              [ Header ("Access-Control-Allow-Origin", "*") ]
-              default postResponse ) )
+            Http_utils.make_post_request url [] default postResponse ) )
   | PostResponse (Error e) ->
       Js.log (Http.string_of_error e);
       (Failed, Cmd.none)
