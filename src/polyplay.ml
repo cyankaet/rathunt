@@ -1,5 +1,4 @@
 open Tea
-open Rng
 
 (* SPEC: The page should consist of the following two parts:
 
@@ -103,6 +102,7 @@ module M : Puzzle.S = struct
 
   (** [random_from_list lst] returns a random element from [lst]. *)
   let random_from_list lst =
+    let open Rng in
     let idx = Rng.generate (List.length lst) in
     List.nth lst idx
 
@@ -127,19 +127,22 @@ module M : Puzzle.S = struct
      to find out which emoji corresponds to which number. Emojinums
      matches each number to a list emojis that can represent it.*)
   let emojinums =
-    "static/nonagramsiderow.txt" |> Node.Fs.readFileAsUtf8Sync
+    "static/num_to_emoji.txt" |> Node.Fs.readFileAsUtf8Sync
     |> String.split_on_char '\n'
     |> List.map (String.split_on_char ' ')
     |> List.map (List.map int_of_string)
 
   (* Given a certain number, picks an emoji that corresponds to it. *)
   let pick_emoji n =
-    emoji_lookup.(random_from_list (List.nth emojinums n))
+    emoji_lookup.(random_from_list (List.nth emojinums (n - 1)))
 
   let hint_square_view (num : int) =
     let open Html in
-    if num = 0 then td [ classList [ ("filled", true) ] ] []
-    else td [] [ text (pick_emoji num) ]
+    if num = 0 then td [ classList [ ("grid-filled", true) ] ] []
+    else
+      td
+        [ classList [ ("clue-emoji-size", true) ] ]
+        [ text (pick_emoji num) ]
 
   (** [square_view r c sq] returns the HTML representing a square [sq]
       at position ([r],[c]) in the grid*)
@@ -173,6 +176,16 @@ module M : Puzzle.S = struct
     match c with
     | -1 -> []
     | x -> row_view arr.(24 - x) (24 - x) :: grid_view arr (x - 1)
+
+  (**[emoji_rows_view rows] takes a 2d list of integers and retuns a 2d
+     array of td's with a correct corresponding emoji in each position. *)
+  let rec emoji_rows_view rows =
+    match rows with
+    | [] -> []
+    | row :: t ->
+        let open Html in
+        tr [] (List.map (fun x -> hint_square_view x) row)
+        :: emoji_rows_view t
 
   (**[img_rows pos elts] generates [elts]/2 rows starting at index [pos]
      in the ordering of the emojis above with the appropriate emoji,
@@ -221,8 +234,6 @@ module M : Puzzle.S = struct
                           ( "play_imgs_final/img-"
                           ^ string_of_int (idx2 + 1)
                           ^ ".png" );
-                        (* figure out what actually goes here once we
-                           figure out static serving of images *)
                         classList [ ("rat-img", true) ];
                       ]
                       [];
@@ -230,6 +241,10 @@ module M : Puzzle.S = struct
               ];
             td [] [ text (List.nth enums idx2) ];
           ])
+
+  let random_top_rows = emoji_rows_view toprow
+
+  let random_side_rows = emoji_rows_view siderow
 
   (** [view model] returns a Vdom object that contains the html
       representing this puzzle [model] object *)
@@ -246,12 +261,27 @@ module M : Puzzle.S = struct
           ];
         hr [] [];
         (* nonogram *)
-        div
-          [ classList [ ("nonagram", true) ] ]
+        div []
           [
             table
               [ classList [ ("center-margin", true) ] ]
-              (grid_view model.nonagram 24);
+              [
+                tr [] [ td [] []; td [] random_top_rows ];
+                tr []
+                  [
+                    td [] random_side_rows;
+                    td []
+                      [
+                        div
+                          [ classList [ ("nonagram", true) ] ]
+                          [
+                            table
+                              [ classList [ ("center-margin", true) ] ]
+                              (grid_view model.nonagram 24);
+                          ];
+                      ];
+                  ];
+              ];
           ];
       ]
 end
