@@ -1,4 +1,5 @@
 open Tea
+include Http_utils
 module Metapuzzle = Puzzlepage.M (Meta.M)
 module Crossword = Puzzlepage.M (Crossword.M)
 module KilledThreads = Puzzlepage.M (Killedthreads.M)
@@ -13,9 +14,15 @@ type model = {
   records : Records.model;
   page : string;
   mutable title : string;
+  check_puzzle : string list transfer;
 }
 (** [model] is a type representing a model of the entire site containing
     a single [puzzle] so far *)
+
+let url name =
+  Printf.sprintf
+    "https://thingproxy.freeboard.io/fetch/https://rathunt-backend.herokuapp.com/solves/%s/"
+    name
 
 (** [init] is the initial state of the webpage *)
 let init () _ =
@@ -28,6 +35,7 @@ let init () _ =
       records = fst (Records.init ());
       page = "#home";
       title = "RatHunt";
+      check_puzzle = Idle;
     },
     Cmd.none )
 
@@ -45,11 +53,33 @@ type msg =
   | Team_reg_msg of Team_registration.msg
   | UrlChange of Web.Location.location
   | Key_pressed of Keyboard.key_event
+  | PuzzleData of (string, string Http.error) Result.t
 [@@bs.deriving { accessors }]
 
 (** [update model] is the update loop that is called whenever an event
     is happened in the model *)
 let update model = function
+  | PuzzleData (Ok response) -> (
+      let open Json.Decoder in
+      let decoder = list string in
+      match decodeString decoder response with
+      | Ok x ->
+          print_endline "ok main.ml";
+          if List.mem "bethe" x then model.crossword.solved <- true
+          else ();
+          if List.mem "keeton" x then model.records.solved <- true
+          else ();
+          if List.mem "meta" x then model.meta.solved <- true else ();
+          if List.mem "rose" x then model.killed_threads.solved <- true
+          else ();
+          (model, Cmd.none)
+      | Error e ->
+          print_endline e;
+          ({ model with check_puzzle = Failed }, Cmd.none) )
+  | PuzzleData (Error e) ->
+      print_endline "error sadge";
+      Js.log (Http.string_of_error e);
+      ({ model with check_puzzle = Failed }, Cmd.none)
   | Metapuzzlepage_msg msg ->
       print_endline "1";
       if model.page = "#meta" then
@@ -88,7 +118,7 @@ let update model = function
       else (model, Cmd.none)
   | Team_reg_msg msg ->
       print_endline "4";
-      if model.page = "#register" then (
+      if model.page = "#register" then
         let team_reg, cmd =
           Team_registration.update model.team_reg msg
         in
@@ -96,9 +126,18 @@ let update model = function
           model.meta.team <- team_reg.username;
           model.crossword.team <- team_reg.username;
           model.killed_threads.team <- team_reg.username;
-          model.records.team <- team_reg.username )
-        else ();
-        ({ model with team_reg }, Cmd.map team_reg_msg cmd) )
+          model.records.team <- team_reg.username;
+          match model.check_puzzle with
+          | Loading
+          | Received _ ->
+              print_endline "Loading";
+              (model, Cmd.none)
+          | Idle
+          | Failed ->
+              ( { model with team_reg; check_puzzle = Loading },
+                Http_utils.make_get_request (url team_reg.username) []
+                  puzzleData ) )
+        else ({ model with team_reg }, Cmd.map team_reg_msg cmd)
       else (model, Cmd.none)
   | UrlChange loc ->
       print_endline "page changing";

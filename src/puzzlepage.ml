@@ -9,7 +9,7 @@ module M (P : Puzzle.S) = struct
 
   type t = {
     box_text : string;
-    solved : bool;
+    mutable solved : bool;
     guesses : guess list;
     puzzle : P.t;
     mutable team : string;
