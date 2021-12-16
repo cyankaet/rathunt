@@ -109,7 +109,7 @@ module M : Puzzle.S = struct
   (* The set of hints above the nonogram. Each square will be empty or
      have an emoji in it. *)
   let toprow =
-    "static/nonogramtoprow.txt" |> Node.Fs.readFileAsUtf8Sync
+    "static/nonagramtoprow.txt" |> Node.Fs.readFileAsUtf8Sync
     |> String.split_on_char '\n'
     |> List.map (String.split_on_char ' ')
     |> List.map (List.map int_of_string)
@@ -117,7 +117,7 @@ module M : Puzzle.S = struct
   (* The set of hints to the side of the nonogram. Each square will be
      empty or have an emoji in it. *)
   let siderow =
-    "static/nonogramsiderow.txt" |> Node.Fs.readFileAsUtf8Sync
+    "static/nonagramsiderow.txt" |> Node.Fs.readFileAsUtf8Sync
     |> String.split_on_char '\n'
     |> List.map (String.split_on_char ' ')
     |> List.map (List.map int_of_string)
@@ -127,7 +127,7 @@ module M : Puzzle.S = struct
      to find out which emoji corresponds to which number. Emojinums
      matches each number to a list emojis that can represent it.*)
   let emojinums =
-    "static/nonogramsiderow.txt" |> Node.Fs.readFileAsUtf8Sync
+    "static/nonagramsiderow.txt" |> Node.Fs.readFileAsUtf8Sync
     |> String.split_on_char '\n'
     |> List.map (String.split_on_char ' ')
     |> List.map (List.map int_of_string)
