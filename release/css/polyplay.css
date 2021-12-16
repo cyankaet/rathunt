@@ -15,11 +15,12 @@
   border-collapse: collapse;
   border: 1px solid black;
   width: 20px;
-padding: 0px; 
+  padding: 0px; 
 }
 
 .nonagram td, .nonagram tr {
   height: 50px; 
+  margin: 0px;
 }
 
 .filled{
@@ -36,9 +37,9 @@ padding: 0px;
   font-size: x-large;
 }
 
-.square-empty {
+.square-button {
   width: 50px;
-  height: 50px;
+  height: 47.2px;
   border-top-style: hidden;
   border-right-style: hidden;
   border-left-style: hidden;
@@ -46,27 +47,13 @@ padding: 0px;
   margin:0px; 
 }
 
-.square-filled {
+.grid-filled {
   background-color: #000;
-  width: 50px;
-  height: 50px;
-  border-top-style: hidden;
-  border-right-style: hidden;
-  border-left-style: hidden;
-  border-bottom-style: hidden;
-  margin:0px; 
 }
 
-.square-crossed {
-font-size: 36px; 
+.grid-crossed {
+  font-size: 36px; 
   text-align: center;
-  width: 50px;
-  height: 50px;
-  border-top-style: hidden;
-  border-right-style: hidden;
-  border-left-style: hidden;
-  border-bottom-style: hidden;
-  margin:0px; 
 }
 
 .square-empty:hover{

@@ -141,48 +141,22 @@ module M : Puzzle.S = struct
     if num = 0 then td [ classList [ ("filled", true) ] ] []
     else td [] [ text (pick_emoji num) ]
 
-  (**[get_button_class square] returns the class name for the CSS
-     styling corresponding to [square] *)
-  let get_button_class = function
-    | Filled -> ("square-filled", true)
-    | Crossed -> ("square-crossed", true)
-    | Empty -> ("square-empty", true)
-
   (** [square_view r c sq] returns the HTML representing a square [sq]
       at position ([r],[c]) in the grid*)
   let square_view (r : int) (c : int) (sq : square) =
     let open Html in
+    let switch =
+      button
+        [
+          onClick (ChangeSquare (r, c));
+          classList [ ("square-button", true) ];
+        ]
+        [ (if sq = Crossed then "X" else "") |> text ]
+    in
     match sq with
-    | Empty ->
-        td []
-          [
-            button
-              [
-                onClick (ChangeSquare (r, c));
-                classList [ get_button_class Empty ];
-              ]
-              [];
-          ]
-    | Filled ->
-        td []
-          [
-            button
-              [
-                onClick (ChangeSquare (r, c));
-                classList [ get_button_class Filled ];
-              ]
-              [];
-          ]
-    | Crossed ->
-        td []
-          [
-            button
-              [
-                onClick (ChangeSquare (r, c));
-                classList [ get_button_class Crossed ];
-              ]
-              [ text "X" ];
-          ]
+    | Empty -> td [] [ switch ]
+    | Filled -> td [ classList [ ("grid-filled", true) ] ] [ switch ]
+    | Crossed -> td [ classList [ ("grid-crossed", true) ] ] [ switch ]
 
   (** [row_view array r] generates the HTML for the row [r] of crossword
       squares in [arr]. Requires: [arr] contains at least (r+1) rows. *)
