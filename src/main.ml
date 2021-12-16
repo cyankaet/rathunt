@@ -89,7 +89,9 @@ let update model = function
   | Team_reg_msg msg ->
       print_endline "4";
       if model.page = "#register" then
-        let team_reg, cmd = Team_registration.update model.team_reg msg in
+        let team_reg, cmd =
+          Team_registration.update model.team_reg msg
+        in
         ({ model with team_reg }, Cmd.map team_reg_msg cmd)
       else (model, Cmd.none)
   | UrlChange loc ->
@@ -118,11 +120,12 @@ let home_view =
       h2 []
         [
           Printf.sprintf
-            "Welcome to RatHunt. Select a puzzle to start with (hint: not the \
-             meta)."
+            "Welcome to RatHunt. Select a puzzle to start with (hint: \
+             not the meta)."
           |> text;
         ];
-      p [] [ a [ href ("#" ^ "meta") ] [ text "META: Twenty Questions" ] ];
+      p []
+        [ a [ href ("#" ^ "meta") ] [ text "META: Twenty Questions" ] ];
       p [] [ a [ href ("#" ^ "crossword") ] [ text "Grid Elements" ] ];
       p [] [ a [ href ("#" ^ "killed") ] [ text "Killed Threads" ] ];
       p [] [ a [ href ("#" ^ "records") ] [ text "K. K. Records" ] ];
@@ -145,7 +148,7 @@ let view model =
           a [ href ("#" ^ "teams") ] [ text "Teams" ];
           a [ href ("#" ^ "register") ] [ text "Login" ];
           a [ href ("#" ^ "about") ] [ text "About" ];
-          p [] [ text model.team_reg.team ];
+          a [] [ text model.team_reg.team ];
           (* a [ href ("#" ^ "meta") ] [ text "metapuzzle" ]; a [ href
              ("#" ^ "crossword") ] [ text "crossword" ]; *)
         ];
@@ -167,7 +170,8 @@ let view model =
               Crossword.view model.crossword |> map crossword_msg
           | "#killed" ->
               model.title <- "Killed Threads";
-              KilledThreads.view model.killed_threads |> map killedthreads_msg
+              KilledThreads.view model.killed_threads
+              |> map killedthreads_msg
           | "#about" ->
               model.title <- "About";
               About.view () |> map about_msg
@@ -195,4 +199,10 @@ let subscriptions _ = [ Keyboard.downs key_pressed ] |> Sub.batch
 (** [main] starts the web app *)
 let main =
   Navigation.navigationProgram urlChange
-    { init; update; view; subscriptions; shutdown = (fun _ -> Cmd.none) }
+    {
+      init;
+      update;
+      view;
+      subscriptions;
+      shutdown = (fun _ -> Cmd.none);
+    }
