@@ -58,17 +58,12 @@ let update model = function
       Js.log (Http.string_of_error e);
       ({ model with txn = Failed }, Cmd.none)
   | PostResponse (Ok response) ->
-      let response_decoder = field "response" string in
-      let final =
-        (decodeString response_decoder) response
-        |> Http_utils.result_to_string
-      in
-      if final = "password incorrect" then
+      if response = "\"password incorrect\"" then
         ({ model with txn = Failed; logged_in = false }, Cmd.none)
       else
         ( {
             model with
-            txn = Received final;
+            txn = Received response;
             logged_in = true;
             team = model.username;
           },
@@ -121,7 +116,9 @@ let view model =
       ( match model.txn with
       | Idle -> p [] [ cred_view model ]
       | Loading -> p [] [ text "loading..." ]
-      | Received response -> div [] [ p [] [ text response ] ]
+      | Received response ->
+          div []
+            [ p [] [ text ("Logged in as " ^ model.username ^ "!") ] ]
       | Failed ->
           p []
             [

@@ -20,12 +20,12 @@ type model = {
 (** [init] is the initial state of the webpage *)
 let init () _ =
   ( {
-      meta = fst (Metapuzzle.init "ocamltamer");
-      crossword = fst (Crossword.init "autoaxle");
-      killed_threads = fst (KilledThreads.init "turtle");
-      teams = Teams.init;
       team_reg = Team_registration.init;
-      records = fst (Records.init "gem");
+      meta = fst (Metapuzzle.init ());
+      crossword = fst (Crossword.init ());
+      killed_threads = fst (KilledThreads.init ());
+      teams = Teams.init;
+      records = fst (Records.init ());
       page = "#home";
       title = "RatHunt";
     },
@@ -88,11 +88,17 @@ let update model = function
       else (model, Cmd.none)
   | Team_reg_msg msg ->
       print_endline "4";
-      if model.page = "#register" then
+      if model.page = "#register" then (
         let team_reg, cmd =
           Team_registration.update model.team_reg msg
         in
-        ({ model with team_reg }, Cmd.map team_reg_msg cmd)
+        if team_reg.logged_in then (
+          model.meta.team <- team_reg.username;
+          model.crossword.team <- team_reg.username;
+          model.killed_threads.team <- team_reg.username;
+          model.records.team <- team_reg.username )
+        else ();
+        ({ model with team_reg }, Cmd.map team_reg_msg cmd) )
       else (model, Cmd.none)
   | UrlChange loc ->
       print_endline "page changing";

@@ -1,6 +1,6 @@
 open Tea
 
-module M : Puzzle.S = struct
+module M = struct
   (** variant corresponding to all of the different types of subpuzzles
       present*)
   type puzzle =
@@ -31,7 +31,11 @@ module M : Puzzle.S = struct
   type model = t
 
   (** All of the possile webpage signals to handle. *)
-  type msg = Generate of node | Check of string | Forward of node | Backward
+  type msg =
+    | Generate of node
+    | Check of string
+    | Forward of node
+    | Backward
   [@@bs.deriving { accessors }]
 
   (** [prob] is the base probability that an answer will be hidden in
@@ -65,7 +69,8 @@ module M : Puzzle.S = struct
   let flagsList =
     "static/semaphore_words.txt" |> Node.Fs.readFileAsUtf8Sync
     |> String.split_on_char '\n'
-    |> List.map (fun s -> (s.[0], List.nth (String.split_on_char ' ' s) 1))
+    |> List.map (fun s ->
+           (s.[0], List.nth (String.split_on_char ' ' s) 1))
 
   (** [flagtable] is a map from English characters to words that encode
       that letter in the CrossFlags subpuzzle. *)
@@ -80,7 +85,8 @@ module M : Puzzle.S = struct
   let incdecList =
     "static/inc_dec_words.txt" |> Node.Fs.readFileAsUtf8Sync
     |> String.split_on_char '\n'
-    |> List.map (fun s -> (s.[0], List.nth (String.split_on_char ' ' s) 1))
+    |> List.map (fun s ->
+           (s.[0], List.nth (String.split_on_char ' ' s) 1))
 
   (** [incdecTable] is a map from English characters to words that
       encode that letter in the CrossFlags subpuzzle. *)
@@ -156,7 +162,8 @@ module M : Puzzle.S = struct
 
   (** [find_compass_word c] returns the NATO phonetic word corresponding
       to the character [c]. *)
-  let find_compass_word c = List.nth compassList (Char.code c - Char.code 'a')
+  let find_compass_word c =
+    List.nth compassList (Char.code c - Char.code 'a')
 
   (** [find_crossflags_word c] finds all words in [dictionary] that
       contain as substrings the semaphore directions corresponding to
@@ -203,7 +210,8 @@ module M : Puzzle.S = struct
           children = None;
         })
 
-  let init () = ({ head with children = Some (make_root head) }, Cmd.none)
+  let init () =
+    ({ head with children = Some (make_root head) }, Cmd.none)
 
   (** [update model msg] returns the puzzle model updated according to
       the accompanying message, along with a command to be executed *)
@@ -213,7 +221,9 @@ module M : Puzzle.S = struct
         ignore t.value;
         init ()
     | Backward -> (
-        match t.prev with None -> (t, Cmd.none) | Some p -> (p, Cmd.none) )
+        match t.prev with
+        | None -> (t, Cmd.none)
+        | Some p -> (p, Cmd.none) )
     | Check s -> init ()
 
   (** [view model] returns a Vdom object that contains the html

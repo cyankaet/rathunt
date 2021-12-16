@@ -4,6 +4,8 @@ module type S = sig
 
   type model = t
 
+  val name : string
+
   type msg
   (** All of the possile webpage signals to handle *)
 

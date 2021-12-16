@@ -24,6 +24,8 @@ module M : Puzzle.S = struct
     | Pull of int
     | Accept
 
+  let name = "rose"
+
   let zero_to_five = [ 0; 1; 2; 3; 4; 5 ]
 
   let one_to_six = [ 1; 2; 3; 4; 5; 6 ]

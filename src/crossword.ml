@@ -19,6 +19,8 @@ module M = struct
 
   type model = t
 
+  let name = "bethe"
+
   (** file containing the across clues in the crossword *)
   let across =
     "static/acrossclues.txt" |> Node.Fs.readFileAsUtf8Sync
