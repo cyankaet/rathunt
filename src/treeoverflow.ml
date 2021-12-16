@@ -96,7 +96,7 @@ module M = struct
 
   (** [rootFeeders] is the list of feeders to each of the root puzzles
       in order *)
-  let rootFeeders = readlines "resources/rootfeeders.txt"
+  let rootFeeders = readlines "static/rootfeeders.txt"
 
   (** [flagtable, incdecTable, desktopTable, lrarrowTable, bustsTable,
       morseTable] is a map from English characters to words that encode
@@ -120,19 +120,19 @@ module M = struct
       [Compass, CrossFlag, GraphDec, Desktop, Gemini, Busts, SOS]
       puzzles, respectively, and their encoded characters (in reverse
       order). *)
-  let compassList = readlines "resources/natophonetic.txt"
+  let compassList = readlines "static/natophonetic.txt"
 
   let () =
-    "resources/semaphore_trim.txt" |> readlines |> makeTable flagTable;
-    "resources/inc_dec_words.txt" |> readlines |> makeTable incdecTable;
-    "resources/binary_words.txt" |> readlines |> makeTable desktopTable;
+    "static/semaphore_trim.txt" |> readlines |> makeTable flagTable;
+    "static/inc_dec_words.txt" |> readlines |> makeTable incdecTable;
+    "static/binary_words.txt" |> readlines |> makeTable desktopTable;
     makeTable geminiTable
-      ( ("resources/horizontal_sym.txt" |> readlines)
-      @ ("resources/vertical_sym.txt" |> readlines)
-      @ ("resources/rotational_sym.txt" |> readlines)
-      @ ("resources/none_sym.txt" |> readlines) );
-    "resources/bustswords.txt" |> readlines |> makeTable bustsTable;
-    "resources/morse_short.txt" |> readlines |> makeTable morseTable
+      ( ("static/horizontal_sym.txt" |> readlines)
+      @ ("static/vertical_sym.txt" |> readlines)
+      @ ("static/rotational_sym.txt" |> readlines)
+      @ ("static/none_sym.txt" |> readlines) );
+    "static/bustswords.txt" |> readlines |> makeTable bustsTable;
+    "static/morse_short.txt" |> readlines |> makeTable morseTable
 
   (** [numberSwitch n] outputs a puzzle type corresponding to a
       one-indexed initial ordering they are presented. Requires: n is

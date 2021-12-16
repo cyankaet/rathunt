@@ -187,7 +187,7 @@ let home_view =
             [ classList [ ("image-container", true) ] ]
             [
               img [ src "list_imgs/becker.png" ] [];
-              a [ href ("#" ^ "treeoverflow") ] [ text "treeoverflow" ];
+              a [ href ("#" ^ "treeoverflow") ] [ text "Tree Overflow" ];
             ];
         ];
     ]
