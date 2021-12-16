@@ -55,15 +55,27 @@ let update model = function
 
 let view model =
   let open Html in
-  match model with
-  | Idle ->
-      p [] [ button [ onClick CreateTeam ] [ text "Make a team" ] ]
-  | Loading -> p [] [ text "loading..." ]
-  | Received response ->
-      div [] [ p [] [ text "Team Created!" ]; p [] [ text response ] ]
-  | Failed ->
+  div
+    [ classList [ ("home-div", true) ] ]
+    [
       p []
         [
-          text "You've picked a username that's taken! Choose another.";
-          button [ onClick CreateTeam ] [ text "retry" ];
-        ]
+          "If you haven't yet made a team, type in a new username and \
+           password. If you have, login using your previously created \
+           credentials." |> text;
+        ];
+      ( match model with
+      | Idle ->
+          p [] [ button [ onClick CreateTeam ] [ text "Make a team" ] ]
+      | Loading -> p [] [ text "loading..." ]
+      | Received response ->
+          div []
+            [ p [] [ text "Team Created!" ]; p [] [ text response ] ]
+      | Failed ->
+          p []
+            [
+              text
+                "You've picked a username that's taken! Choose another.";
+              button [ onClick CreateTeam ] [ text "retry" ];
+            ] );
+    ]
