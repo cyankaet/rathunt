@@ -1,13 +1,9 @@
 open Jest
-<<<<<<< HEAD
 open Tea
-module Crossword = Crossword.M
 
 type test_record = { value : string }
-=======
 module Crossword = Puzzlepage.M (Crossword.M)
 module Treeoverflow = Treeoverflow.M
->>>>>>> treeoverflow
 
 (* Crossword tests start here *)
 let () =
