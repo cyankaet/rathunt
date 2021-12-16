@@ -40,6 +40,7 @@ type msg =
   | Faq_msg of Faq.msg
   | Rules_msg of Rules.msg
   | Records_msg of Records.msg
+  | Home_msg of Home.msg
   | Teams_msg of Teams.msg
   | Team_reg_msg of Team_registration.msg
   | UrlChange of Web.Location.location
@@ -72,6 +73,7 @@ let update model = function
   | About_msg _ -> (model, Cmd.none)
   | Faq_msg _ -> (model, Cmd.none)
   | Rules_msg _ -> (model, Cmd.none)
+  | Home_msg _ -> (model, Cmd.none)
   | Records_msg msg ->
       print_endline "kk slider";
       if model.page = "#records" then
@@ -140,13 +142,14 @@ let view model =
         [ classList [ ("topnav", true) ] ]
         [
           a [ href ("#" ^ "home") ] [ text "Home" ];
-          a [ href ("#" ^ "about") ] [ text "About" ];
+          a [ href ("#" ^ "puzzles") ] [ text "Puzzles" ];
           a [ href ("#" ^ "rules") ] [ text "Rules" ];
           a [ href ("#" ^ "faq") ] [ text "FAQ" ];
           a [ href ("#" ^ "teams") ] [ text "Teams" ];
-          a [ href ("#" ^ "register") ] [ text "Login" ]
+          a [ href ("#" ^ "register") ] [ text "Login" ];
+          a [ href ("#" ^ "about") ] [ text "About" ];
           (* a [ href ("#" ^ "meta") ] [ text "metapuzzle" ]; a [ href
-             ("#" ^ "crossword") ] [ text "crossword" ]; *);
+             ("#" ^ "crossword") ] [ text "crossword" ]; *)
         ];
       h1 [] [ model.title |> text ];
       p []
@@ -154,6 +157,9 @@ let view model =
           ( match model.page with
           | "#home" ->
               model.title <- "RatHunt";
+              Home.view () |> map home_msg
+          | "#puzzles" ->
+              model.title <- "Puzzles";
               home_view
           | "#meta" ->
               model.title <- "Twenty Questions";

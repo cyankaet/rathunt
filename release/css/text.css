@@ -1,0 +1,20 @@
+.home-text p {
+  text-align: left;
+  padding: 20 px;
+  width: 70%;
+  margin: auto;
+  padding-top: 10 px;
+  font-size: large;
+}
+
+.home-div {
+  width: 70%;
+  margin: auto;
+}
+.center-text {
+  text-align: center;
+}
+
+.italics {
+  font-style: italic;
+}
