@@ -14,6 +14,7 @@ module M (P : Puzzle.S) = struct
     puzzle : P.t;
     mutable team : string;
     txn : string transfer;
+    answer : string;
   }
 
   type model = t
@@ -46,6 +47,7 @@ module M (P : Puzzle.S) = struct
         puzzle = fst (P.init ());
         team = "";
         txn = Idle;
+        answer = "";
       },
       Cmd.none )
 
@@ -53,7 +55,12 @@ module M (P : Puzzle.S) = struct
     | PostResponse (Ok response) ->
         print_endline "ok response";
         if response = "\"correct\"" then
-          ( { model with txn = Received response; solved = true },
+          ( {
+              model with
+              txn = Received response;
+              answer = string_clean model.box_text;
+              solved = true;
+            },
             Cmd.none )
         else ({ model with txn = Idle; solved = false }, Cmd.none)
     | PostResponse (Error e) ->
@@ -115,7 +122,7 @@ module M (P : Puzzle.S) = struct
                     [ text "Submit" ];
                 ];
             ]
-        else p [] [] );
+        else p [] [ model.answer |> text ] );
         (let rec print_guesses = function
            | [] -> p [] []
            | guess :: rest ->

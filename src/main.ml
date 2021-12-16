@@ -15,6 +15,7 @@ type model = {
   page : string;
   mutable title : string;
   check_puzzle : string list transfer;
+  num_solves : int;
 }
 (** [model] is a type representing a model of the entire site containing
     a single [puzzle] so far *)
@@ -36,6 +37,7 @@ let init () _ =
       page = "#home";
       title = "RatHunt";
       check_puzzle = Idle;
+      num_solves = 0;
     },
     Cmd.none )
 
@@ -72,7 +74,7 @@ let update model = function
           if List.mem "meta" x then model.meta.solved <- true else ();
           if List.mem "rose" x then model.killed_threads.solved <- true
           else ();
-          (model, Cmd.none)
+          ({ model with num_solves = List.length x }, Cmd.none)
       | Error e ->
           print_endline e;
           ({ model with check_puzzle = Failed }, Cmd.none) )
