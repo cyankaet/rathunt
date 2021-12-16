@@ -1,14 +1,19 @@
-#container {
+#poly-container {
   width: 200px;
   height: 200px;
   display: table;
-         
 }
 
-#container .image-container {
+#poly-container .image-container {
   text-align: center;
   vertical-align: middle;
   display: table-cell;
+}
+
+#poly-container .image-container img {
+  text-align: center;
+  max-width: 100%;
+  max-height: auto;      
 }
 
 .nonagram table, .nonagram td, .nonagram tr {
@@ -25,12 +30,6 @@
 
 .filled{
   background-color: black;
-}
-
-#container .image-container img {
-  text-align: center;
-  max-width: 100%;
-  max-height: auto;      
 }
 
 .emoji-size {

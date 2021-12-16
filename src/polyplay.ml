@@ -203,7 +203,7 @@ module M : Puzzle.S = struct
             td
               [ classList [ ("emoji-size", true) ] ]
               [ text emoji_lookup.(idx1) ];
-            div [ id "container" ]
+            div [ id "poly-container" ]
               [
                 td
                   [ classList [ ("image-container", true) ] ]
@@ -222,7 +222,7 @@ module M : Puzzle.S = struct
             td
               [ classList [ ("emoji-size", true) ] ]
               [ text emoji_lookup.(idx2) ];
-            div [ id "container" ]
+            div [ id "poly-container" ]
               [
                 td
                   [ classList [ ("image-container", true) ] ]

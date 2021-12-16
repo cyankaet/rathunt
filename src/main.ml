@@ -136,12 +136,42 @@ let home_view =
              not the meta)."
           |> text;
         ];
-      p []
-        [ a [ href ("#" ^ "meta") ] [ text "META: Twenty Questions" ] ];
-      p [] [ a [ href ("#" ^ "crossword") ] [ text "Grid Elements" ] ];
-      p [] [ a [ href ("#" ^ "killed") ] [ text "Killed Threads" ] ];
-      p [] [ a [ href ("#" ^ "records") ] [ text "K. K. Records" ] ];
-      p [] [ a [ href ("#" ^ "polyplay") ] [ text "Polymorphic Play" ] ];
+      div
+        [ id "list-container"; classList [ ("center-margin", true) ] ]
+        [
+          p
+            [ classList [ ("image-container", true) ] ]
+            [
+              img [ src "list_imgs/noyes.png" ] [];
+              a
+                [ href ("#" ^ "meta") ]
+                [ text "META: Twenty Questions" ];
+            ];
+          p
+            [ classList [ ("image-container", true) ] ]
+            [
+              img [ src "list_imgs/bethe.png" ] [];
+              a [ href ("#" ^ "crossword") ] [ text "Grid Elements" ];
+            ];
+          p
+            [ classList [ ("image-container", true) ] ]
+            [
+              img [ src "list_imgs/rose.png" ] [];
+              a [ href ("#" ^ "killed") ] [ text "Killed Threads" ];
+            ];
+          p
+            [ classList [ ("image-container", true) ] ]
+            [
+              img [ src "list_imgs/keeton.png" ] [];
+              a [ href ("#" ^ "records") ] [ text "K. K. Records" ];
+            ];
+          p
+            [ classList [ ("image-container", true) ] ]
+            [
+              img [ src "list_imgs/cook.png" ] [];
+              a [ href ("#" ^ "polyplay") ] [ text "Polymorphic Play" ];
+            ];
+        ];
     ]
 
 (** [view model] renders the [model] into HTML, which will become a

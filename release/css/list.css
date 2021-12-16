@@ -1,0 +1,17 @@
+#list-container {
+  width: 800px;
+  height: 800px;
+  display: table;
+}
+
+#list-container .image-container {
+  text-align: center;
+  vertical-align: top;
+  display: table-cell;
+}
+
+#list-container .image-container img {
+  text-align: center;
+  max-width: 100%;
+  max-height: auto;      
+}
