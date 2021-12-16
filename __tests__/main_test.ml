@@ -1,8 +1,13 @@
 open Jest
+<<<<<<< HEAD
 open Tea
 module Crossword = Crossword.M
 
 type test_record = { value : string }
+=======
+module Crossword = Puzzlepage.M (Crossword.M)
+module Treeoverflow = Treeoverflow.M
+>>>>>>> treeoverflow
 
 (* Crossword tests start here *)
 let () =
@@ -65,6 +70,7 @@ let () =
           expect (PageCross.string_clean "answ3r")
           |> toBe Js.String.("ANSWR")))
 
+<<<<<<< HEAD
 let sample_pagecross = fst (PageCross.init "Boog")
 
 let t1 = submit_guess sample_pagecross "bug"
@@ -165,3 +171,9 @@ let () =
       test "Remove_first" (fun () ->
           expect (List.hd (fst (Meta.update sample_meta firsttext)))
           |> toEqual meta_results))
+=======
+(* let () = describe "Expect" (fun () -> let open Expect in test "toBe"
+   (fun () -> expect ( match Treeoverflow.init () |> fst with |
+   Treeoverflow.Node (_, d, _) -> d.value ) |> toBe
+   Js.String.("bastion"))) *)
+>>>>>>> treeoverflow

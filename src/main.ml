@@ -4,11 +4,13 @@ module Crossword = Puzzlepage.M (Crossword.M)
 module KilledThreads = Puzzlepage.M (Killedthreads.M)
 module Records = Puzzlepage.M (Records.M)
 module Polyplay = Puzzlepage.M (Polyplay.M)
+module Treeoverflow = Puzzlepage.M (Treeoverflow.M)
 
 type model = {
   meta : Metapuzzle.model;
   crossword : Crossword.model;
   polyplay : Polyplay.model;
+  treeoverflow : Treeoverflow.model;
   teams : Teams.model;
   team_reg : Team_registration.model;
   killed_threads : KilledThreads.model;
@@ -25,6 +27,7 @@ let init () _ =
       meta = fst (Metapuzzle.init "ocamltamer");
       crossword = fst (Crossword.init "autoaxle");
       killed_threads = fst (KilledThreads.init "turtle");
+      treeoverflow = fst (Treeoverflow.init "bastion");
       teams = Teams.init;
       polyplay = fst (Polyplay.init "queenofhearts");
       team_reg = Team_registration.init;
@@ -46,6 +49,7 @@ type msg =
   | Home_msg of Home.msg
   | Story_msg of Story.msg
   | Polyplay_msg of Polyplay.msg
+  | Treeoverflow_msg of Treeoverflow.msg
   | Teams_msg of Teams.msg
   | Team_reg_msg of Team_registration.msg
   | UrlChange of Web.Location.location
@@ -86,14 +90,22 @@ let update model = function
         let records, cmd = Records.update model.records msg in
         ({ model with records }, Cmd.map records_msg cmd)
       else (model, Cmd.none)
-  | Teams_msg msg ->
+  | Treeoverflow_msg msg ->
       print_endline "3";
+      if model.page = "#treeoverflow" then
+        let treeoverflow, cmd =
+          Treeoverflow.update model.treeoverflow msg
+        in
+        ({ model with treeoverflow }, Cmd.map treeoverflow_msg cmd)
+      else (model, Cmd.none)
+  | Teams_msg msg ->
+      print_endline "4";
       if model.page = "#teams" then
         let teams, cmd = Teams.update model.teams msg in
         ({ model with teams }, Cmd.map teams_msg cmd)
       else (model, Cmd.none)
   | Team_reg_msg msg ->
-      print_endline "4";
+      print_endline "5";
       if model.page = "#register" then
         let team_reg, cmd =
           Team_registration.update model.team_reg msg
@@ -171,6 +183,12 @@ let home_view =
               img [ src "list_imgs/cook.png" ] [];
               a [ href ("#" ^ "polyplay") ] [ text "Polymorphic Play" ];
             ];
+          p
+            [ classList [ ("image-container", true) ] ]
+            [
+              img [ src "list_imgs/becker.png" ] [];
+              a [ href ("#" ^ "treeoverflow") ] [ text "treeoverflow" ];
+            ];
         ];
     ]
 
@@ -238,6 +256,11 @@ let view model =
               (* Metapuzzle.view model.meta |> map metapuzzlepage_msg; *)
               print_endline "";
               Polyplay.view model.polyplay |> map polyplay_msg
+          | "#treeoverflow" ->
+              print_endline "Going to treeoverflow";
+              print_endline "";
+              Treeoverflow.view model.treeoverflow
+              |> map treeoverflow_msg
           | "#register" ->
               model.title <- "Login";
               Team_registration.view model.team_reg |> map team_reg_msg
