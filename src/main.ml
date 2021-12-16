@@ -13,7 +13,6 @@ type model = {
   records : Records.model;
   page : string;
   mutable title : string;
-  team : string;
 }
 (** [model] is a type representing a model of the entire site containing
     a single [puzzle] so far *)
@@ -29,7 +28,6 @@ let init () _ =
       records = fst (Records.init "gem");
       page = "#home";
       title = "RatHunt";
-      team = "Not logged in";
     },
     Cmd.none )
 
@@ -87,14 +85,6 @@ let update model = function
       if model.page = "#teams" then
         let teams, cmd = Teams.update model.teams msg in
         ({ model with teams }, Cmd.map teams_msg cmd)
-      else (model, Cmd.none)
-  | Team_reg_msg CreateTeam ->
-      if model.page = "#register" then
-        let team_reg, cmd =
-          Team_registration.update model.team_reg CreateTeam
-        in
-        ( { model with team_reg; team = model.team_reg.username },
-          Cmd.map team_reg_msg cmd )
       else (model, Cmd.none)
   | Team_reg_msg msg ->
       print_endline "4";
@@ -155,7 +145,7 @@ let view model =
           a [ href ("#" ^ "teams") ] [ text "Teams" ];
           a [ href ("#" ^ "register") ] [ text "Login" ];
           a [ href ("#" ^ "about") ] [ text "About" ];
-          p [] [ text model.team ];
+          p [] [ text model.team_reg.team ];
           (* a [ href ("#" ^ "meta") ] [ text "metapuzzle" ]; a [ href
              ("#" ^ "crossword") ] [ text "crossword" ]; *)
         ];

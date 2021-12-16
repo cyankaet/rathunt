@@ -10,43 +10,41 @@ type msg =
   | UpdatePass of string
 [@@bs.deriving { accessors }]
 
-type team = {
-  name : string;
-  solves : int;
-  password : string;
-}
+type team = { name : string; password : string }
 
 type model = {
   txn : string transfer;
   username : string;
   password : string;
+  logged_in : bool;
+  team : string;
 }
 
-let make_team_req name solves password =
-  [
-    ("team", name);
-    ("solves", string_of_int solves);
-    ("password", password);
-  ]
+let make_team_req name password = [ ("team", name); ("password", password) ]
 
-let init = { txn = Idle; username = ""; password = "" }
+let init =
+  {
+    txn = Idle;
+    username = "";
+    password = "";
+    logged_in = false;
+    team = "Not logged in";
+  }
 
 let url =
-  "https://thingproxy.freeboard.io/fetch/https://rathunt-backend.herokuapp.com/team/new/"
+  "https://thingproxy.freeboard.io/fetch/https://rathunt-backend.herokuapp.com/team/login/"
 
 (* if username or password is empty refuse to make the team*)
 let update model = function
   | CreateTeam -> (
       match model.txn with
-      | Loading
-      | Received _ ->
+      | Loading | Received _ ->
           print_endline "Loading";
           (model, Cmd.none)
-      | Idle
-      | Failed ->
+      | Idle | Failed ->
           ( { model with txn = Loading },
             Http_utils.make_post_request url []
-              (make_team_req model.username 0 model.password)
+              (make_team_req model.username model.password)
               postResponse ) )
   | PostResponse (Error e) ->
       Js.log (Http.string_of_error e);
@@ -54,10 +52,15 @@ let update model = function
   | PostResponse (Ok response) ->
       let response_decoder = field "response" string in
       let final =
-        (decodeString response_decoder) response
-        |> Http_utils.result_to_string
+        (decodeString response_decoder) response |> Http_utils.result_to_string
       in
-      ({ model with txn = Received final }, Cmd.none)
+      ( {
+          model with
+          txn = Received final;
+          logged_in = true;
+          team = model.username;
+        },
+        Cmd.none )
   | UpdateUname s -> ({ model with username = s }, Cmd.none)
   | UpdatePass s -> ({ model with password = s }, Cmd.none)
 
@@ -113,8 +116,7 @@ let view model =
       | Failed ->
           p []
             [
-              text
-                "You've picked a username that's taken! Choose another.";
+              text "You've picked a username that's taken! Choose another.";
               cred_view model;
             ] );
     ]
