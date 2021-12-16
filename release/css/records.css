@@ -1,15 +1,15 @@
-#container { 
+#records-container { 
   height: 75px; 
   display: table; 
 }
 
-#container .guest-box {
+#records-container .guest-box {
   text-align: left;
   vertical-align: middle;
   display: table-cell; 
 }
 
-#container .guest-box img {
+#records-container .guest-box img {
   text-align: left;
   width: 75px; 
   max-width: 100%;

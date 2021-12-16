@@ -95,7 +95,8 @@ module M = struct
      displayed in row [n].*)
   let image_list n =
     let open Html in
-    td [ id "container" ]
+    td
+      [ id "records-container" ]
       ( td [] [ "Ft. " |> text ]
       :: List.init (List.nth guest_nums n) (fun x ->
              td
