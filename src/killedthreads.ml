@@ -106,7 +106,7 @@ module M : Puzzle.S = struct
     | _ -> (model, Cmd.none)
 
   (** Makes the puzzle content for purely textual clue-based puzzles *)
-  let load_puzzle_content puzzle =
+  let load_text_puzzle_content puzzle =
     let lines =
       match puzzle with
       | 2 ->
@@ -368,7 +368,7 @@ module M : Puzzle.S = struct
                         ];
                     ] );
                 ( if model.selected >= 1 && model.selected <= 4 then
-                  load_puzzle_content (model.selected + 1)
+                  load_text_puzzle_content (model.selected + 1)
                 else if model.selected = 0 then masyu model
                 else gacha model );
                 button
