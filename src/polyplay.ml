@@ -1,4 +1,5 @@
 open Tea
+open Rng
 
 (* SPEC: The page should consist of the following two parts:
 
@@ -70,6 +71,7 @@ module M : Puzzle.S = struct
       the accompanying message, along with a command to be executed. *)
   let update t = function
     | ChangeSquare (r, c) ->
+        Printf.printf "updating";
         t.nonagram.(r).(c) <- next_stage t.nonagram.(r).(c);
         (t, Cmd.none)
 
@@ -98,6 +100,105 @@ module M : Puzzle.S = struct
       {js|🐀|js};
       {js|🔄|js};
     |]
+
+  (** [random_from_list lst] returns a random element from [lst]. *)
+  let random_from_list lst =
+    let idx = Rng.generate (List.length lst) in
+    List.nth lst idx
+
+  (* The set of hints above the nonogram. Each square will be empty or
+     have an emoji in it. *)
+  let toprow =
+    "static/nonogramtoprow.txt" |> Node.Fs.readFileAsUtf8Sync
+    |> String.split_on_char '\n'
+    |> List.map (String.split_on_char ' ')
+    |> List.map (List.map int_of_string)
+
+  (* The set of hints to the side of the nonogram. Each square will be
+     empty or have an emoji in it. *)
+  let siderow =
+    "static/nonogramsiderow.txt" |> Node.Fs.readFileAsUtf8Sync
+    |> String.split_on_char '\n'
+    |> List.map (String.split_on_char ' ')
+    |> List.map (List.map int_of_string)
+
+  (* Nonogram hints normally have numbers in them. In our nonogram,
+     these numbers are replaced with emojis, and participants will have
+     to find out which emoji corresponds to which number. Emojinums
+     matches each number to a list emojis that can represent it.*)
+  let emojinums =
+    "static/nonogramsiderow.txt" |> Node.Fs.readFileAsUtf8Sync
+    |> String.split_on_char '\n'
+    |> List.map (String.split_on_char ' ')
+    |> List.map (List.map int_of_string)
+
+  (* Given a certain number, picks an emoji that corresponds to it. *)
+  let pick_emoji n =
+    emoji_lookup.(random_from_list (List.nth emojinums n))
+
+  let hint_square_view (num : int) =
+    let open Html in
+    if num = 0 then td [ classList [ ("filled", true) ] ] []
+    else td [] [ text (pick_emoji num) ]
+
+  (**[get_button_class square] returns the class name for the CSS
+     styling corresponding to [square] *)
+  let get_button_class = function
+    | Filled -> ("square-filled", true)
+    | Crossed -> ("square-crossed", true)
+    | Empty -> ("square-filled", true)
+
+  (** [square_view r c sq] returns the HTML representing a square [sq]
+      at position ([r],[c]) in the grid*)
+  let square_view (r : int) (c : int) (sq : square) =
+    let open Html in
+    match sq with
+    | Empty ->
+        td []
+          [
+            button
+              [
+                onClick (ChangeSquare (r, c));
+                classList [ get_button_class Empty ];
+              ]
+              [];
+          ]
+    | Filled ->
+        td []
+          [
+            button
+              [
+                onClick (ChangeSquare (r, c));
+                classList [ get_button_class Filled ];
+              ]
+              [];
+          ]
+    | Crossed ->
+        td []
+          [
+            button
+              [
+                onClick (ChangeSquare (r, c));
+                classList [ get_button_class Crossed ];
+              ]
+              [ text "X" ];
+          ]
+
+  (** [row_view array r] generates the HTML for the row [r] of crossword
+      squares in [arr]. Requires: [arr] contains at least (r+1) rows. *)
+  let row_view arr r =
+    let open Html in
+    tr
+      [ classList [ ("cross-row", true) ] ]
+      (Array.to_list (Array.mapi (square_view r) arr))
+
+  (** [grid_view arr c] generates the HTML for a crossword array [arr]
+      with number of columns [c]. Requires: [arr] contains at least
+      (c+1) columns, and [arr] is square.*)
+  let rec grid_view arr c =
+    match c with
+    | -1 -> []
+    | x -> row_view arr.(24 - x) (24 - x) :: grid_view arr (x - 1)
 
   (**[img_rows pos elts] generates [elts]/2 rows starting at index [pos]
      in the ordering of the emojis above with the appropriate emoji,
@@ -156,25 +257,6 @@ module M : Puzzle.S = struct
             td [] [ text (List.nth enums idx2) ];
           ])
 
-  (**[get_button_class square] returns the class name for the CSS
-     styling corresponding to [square] *)
-  let get_button_class = function
-    | Filled -> ("square-empty", true)
-    | Crossed -> ("square-empty", true)
-    | Empty -> ("square-empty", true)
-
-  (**[button_row model] returns a row of buttons *)
-  let button_row model row =
-    let open Html in
-    tr []
-      (List.init cols (fun x ->
-           button
-             [
-               onClick (ChangeSquare (row, x));
-               classList [ get_button_class model.(row).(x) ];
-             ]
-             []))
-
   (** [view model] returns a Vdom object that contains the html
       representing this puzzle [model] object *)
   let view model =
@@ -190,10 +272,13 @@ module M : Puzzle.S = struct
           ];
         hr [] [];
         (* nonogram *)
-        div []
+        div
+          [ classList [ ("nonagram", true) ] ]
           [
-            table []
-              (List.init rows (fun r -> button_row model.nonagram r));
+            table
+              [ classList [ ("center-margin", true) ] ]
+              (grid_view model.nonagram 24);
+            (* (List.init rows (fun r -> button_row model.nonagram r)); *)
           ];
       ]
 end

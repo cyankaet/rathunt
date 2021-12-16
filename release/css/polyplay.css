@@ -11,6 +11,26 @@
   display: table-cell;
 }
 
+.nonagram table, .nonagram td, .nonagram tr {
+  border-collapse: collapse;
+  border: 1px solid black;
+  width: 20px;
+}
+
+.nonagram input {
+  height: 35px;
+  width: 35px;
+  text-align: center;
+}
+
+.nonagram input:focus {
+  outline: none;
+}
+
+.filled{
+  background-color: black;
+}
+
 #container .image-container img {
   text-align: center;
   max-width: 100%;
@@ -20,13 +40,26 @@
 .emoji-size {
   font-size: x-large;
 }
-.square-empty {
 
+/* .square-empty {
   border: 1px solid #444;
   width: 50px;
-  border-top-style: hidden;
-  border-right-style: hidden;
-  border-left-style: hidden;
-  border-bottom-style: hidden;
+  height: 50px;
+} */
+
+.square-filled {
+  border: 1px solid #000;
+  width: 50px;
+  height: 50px;
 }
 
+.square-crossed {
+  border: 1px solid rgb(233, 17, 17);
+  text-align: center;
+  width: 50px;
+  height: 50px;
+}
+/* 
+.square-empty:hover{
+  background-color: #5bcc97;
+} */
