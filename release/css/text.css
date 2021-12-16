@@ -18,3 +18,16 @@
 .italics {
   font-style: italic;
 }
+
+.list-text li {
+  list-style-type: none;
+  font-size: large;
+}
+
+ul.bullets * {
+  list-style-type:disc;
+}
+
+.home-text {
+  font-size: large;
+}

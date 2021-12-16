@@ -4,7 +4,8 @@ type msg
 
 let view () =
   let open Html in
-  div []
+  div
+    [ classList [ ("list-text", true); ("home-div", true) ] ]
     [
       ul
         [ classList [ ("clues", true) ] ]
@@ -43,7 +44,8 @@ let view () =
                              examples of puzzlehunts, feel free to \
                              check out the following ones below:";
                         ];
-                      ul []
+                      ul
+                        [ classList [ ("bullets", true) ] ]
                         [
                           li []
                             [
@@ -157,49 +159,58 @@ let view () =
           li []
             [
               h3 [] [ text "Help! I'm stuck on a puzzle! AAAAAAAAAAAA" ];
-            ];
-          ul []
-            [
-              li [] [ text "Here are some tips that we recommend:" ];
               ul []
                 [
                   li []
                     [
-                      text
-                        "Double check your work, sometimes a small \
-                         error is just what's stopping you from \
-                         continuing in the problem.";
-                    ];
-                  li []
-                    [
-                      text
-                        "Get a different perspective, either from \
-                         taking a break or by having someone else look \
-                         at the puzzles.";
-                    ];
-                  li []
-                    [
-                      text
-                        "Consider what you know, what you don't know, \
-                         and how you could use what you know in order \
-                         to get something new.";
-                    ];
-                  li []
-                    [
-                      a
-                        [ href "https://google.com"; target "_blank" ]
-                        [ text "Google" ];
-                      text " is your best friend!";
-                    ];
-                  li []
-                    [
-                      a
+                      p []
+                        [ text "Here are some tips that we recommend:" ];
+                      ul
+                        [ classList [ ("bullets", true) ] ]
                         [
-                          href
-                            "https://www.mit.edu/~puzzle/resources/haveyoutried.pdf";
-                          target "_blank";
-                        ]
-                        [ text "Have you tried..." ];
+                          li []
+                            [
+                              text
+                                "Double check your work, sometimes a \
+                                 small error is just what's stopping \
+                                 you from continuing in the problem.";
+                            ];
+                          li []
+                            [
+                              text
+                                "Get a different perspective, either \
+                                 from taking a break or by having \
+                                 someone else look at the puzzles.";
+                            ];
+                          li []
+                            [
+                              text
+                                "Consider what you know, what you \
+                                 don't know, and how you could use \
+                                 what you know in order to get \
+                                 something new.";
+                            ];
+                          li []
+                            [
+                              a
+                                [
+                                  href "https://google.com";
+                                  target "_blank";
+                                ]
+                                [ text "Google" ];
+                              text " is your best friend!";
+                            ];
+                          li []
+                            [
+                              a
+                                [
+                                  href
+                                    "https://www.mit.edu/~puzzle/resources/haveyoutried.pdf";
+                                  target "_blank";
+                                ]
+                                [ text "Have you tried..." ];
+                            ];
+                        ];
                     ];
                 ];
             ];

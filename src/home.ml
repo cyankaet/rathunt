@@ -7,7 +7,7 @@ let view () =
   div
     [ classList [ ("center-align", true); ("home-div", true) ] ]
     [
-      p
+      h2
         [ classList [ ("italics", true) ] ]
         [
           "Help your fellow CS 3110 students complete their final \

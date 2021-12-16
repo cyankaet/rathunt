@@ -4,19 +4,13 @@ type msg
 
 let view () =
   let open Html in
-  div [ classList [] ]
+  div
+    [ classList [ ("home-div", true) ] ]
     [
-      div
-        [ id "about-container"; classList [ ("center-margin", true) ] ]
-        [
-          div
-            [ classList [ ("about-image-container", true) ] ]
-            [ img [ src "rats.jpeg" ] [] ];
-        ];
       div []
         [
           p
-            [ classList [ ("about", true) ] ]
+            [ classList [ ("home-text", true) ] ]
             [
               text
                 "Hello there, we are The Rats! We have been solving \
@@ -26,5 +20,18 @@ let view () =
                  program, so we decided to make this as our final \
                  project! We hope you enjoy the hunt!";
             ];
+        ];
+      div
+        [ id "about-container" ]
+        [
+          div
+            [
+              classList
+                [
+                  ("about-image-container", true);
+                  ("center-margin", true);
+                ];
+            ]
+            [ img [ src "rats.jpeg" ] [] ];
         ];
     ]
