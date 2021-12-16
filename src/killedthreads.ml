@@ -78,21 +78,20 @@ module M : Puzzle.S = struct
 
   (** Does a certain number of pulls from the Gacha game *)
   let rec pull model pulls =
-    match pulls with
-    | 0 -> model
-    | num ->
-        let m = pull model (pulls - 1) in
-        let curr_roll = List.hd m.next_rolls in
-        {
-          m with
-          rolls = m.rolls + 1;
-          next_rolls = List.tl m.next_rolls @ [ curr_roll ];
-          chars_collected =
-            update_count m.chars_collected
-              ( match List.assoc_opt curr_roll g_map with
-              | None -> failwith "Impossible"
-              | Some char -> char );
-        }
+    if pulls = 0 then model
+    else
+      let m = pull model (pulls - 1) in
+      let curr_roll = List.hd m.next_rolls in
+      {
+        m with
+        rolls = m.rolls + 1;
+        next_rolls = List.tl m.next_rolls @ [ curr_roll ];
+        chars_collected =
+          update_count m.chars_collected
+            ( match List.assoc_opt curr_roll g_map with
+            | None -> failwith "Impossible"
+            | Some char -> char );
+      }
 
   let update model = function
     | Solve cell ->
@@ -109,7 +108,6 @@ module M : Puzzle.S = struct
     | UpdateText str -> ({ model with box_text = str }, Cmd.none)
     | Pull num -> (pull model num, Cmd.none)
     | Accept -> ({ model with accepted = true }, Cmd.none)
-    | _ -> (model, Cmd.none)
 
   (** Makes the puzzle content for purely textual clue-based puzzles *)
   let load_text_puzzle_content puzzle =
@@ -130,23 +128,17 @@ module M : Puzzle.S = struct
       | _ -> failwith "impossible"
     in
     let open Html in
-    div []
+    div
+      [ classList [ ("home-div", true) ] ]
       [
         i [] [ p [] [ text (List.hd lines) ] ];
-        ol []
+        div
+          [ classList [ ("clues", true) ] ]
           [
-            (let rec make_clues = function
-               | [] -> p [] []
-               | clue :: rest ->
-                   div []
-                     [
-                       li
-                         [ classList [ ("clues", true) ] ]
-                         [ text clue ];
-                       make_clues rest;
-                     ]
-             in
-             make_clues (List.tl lines));
+            ol []
+              (List.map
+                 (fun clue -> li [] [ text clue ])
+                 (List.tl lines));
           ];
       ]
 
@@ -167,7 +159,8 @@ module M : Puzzle.S = struct
   (** Makes the flavortext on the initial page of the puzzle *)
   let flavor =
     let open Html in
-    div []
+    div
+      [ classList [ ("home-div", true) ] ]
       [
         i []
           [
@@ -192,7 +185,7 @@ module M : Puzzle.S = struct
       ]
 
   (** Makes the autopsy page of the puzzle *)
-  let make_autopsy_page model =
+  let make_autopsy_page =
     let open Html in
     div []
       [
@@ -201,13 +194,14 @@ module M : Puzzle.S = struct
           [
             ol []
               [
-                (let rec display_files = function
-                   | [] -> p [] []
-                   | file :: rest ->
-                       div []
-                         [ li [] [ text file ]; display_files rest ]
-                 in
-                 display_files autopsy_files);
+                div
+                  [ classList [ ("center-text", true) ] ]
+                  (let rec display_files = function
+                     | [] -> []
+                     | file :: rest ->
+                         li [] [ text file ] :: display_files rest
+                   in
+                   display_files autopsy_files);
               ];
           ];
         button
@@ -215,7 +209,7 @@ module M : Puzzle.S = struct
             onClick (Select (-1));
             classList [ ("submit-subpuzzle", true) ];
           ]
-          [ text "Go back" ];
+          [ text "Back" ];
       ]
 
   (** Makes the "home/landing page" for the puzzle *)
@@ -224,32 +218,31 @@ module M : Puzzle.S = struct
     div []
       [
         div []
-          [
-            (let rec make_buttons = function
-               | [] -> p [] []
-               | curr :: rest ->
-                   div []
-                     [
-                       button
-                         [
-                           onClick (Select curr);
-                           classList [ ("submit-subpuzzle", true) ];
-                         ]
-                         [
-                           text
-                             ( "Crime Scene "
-                             ^ string_of_int (curr + 1)
-                             ^ ": "
-                             ^
-                             if List.mem curr model.solved then
-                               string_clean (List.nth answers curr)
-                             else "????" );
-                         ];
-                       make_buttons rest;
-                     ]
-             in
-             make_buttons zero_to_five);
-          ];
+          (let rec make_buttons = function
+             | [] -> []
+             | curr :: rest ->
+                 div
+                   [ classList [ ("nav-padding", true) ] ]
+                   [
+                     button
+                       [
+                         onClick (Select curr);
+                         classList [ ("nav-subpuzzle", true) ];
+                       ]
+                       [
+                         text
+                           ( "Crime Scene "
+                           ^ string_of_int (curr + 1)
+                           ^ ": "
+                           ^
+                           if List.mem curr model.solved then
+                             string_clean (List.nth answers curr)
+                           else "????" );
+                       ];
+                   ]
+                 :: make_buttons rest
+           in
+           make_buttons zero_to_five);
         ( if List.length model.solved >= 5 then
           div []
             [
@@ -261,7 +254,7 @@ module M : Puzzle.S = struct
               button
                 [
                   onClick (Select 6);
-                  classList [ ("submit-subpuzzle", true) ];
+                  classList [ ("nav-subpuzzle", true) ];
                 ]
                 [ text "View autopsy files" ];
             ]
@@ -269,34 +262,38 @@ module M : Puzzle.S = struct
       ]
 
   (** Makes the view for the Masyu (room 1) subpuzzle *)
-  let masyu model =
+  let masyu =
     let open Html in
-    p []
+    div
+      [ classList [ ("home-div", true) ] ]
       [
-        i []
+        p []
           [
-            p []
+            i []
               [
-                text
-                  "You enter and find a book on a desk about how to \
-                   interrogate people and get answers in as few \
-                   questions as possible as well as a piece of paper \
-                   with the following: (Click on the images to get an \
-                   interactive version)";
+                p []
+                  [
+                    text
+                      "You enter and find a book on a desk about how \
+                       to interrogate people and get answers in as few \
+                       questions as possible as well as a piece of \
+                       paper with the following: (Click on the images \
+                       to get an interactive version)";
+                  ];
               ];
+            (let rec load_imgs links = function
+               | [] -> p [] []
+               | image :: rest ->
+                   div []
+                     [
+                       a
+                         [ href (List.hd links); target "_blank" ]
+                         [ img [ src image ] [] ];
+                       load_imgs (List.tl links) rest;
+                     ]
+             in
+             load_imgs puzz_links puzz_img);
           ];
-        (let rec load_imgs links = function
-           | [] -> p [] []
-           | image :: rest ->
-               div []
-                 [
-                   a
-                     [ href (List.hd links); target "_blank" ]
-                     [ img [ src image ] [] ];
-                   load_imgs (List.tl links) rest;
-                 ]
-         in
-         load_imgs puzz_links puzz_img);
       ]
 
   (** Makes the Gacha subpuzzle (Room 6) *)
@@ -362,7 +359,7 @@ module M : Puzzle.S = struct
       [
         (if model.selected = -1 then flavor else div [] []);
         ( match model.selected with
-        | 6 -> make_autopsy_page model
+        | 6 -> make_autopsy_page
         | 0
         | 1
         | 2
@@ -406,14 +403,14 @@ module M : Puzzle.S = struct
                     ] );
                 ( if model.selected >= 1 && model.selected <= 4 then
                   load_text_puzzle_content (model.selected + 1)
-                else if model.selected = 0 then masyu model
+                else if model.selected = 0 then masyu
                 else gacha model );
                 button
                   [
                     onClick (Select (-1));
                     classList [ ("submit-subpuzzle", true) ];
                   ]
-                  [ text "Go back" ];
+                  [ text "Back" ];
               ]
         | -1
         | _ ->
@@ -437,15 +434,23 @@ module M : Puzzle.S = struct
                    puzzle at your own discretion.";
               ];
           ];
-        a
+        div
+          [ classList [ ("trigger-padding", true) ] ]
           [
-            href ("#" ^ "home");
-            classList [ ("submit-subpuzzle", true) ];
-          ]
-          [ text "Go back" ];
-        button
-          [ classList [ ("submit-subpuzzle", true) ]; onClick Accept ]
-          [ text "I understand. Show the puzzle!" ];
+            a
+              [
+                href ("#" ^ "puzzles");
+                classList [ ("submit-subpuzzle", true) ];
+              ]
+              [ text "Back" ];
+          ];
+        div
+          [ classList [ ("trigger-padding", true) ] ]
+          [
+            button
+              [ classList [ ("nav-subpuzzle", true) ]; onClick Accept ]
+              [ text "I understand. Show the puzzle!" ];
+          ];
       ]
 
   let view model =
