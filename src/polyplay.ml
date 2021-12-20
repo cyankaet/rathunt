@@ -253,6 +253,19 @@ module M : Puzzle.S = struct
     let open Html in
     div []
       [
+        div
+          [ classList [ ("home-div", true) ] ]
+          [
+            p
+              [ classList [ ("home-text", true) ] ]
+              [
+                "It's game night! You walk into a room with \
+                 challengers lining two of the walls, with their hands \
+                 of game pieces showing. It's time for you to break \
+                 out the 200 IQ logic strats - what's your trump card?"
+                |> text;
+              ];
+          ];
         (* table *)
         div []
           [

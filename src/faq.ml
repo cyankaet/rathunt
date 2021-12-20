@@ -30,9 +30,9 @@ let view () =
                           text
                             "A puzzlehunt is a collection of puzzles. \
                              In a puzzle, you're given information, \
-                             whether it be images, text, grids, or \
-                             other information. You then have to use \
-                             this information to extract some type of \
+                             whether it be images, text, grids, or... \
+                             something else! You then have to use this \
+                             information to extract some type of \
                              answer. No two puzzles are the same, and \
                              a key part of the puzzle is figuring out \
                              what the puzzle wants you to do.";
@@ -105,7 +105,7 @@ let view () =
                                 [
                                   text
                                     "MIT Mystery Hunt (MITMH) (the \
-                                     biggest puzzle hunt of the year)";
+                                     biggest puzzle hunt of the year!)";
                                 ];
                             ];
                         ];
@@ -132,9 +132,10 @@ let view () =
               li []
                 [
                   text
-                    "We are a group of 4 students really interested in \
-                     puzzles and we chose to make a mini-puzzle hunt! \
-                     Learn more about us in the about section!";
+                    "We are a group of 4 CS 3110 students really \
+                     interested in puzzles and we chose to make a \
+                     mini-puzzle hunt! Learn more about us in the \
+                     About section!";
                 ];
             ];
           li []

@@ -342,6 +342,20 @@ module M = struct
     | _, d, _ ->
         div []
           [
+            div
+              [ classList [ ("home-div", true) ] ]
+              [
+                p
+                  [ classList [ ("home-text", true) ] ]
+                  [
+                    "An enormous tree outside, with branches \
+                     stretching upwards as far as the eye can see. It \
+                     looks like the branches have been helpfully \
+                     labeled to some degree, but there's still some \
+                     deciphering required to see what's going on... "
+                    |> text;
+                  ];
+              ];
             (* title *)
             div []
               [
