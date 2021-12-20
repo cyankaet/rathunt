@@ -20,6 +20,7 @@ module M = struct
   type model = t
 
   let name = "bethe"
+  let solution = "AUTO AXLE"
 
   (** file containing the across clues in the crossword *)
   let across =
@@ -227,8 +228,8 @@ module M = struct
     let across', down' = pad across down in
     table
       [ classList [ ("center-margin", true) ] ]
-      ( tr [] [ th [] [ text "Across" ]; th [] [ text "Down" ] ]
-      :: clues_helper across' down' )
+      (tr [] [ th [] [ text "Across" ]; th [] [ text "Down" ] ]
+      :: clues_helper across' down')
 
   (** [view model] returns a Vdom object that contains the HTML
       representing this crossword puzzle [model] object *)
