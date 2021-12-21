@@ -31,3 +31,19 @@
 .story:hover {
   background-color: #ff8282;
 }
+
+#list-container .bkgd-container {
+  opacity: 0.2; 
+  text-align: center;
+  vertical-align: top;
+  display: table-cell;
+  max-width: 100%;
+  max-height: auto;   
+}
+
+/* .list-bkgd {
+  background-image: url("/west_campus.png");
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+  background-size: 100% 100%;
+} */
