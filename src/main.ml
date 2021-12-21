@@ -272,16 +272,32 @@ let view model =
     [ classList [ ("center-text", true) ] ]
     [
       div
-        [ classList [ ("topnav", true) ] ]
+        [ classList [ ("topnav-bar", true) ] ]
         [
-          a [ href ("#" ^ "home") ] [ text "Home" ];
-          a [ href ("#" ^ "puzzles") ] [ text "Puzzles" ];
-          a [ href ("#" ^ "story") ] [ text "Story" ];
-          a [ href ("#" ^ "rules") ] [ text "Rules" ];
-          a [ href ("#" ^ "faq") ] [ text "FAQ" ];
-          a [ href ("#" ^ "register") ] [ text "Login" ];
-          a [ href ("#" ^ "about") ] [ text "About" ];
-          a [] [ text model.team_reg.team ];
+          a
+            [ href ("#" ^ "home"); classList [ ("topnav", true) ] ]
+            [ text "Home" ];
+          a
+            [ href ("#" ^ "puzzles"); classList [ ("topnav", true) ] ]
+            [ text "Puzzles" ];
+          a
+            [ href ("#" ^ "story"); classList [ ("topnav", true) ] ]
+            [ text "Story" ];
+          a
+            [ href ("#" ^ "rules"); classList [ ("topnav", true) ] ]
+            [ text "Rules" ];
+          a
+            [ href ("#" ^ "faq"); classList [ ("topnav", true) ] ]
+            [ text "FAQ" ];
+          a
+            [ href ("#" ^ "register"); classList [ ("topnav", true) ] ]
+            [ text "Login" ];
+          a
+            [ href ("#" ^ "about"); classList [ ("topnav", true) ] ]
+            [ text "About" ];
+          a
+            [ classList [ ("username", true) ] ]
+            [ text model.team_reg.team ];
           (* a [ href ("#" ^ "meta") ] [ text "metapuzzle" ]; a [ href
              ("#" ^ "crossword") ] [ text "crossword" ]; *)
         ];
