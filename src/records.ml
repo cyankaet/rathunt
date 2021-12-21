@@ -23,6 +23,7 @@ module M = struct
   let name = "keeton"
 
   let solution = "GEM"
+
   (**[num_dates] is the number of songs/dates to be considered in the
      puzzle.*)
   let num_dates = 10
@@ -184,15 +185,20 @@ module M = struct
 
   (** [view model] returns a Vdom object that contains the HTML
       representing this crossword puzzle [model] object *)
+
   let view model =
     let open Html in
     div []
       [
         div []
           [
-            "K. K. tour dates from earlier this year. Fun fact: K.K. \
-             loves to celebrate and party with friends, especially \
-             when it's their special day!" |> text;
+            i []
+              [
+                "A flyer with tour dates from earlier this year. Fun \
+                 fact: this artist loves to celebrate and party with \
+                 friends, especially when it's their special day!"
+                |> text;
+              ];
           ];
         div
           [ classList [ ("party-wrapper", true) ] ]

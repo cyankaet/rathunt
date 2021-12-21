@@ -60,7 +60,8 @@ let view model =
       @
       if not model.unlocked then
         [
-          button [ onClick Unlock ]
+          button
+            [ onClick Unlock; classList [ ("story", true) ] ]
             [ text "ACTIVATE HANDS-ON DEBUGGING" ];
         ]
       else

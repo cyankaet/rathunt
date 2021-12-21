@@ -19,8 +19,30 @@ let view () =
           p
             [ classList [ ("home-text", true) ] ]
             [
-              "TODO: Help this project group work out their bugs in \
-               time for their demo! " |> text;
+              "(* TODO: Help this project group puzzle out their bugs \
+               in time for their demo! *)" |> text;
             ];
+          p
+            [ classList [ ("home-text", true) ] ]
+            [
+              i []
+                [
+                  "(You'll need to log in first before you can make \
+                   progress!)" |> text;
+                ];
+            ];
+        ];
+      div
+        [ id "about-container" ]
+        [
+          div
+            [
+              classList
+                [
+                  ("about-image-container", true);
+                  ("center-margin", true);
+                ];
+            ]
+            [ img [ src "west_campus.png" ] [] ];
         ];
     ]

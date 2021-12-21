@@ -210,10 +210,7 @@ let home_view model =
     [
       h2 []
         [
-          Printf.sprintf
-            "Welcome to RatHunt. Select a puzzle to start with (hint: \
-             not the meta)."
-          |> text;
+          Printf.sprintf "Welcome to RatHunt. Select a puzzle." |> text;
         ];
       div
         [ id "list-container"; classList [ ("center-margin", true) ] ]
