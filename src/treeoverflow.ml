@@ -40,11 +40,10 @@ module M = struct
       is generated. *)
 
   type t = node
-
   type model = t
 
   let name = "becker"
-
+  let solution = "BASTION"
   let nodedict = Hashtbl.create 1000
 
   (** All of the possile webpage signals to handle. *)
@@ -101,24 +100,21 @@ module M = struct
   let rootFeeders = readlines "static/rootfeeders.txt"
 
   (** [flagtable, incdecTable, desktopTable, lrarrowTable, bustsTable,
-      morseTable] is a map from English characters to words that encode
-      that letter in the
-      [CrossFlags, GraphDec, Desktop, Gemini, Busts, SOS] subpuzzles,
-      respectively. *)
+      morseTable]
+      is a map from English characters to words that encode that letter
+      in the [CrossFlags, GraphDec, Desktop, Gemini, Busts, SOS]
+      subpuzzles, respectively. *)
   let flagTable = Hashtbl.create 26
 
   let incdecTable = Hashtbl.create 26
-
   let desktopTable = Hashtbl.create 26
-
   let geminiTable = Hashtbl.create 26
-
   let bustsTable = Hashtbl.create 26
-
   let morseTable = Hashtbl.create 26
 
   (** [compassList, flagsList, incdecList, desktopList, lrarrowList,
-      bustsList, morseList] is an association list of valid answers to
+      bustsList, morseList]
+      is an association list of valid answers to
       [Compass, CrossFlag, GraphDec, Desktop, Gemini, Busts, SOS]
       puzzles, respectively, and their encoded characters (in reverse
       order). *)
@@ -129,10 +125,10 @@ module M = struct
     "static/inc_dec_words.txt" |> readlines |> makeTable incdecTable;
     "static/binary_words.txt" |> readlines |> makeTable desktopTable;
     makeTable geminiTable
-      ( ("static/horizontal_sym.txt" |> readlines)
+      (("static/horizontal_sym.txt" |> readlines)
       @ ("static/vertical_sym.txt" |> readlines)
       @ ("static/rotational_sym.txt" |> readlines)
-      @ ("static/none_sym.txt" |> readlines) );
+      @ ("static/none_sym.txt" |> readlines));
     "static/bustswords.txt" |> readlines |> makeTable bustsTable;
     "static/morse_short.txt" |> readlines |> makeTable morseTable
 
@@ -192,13 +188,13 @@ module M = struct
       of [puzzle] type with random seed given by [seed]. *)
   let generate answer prev puzztype =
     Rng.seed
-      ( prev
+      (prev
       |> (fun s ->
            "0x"
            ^
            let l = String.length s in
            if l < seedlen then s else String.sub s (l - seedlen) seedlen)
-      |> int_of_string );
+      |> int_of_string);
     let value_creator c =
       (* print_endline (Char.escaped c); *)
       match puzztype with
@@ -222,7 +218,7 @@ module M = struct
                 |> (fun s -> s.[x])
                 |> value_creator;
               solved =
-                ( if debug then true
+                (if debug then true
                 else
                   let r = Rng.uniform 1.0 in
                   if
@@ -230,7 +226,7 @@ module M = struct
                     > baseprob
                       ** (String.length child_id |> float_of_int)
                   then true
-                  else false );
+                  else false);
               (* tweak the above random generation of solved *)
               box_text = "";
               puzzle_type = numberSwitch (Rng.generate 7 + 1);
@@ -261,19 +257,19 @@ module M = struct
           let children = generate data.value data.id data.puzzle_type in
           let generated_node = (prev, data, children) in
           Hashtbl.add nodedict data.id generated_node;
-          (generated_node, Cmd.none) )
+          (generated_node, Cmd.none))
         else ((prev, data, lst), Cmd.none)
     | Backward -> (
         match t with
         | s, _, _ ->
             if s = "x" then (t, Cmd.none)
-            else (Hashtbl.find nodedict s, Cmd.none) )
+            else (Hashtbl.find nodedict s, Cmd.none))
     | UpdateText s -> (
         match t with
         | p, d, clst ->
             if d.solved then
               ((p, { d with box_text = "" }, clst), Cmd.none)
-            else ((p, { d with box_text = s }, clst), Cmd.none) )
+            else ((p, { d with box_text = s }, clst), Cmd.none))
     | Submit -> (
         print_endline "Submitting answer";
         match t with
@@ -283,8 +279,8 @@ module M = struct
               let guess = string_clean ans = string_clean d.value in
               let solve_node = (p, { d with solved = guess }, clst) in
               Hashtbl.add nodedict d.id solve_node;
-              (solve_node, Cmd.none) )
-            else ((p, { d with box_text = "" }, clst), Cmd.none) )
+              (solve_node, Cmd.none))
+            else ((p, { d with box_text = "" }, clst), Cmd.none))
 
   let make_emoji = function
     | Root -> {js|🌱|js}
@@ -317,11 +313,11 @@ module M = struct
                  ]
                  [
                    text
-                     ( make_emoji d.puzzle_type
+                     (make_emoji d.puzzle_type
                      ^ " - "
                      ^
                      if d.solved then String.uppercase_ascii d.value
-                     else "????" );
+                     else "????");
                  ];
              ]
            :: acc)
@@ -342,49 +338,63 @@ module M = struct
     | _, d, _ ->
         div []
           [
+            div
+              [ classList [ ("home-div", true) ] ]
+              [
+                p
+                  [ classList [ ("home-text", true) ] ]
+                  [
+                    "An enormous tree outside, with branches \
+                     stretching upwards as far as the eye can see. It \
+                     looks like the branches have been helpfully \
+                     labeled to some degree, but there's still some \
+                     deciphering required to see what's going on... "
+                    |> text;
+                  ];
+              ];
             (* title *)
             div []
               [
                 p []
                   [
                     text
-                      ( make_emoji d.puzzle_type
+                      (make_emoji d.puzzle_type
                       ^ " Minipuzzle " ^ d.id ^ ": "
                       ^
                       if d.solved then String.uppercase_ascii d.value
-                      else "????" );
+                      else "????");
                   ];
               ];
             (* submission field *)
             div []
               [
-                ( if not d.solved then
-                  div []
-                    [
-                      p []
-                        [
-                          input'
-                            [
-                              type' "text";
-                              id "answer-bar";
-                              value d.box_text;
-                              onInput (fun s -> UpdateText s);
-                              placeholder "Enter Answer Here";
-                            ]
-                            [];
-                        ];
-                      div
-                        [ classList [ ("center-margin", true) ] ]
-                        [
-                          button
-                            [
-                              onClick Submit;
-                              classList [ ("submit-tree", true) ];
-                            ]
-                            [ text "Submit" ];
-                        ];
-                    ]
-                else p [] [ text ("SOLVED! " ^ {js|😃|js}) ] );
+                (if not d.solved then
+                 div []
+                   [
+                     p []
+                       [
+                         input'
+                           [
+                             type' "text";
+                             id "answer-bar";
+                             value d.box_text;
+                             onInput (fun s -> UpdateText s);
+                             placeholder "Enter Answer Here";
+                           ]
+                           [];
+                       ];
+                     div
+                       [ classList [ ("center-margin", true) ] ]
+                       [
+                         button
+                           [
+                             onClick Submit;
+                             classList [ ("submit-tree", true) ];
+                           ]
+                           [ text "Submit" ];
+                       ];
+                   ]
+                else p [] [ text ("SOLVED! " ^ {js|😃|js}) ]);
               ];
             (* back button *)
             div

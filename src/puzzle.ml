@@ -5,6 +5,7 @@ module type S = sig
   type model = t
 
   val name : string
+  val solution : string
 
   type msg
   (** All of the possile webpage signals to handle *)

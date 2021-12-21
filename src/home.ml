@@ -14,9 +14,10 @@ let view () =
            project!" |> text;
         ];
       div
-        [ classList [ ("home-text", true) ] ]
+        [ classList [ ("home-div", true) ] ]
         [
-          p []
+          p
+            [ classList [ ("home-text", true) ] ]
             [
               "TODO: Help this project group work out their bugs in \
                time for their demo! " |> text;

@@ -18,7 +18,7 @@ let view () =
                  give creating our own puzzles a try! We are a group \
                  of four sophomores at Cornell who also like to \
                  program, so we decided to make this as our final \
-                 project! We hope you enjoy the hunt!";
+                 project for CS 3110! We hope you enjoy the hunt!";
             ];
         ];
       div

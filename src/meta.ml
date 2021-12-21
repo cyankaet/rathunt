@@ -7,7 +7,6 @@ module M = struct
   }
 
   type t = button list
-
   type model = t
 
   type msg =
@@ -15,6 +14,7 @@ module M = struct
         (** All of the possile webpage signals to handle *)
 
   let name = "meta"
+  let solution = "OCAML TAMER"
 
   (** the height of the grid of buttons *)
   let m = 5
@@ -30,7 +30,6 @@ module M = struct
     |> String.split_on_char '\n'
 
   let new_button s = { label = s; toggled = false }
-
   let init () = (List.map new_button questions, Cmd.none)
 
   (** [toggle s b] flips the state of button b if it has label s *)

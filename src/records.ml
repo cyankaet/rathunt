@@ -21,6 +21,8 @@ module M = struct
   type model = t
 
   let name = "keeton"
+
+  let solution = "GEM"
   (**[num_dates] is the number of songs/dates to be considered in the
      puzzle.*)
   let num_dates = 10

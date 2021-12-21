@@ -99,30 +99,30 @@ module M (P : Puzzle.S) = struct
     let open Html in
     div []
       [
-        ( if not model.solved then
-          div []
-            [
-              p []
-                [
-                  input'
-                    [
-                      type' "text";
-                      id "answer-bar";
-                      value model.box_text;
-                      onInput (fun s -> UpdateText s);
-                      placeholder "Enter Answer Here";
-                    ]
-                    [];
-                ];
-              div
-                [ classList [ ("center-margin", true) ] ]
-                [
-                  button
-                    [ onClick Submit; classList [ ("submit", true) ] ]
-                    [ text "Submit" ];
-                ];
-            ]
-        else p [] [ model.answer |> text ] );
+        (if not model.solved then
+         div []
+           [
+             p []
+               [
+                 input'
+                   [
+                     type' "text";
+                     id "answer-bar";
+                     value model.box_text;
+                     onInput (fun s -> UpdateText s);
+                     placeholder "Enter Answer Here";
+                   ]
+                   [];
+               ];
+             div
+               [ classList [ ("center-margin", true) ] ]
+               [
+                 button
+                   [ onClick Submit; classList [ ("submit", true) ] ]
+                   [ text "Submit" ];
+               ];
+           ]
+        else p [] [ P.solution |> text ]);
         (let rec print_guesses = function
            | [] -> p [] []
            | guess :: rest ->

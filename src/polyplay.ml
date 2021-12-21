@@ -36,6 +36,7 @@ module M : Puzzle.S = struct
   type model = t
 
   let name = "cook"
+  let solution = "QUEEN OF HEARTS"
 
   (** All of the possible webpage signals to handle. I'm pretty sure
       this is everything one might want, please think and add more if
@@ -53,7 +54,6 @@ module M : Puzzle.S = struct
     |> List.map String.lowercase_ascii
 
   let rows = 25
-
   let cols = 15
 
   (**[init ()] returns the puzzle model in its initial state. *)
@@ -205,7 +205,8 @@ module M : Puzzle.S = struct
             td
               [ classList [ ("emoji-size", true) ] ]
               [ text emoji_lookup.(idx1) ];
-            div [ id "poly-container" ]
+            div
+              [ id "poly-container" ]
               [
                 td
                   [ classList [ ("image-container", true) ] ]
@@ -213,9 +214,9 @@ module M : Puzzle.S = struct
                     img
                       [
                         src
-                          ( "play_imgs_final/img-"
+                          ("play_imgs_final/img-"
                           ^ string_of_int (idx1 + 1)
-                          ^ ".png" );
+                          ^ ".png");
                       ]
                       [];
                   ];
@@ -224,7 +225,8 @@ module M : Puzzle.S = struct
             td
               [ classList [ ("emoji-size", true) ] ]
               [ text emoji_lookup.(idx2) ];
-            div [ id "poly-container" ]
+            div
+              [ id "poly-container" ]
               [
                 td
                   [ classList [ ("image-container", true) ] ]
@@ -232,9 +234,9 @@ module M : Puzzle.S = struct
                     img
                       [
                         src
-                          ( "play_imgs_final/img-"
+                          ("play_imgs_final/img-"
                           ^ string_of_int (idx2 + 1)
-                          ^ ".png" );
+                          ^ ".png");
                         classList [ ("rat-img", true) ];
                       ]
                       [];
@@ -244,7 +246,6 @@ module M : Puzzle.S = struct
           ])
 
   let random_top_rows = emoji_rows_view toprow
-
   let random_side_rows = emoji_rows_view siderow
 
   (** [view model] returns a Vdom object that contains the html
@@ -253,6 +254,19 @@ module M : Puzzle.S = struct
     let open Html in
     div []
       [
+        div
+          [ classList [ ("home-div", true) ] ]
+          [
+            p
+              [ classList [ ("home-text", true) ] ]
+              [
+                "It's game night! You walk into a room with \
+                 challengers lining two of the walls, with their hands \
+                 of game pieces showing. It's time for you to break \
+                 out the 200 IQ logic strats - what's your trump card?"
+                |> text;
+              ];
+          ];
         (* table *)
         div []
           [

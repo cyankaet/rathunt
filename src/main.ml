@@ -13,13 +13,13 @@ type model = {
   polyplay : Polyplay.model;
   treeoverflow : Treeoverflow.model;
   teams : Teams.model;
+  story : Story.model;
   team_reg : Team_registration.model;
   killed_threads : KilledThreads.model;
   records : Records.model;
   page : string;
   mutable title : string;
   check_puzzle : string list transfer;
-  num_solves : int;
 }
 (** [model] is a type representing a model of the entire site containing
     a single [puzzle] so far *)
@@ -39,11 +39,11 @@ let init () _ =
       meta = fst (Metapuzzle.init ());
       crossword = fst (Crossword.init ());
       killed_threads = fst (KilledThreads.init ());
+      story = fst (Story.init ());
       records = fst (Records.init ());
       page = "#home";
       title = "RatHunt";
       check_puzzle = Idle;
-      num_solves = 0;
     },
     Cmd.none )
 
@@ -87,7 +87,7 @@ let update model = function
           else ();
           if List.mem "becker" x then model.treeoverflow.solved <- true
           else ();
-          ({ model with num_solves = List.length x }, Cmd.none)
+          (model, Cmd.none)
       | Error e ->
           print_endline e;
           ({ model with check_puzzle = Failed }, Cmd.none) )
@@ -119,7 +119,12 @@ let update model = function
   | Faq_msg _ -> (model, Cmd.none)
   | Rules_msg _ -> (model, Cmd.none)
   | Home_msg _ -> (model, Cmd.none)
-  | Story_msg _ -> (model, Cmd.none)
+  | Story_msg msg ->
+      print_endline "story";
+      if model.page = "#story" then
+        let story, cmd = Story.update model.story msg in
+        ({ model with story }, Cmd.map story_msg cmd)
+      else (model, Cmd.none)
   | Records_msg msg ->
       print_endline "kk slider";
       if model.page = "#records" then
@@ -153,6 +158,7 @@ let update model = function
           model.records.team <- team_reg.username;
           model.polyplay.team <- team_reg.username;
           model.treeoverflow.team <- team_reg.username;
+          model.story.logged_in <- true;
           match model.check_puzzle with
           | Loading
           | Received _ ->
@@ -190,7 +196,15 @@ let update model = function
             else Cmd.none
         | _ -> Cmd.none ) )
 
-let home_view =
+let get_solves model =
+  0
+  + (if model.crossword.solved then 1 else 0)
+  + (if model.killed_threads.solved then 1 else 0)
+  + (if model.polyplay.solved then 1 else 0)
+  + (if model.records.solved then 1 else 0)
+  + if model.treeoverflow.solved then 1 else 0
+
+let home_view model =
   let open Html in
   div []
     [
@@ -203,46 +217,54 @@ let home_view =
         ];
       div
         [ id "list-container"; classList [ ("center-margin", true) ] ]
-        [
-          p
-            [ classList [ ("image-container", true) ] ]
+        ( ( if get_solves model >= 3 then
             [
-              img [ src "list_imgs/noyes.png" ] [];
-              a
-                [ href ("#" ^ "meta") ]
-                [ text "META: Twenty Questions" ];
-            ];
-          p
-            [ classList [ ("image-container", true) ] ]
-            [
-              img [ src "list_imgs/bethe.png" ] [];
-              a [ href ("#" ^ "crossword") ] [ text "Grid Elements" ];
-            ];
-          p
-            [ classList [ ("image-container", true) ] ]
-            [
-              img [ src "list_imgs/rose.png" ] [];
-              a [ href ("#" ^ "killed") ] [ text "Killed Threads" ];
-            ];
-          p
-            [ classList [ ("image-container", true) ] ]
-            [
-              img [ src "list_imgs/keeton.png" ] [];
-              a [ href ("#" ^ "records") ] [ text "K. K. Records" ];
-            ];
-          p
-            [ classList [ ("image-container", true) ] ]
-            [
-              img [ src "list_imgs/cook.png" ] [];
-              a [ href ("#" ^ "polyplay") ] [ text "Polymorphic Play" ];
-            ];
-          p
-            [ classList [ ("image-container", true) ] ]
-            [
-              img [ src "list_imgs/becker.png" ] [];
-              a [ href ("#" ^ "treeoverflow") ] [ text "Tree Overflow" ];
-            ];
-        ];
+              p
+                [ classList [ ("image-container", true) ] ]
+                [
+                  img [ src "list_imgs/noyes.png" ] [];
+                  a
+                    [ href ("#" ^ "meta") ]
+                    [ text "META: Twenty Questions" ];
+                ];
+            ]
+          else [] )
+        @ [
+            p
+              [ classList [ ("image-container", true) ] ]
+              [
+                img [ src "list_imgs/bethe.png" ] [];
+                a [ href ("#" ^ "crossword") ] [ text "Grid Elements" ];
+              ];
+            p
+              [ classList [ ("image-container", true) ] ]
+              [
+                img [ src "list_imgs/rose.png" ] [];
+                a [ href ("#" ^ "killed") ] [ text "Killed Threads" ];
+              ];
+            p
+              [ classList [ ("image-container", true) ] ]
+              [
+                img [ src "list_imgs/keeton.png" ] [];
+                a [ href ("#" ^ "records") ] [ text "K. K. Records" ];
+              ];
+            p
+              [ classList [ ("image-container", true) ] ]
+              [
+                img [ src "list_imgs/cook.png" ] [];
+                a
+                  [ href ("#" ^ "polyplay") ]
+                  [ text "Polymorphic Play" ];
+              ];
+            p
+              [ classList [ ("image-container", true) ] ]
+              [
+                img [ src "list_imgs/becker.png" ] [];
+                a
+                  [ href ("#" ^ "treeoverflow") ]
+                  [ text "Tree Overflow" ];
+              ];
+          ] );
     ]
 
 (** [view model] renders the [model] into HTML, which will become a
@@ -253,16 +275,32 @@ let view model =
     [ classList [ ("center-text", true) ] ]
     [
       div
-        [ classList [ ("topnav", true) ] ]
+        [ classList [ ("topnav-bar", true) ] ]
         [
-          a [ href ("#" ^ "home") ] [ text "Home" ];
-          a [ href ("#" ^ "puzzles") ] [ text "Puzzles" ];
-          a [ href ("#" ^ "story") ] [ text "Story" ];
-          a [ href ("#" ^ "rules") ] [ text "Rules" ];
-          a [ href ("#" ^ "faq") ] [ text "FAQ" ];
-          a [ href ("#" ^ "register") ] [ text "Login" ];
-          a [ href ("#" ^ "about") ] [ text "About" ];
-          a [] [ text model.team_reg.team ];
+          a
+            [ href ("#" ^ "home"); classList [ ("topnav", true) ] ]
+            [ text "Home" ];
+          a
+            [ href ("#" ^ "puzzles"); classList [ ("topnav", true) ] ]
+            [ text "Puzzles" ];
+          a
+            [ href ("#" ^ "story"); classList [ ("topnav", true) ] ]
+            [ text "Story" ];
+          a
+            [ href ("#" ^ "rules"); classList [ ("topnav", true) ] ]
+            [ text "Rules" ];
+          a
+            [ href ("#" ^ "faq"); classList [ ("topnav", true) ] ]
+            [ text "FAQ" ];
+          a
+            [ href ("#" ^ "register"); classList [ ("topnav", true) ] ]
+            [ text "Login" ];
+          a
+            [ href ("#" ^ "about"); classList [ ("topnav", true) ] ]
+            [ text "About" ];
+          a
+            [ classList [ ("username", true) ] ]
+            [ text model.team_reg.team ];
           (* a [ href ("#" ^ "meta") ] [ text "metapuzzle" ]; a [ href
              ("#" ^ "crossword") ] [ text "crossword" ]; *)
         ];
@@ -275,10 +313,13 @@ let view model =
               Home.view () |> map home_msg
           | "#puzzles" ->
               model.title <- "Puzzles";
-              home_view
+              home_view model
           | "#story" ->
               model.title <- "Story";
-              Story.view () |> map story_msg
+              print_endline (string_of_int (get_solves model));
+              model.story.solves <- get_solves model;
+              model.story.meta_solved <- model.meta.solved;
+              Story.view model.story |> map story_msg
           | "#meta" ->
               model.title <- "Twenty Questions";
               Metapuzzle.view model.meta |> map metapuzzlepage_msg
