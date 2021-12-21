@@ -26,6 +26,23 @@ button {
   background-color: #35aeeb;
 }
 
+.login {
+  border: 1px solid #444;
+  background-color: #ecc283;
+  margin-top: 2%;
+  padding: 12px 28px;
+  width: 50px;
+  border-radius: 10px;
+  border-top-style: hidden;
+  border-right-style: hidden;
+  border-left-style: hidden;
+  border-bottom-style: hidden;
+}
+
+.login:hover {
+  background-color: #eba535;
+}
+
 .meta-grid {
   background-color: #ff9391;
   height: 130px;

@@ -1,9 +1,8 @@
 .home-text p {
   text-align: left;
-  padding: 20 px;
+  padding: 20px;
   width: 70%;
   margin: auto;
-  padding-top: 10 px;
   font-size: large;
 }
 
@@ -31,3 +30,4 @@ ul.bullets * {
 .home-text {
   font-size: large;
 }
+

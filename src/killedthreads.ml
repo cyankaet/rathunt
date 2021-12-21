@@ -25,8 +25,11 @@ module M : Puzzle.S = struct
     | Accept
 
   let name = "rose"
+
   let solution = "TURTLE"
+
   let zero_to_five = [ 0; 1; 2; 3; 4; 5 ]
+
   let one_to_six = [ 1; 2; 3; 4; 5; 6 ]
 
   (** Load the chars used in the gacha game *)
@@ -89,9 +92,9 @@ module M : Puzzle.S = struct
         next_rolls = List.tl m.next_rolls @ [ curr_roll ];
         chars_collected =
           update_count m.chars_collected
-            (match List.assoc_opt curr_roll g_map with
+            ( match List.assoc_opt curr_roll g_map with
             | None -> failwith "Impossible"
-            | Some char -> char);
+            | Some char -> char );
       }
 
   let update model = function
@@ -168,9 +171,9 @@ module M : Puzzle.S = struct
             p []
               [
                 Printf.sprintf
-                  "There's ultimately nothing suspicious about a few \
-                   new transfer students being murdered, right? Okay, \
-                   they were a little talented."
+                  "There's ultimately nothing suspicious about the \
+                   death of a few students, right? Okay, maybe they \
+                   were a little talented."
                 |> text;
               ];
           ];
@@ -232,34 +235,34 @@ module M : Puzzle.S = struct
                        ]
                        [
                          text
-                           ("Crime Scene "
+                           ( "Crime Scene "
                            ^ string_of_int (curr + 1)
                            ^ ": "
                            ^
                            if List.mem curr model.solved then
                              string_clean (List.nth answers curr)
-                           else "????");
+                           else "????" );
                        ];
                    ]
                  :: make_buttons rest
            in
            make_buttons zero_to_five);
-        (if List.length model.solved >= 5 then
-         div []
-           [
-             p []
-               [
-                 text
-                   {|"Hey, that was some good work there with the crime scenes. Oh, you want the autopsy files? Here you go."|};
-               ];
-             button
-               [
-                 onClick (Select 6);
-                 classList [ ("nav-subpuzzle", true) ];
-               ]
-               [ text "View autopsy files" ];
-           ]
-        else p [] []);
+        ( if List.length model.solved >= 5 then
+          div []
+            [
+              p []
+                [
+                  text
+                    {|"Hey, that was some good work there with the crime scenes. Oh, you want the autopsy files? Here you go."|};
+                ];
+              button
+                [
+                  onClick (Select 6);
+                  classList [ ("nav-subpuzzle", true) ];
+                ]
+                [ text "View autopsy files" ];
+            ]
+        else p [] [] );
       ]
 
   (** Makes the view for the Masyu (room 1) subpuzzle *)
@@ -315,23 +318,25 @@ module M : Puzzle.S = struct
         button
           [ classList [ ("submit-subpuzzle", true) ]; onClick (Pull 1) ]
           [ text "Roll 1" ];
-        (if model.rolls > 10 then
-         button
-           [
-             classList [ ("submit-subpuzzle", true) ]; onClick (Pull 10);
-           ]
-           [ text "Roll 10" ]
-        else p [] []);
-        (if
-         model.rolls > 100 && CharMap.cardinal model.chars_collected = 6
+        ( if model.rolls > 10 then
+          button
+            [
+              classList [ ("submit-subpuzzle", true) ];
+              onClick (Pull 10);
+            ]
+            [ text "Roll 10" ]
+        else p [] [] );
+        ( if
+          model.rolls > 100
+          && CharMap.cardinal model.chars_collected = 6
         then
-         button
-           [
-             classList [ ("submit-subpuzzle", true) ];
-             onClick (Pull 100);
-           ]
-           [ text "Roll 100" ]
-        else p [] []);
+          button
+            [
+              classList [ ("submit-subpuzzle", true) ];
+              onClick (Pull 100);
+            ]
+            [ text "Roll 100" ]
+        else p [] [] );
         (let show_counts =
            let bindings = CharMap.bindings model.chars_collected in
            let rec display_counts = function
@@ -357,7 +362,7 @@ module M : Puzzle.S = struct
     div []
       [
         (if model.selected = -1 then flavor else div [] []);
-        (match model.selected with
+        ( match model.selected with
         | 6 -> make_autopsy_page
         | 0
         | 1
@@ -370,11 +375,11 @@ module M : Puzzle.S = struct
                 h3 []
                   [
                     text
-                      ("Crime Scene "
-                      ^ string_of_int (model.selected + 1));
+                      ( "Crime Scene "
+                      ^ string_of_int (model.selected + 1) );
                   ];
-                (if List.mem model.selected model.solved then
-                 h5 [] [ text "Solved!" ]
+                ( if List.mem model.selected model.solved then
+                  h5 [] [ text "Solved!" ]
                 else
                   div []
                     [
@@ -399,11 +404,11 @@ module M : Puzzle.S = struct
                             ]
                             [ text "Submit" ];
                         ];
-                    ]);
-                (if model.selected >= 1 && model.selected <= 4 then
-                 load_text_puzzle_content (model.selected + 1)
+                    ] );
+                ( if model.selected >= 1 && model.selected <= 4 then
+                  load_text_puzzle_content (model.selected + 1)
                 else if model.selected = 0 then masyu
-                else gacha model);
+                else gacha model );
                 button
                   [
                     onClick (Select (-1));
@@ -413,7 +418,7 @@ module M : Puzzle.S = struct
               ]
         | -1
         | _ ->
-            puzzle_home model);
+            puzzle_home model );
       ]
 
   let trigger_warning =

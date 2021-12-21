@@ -210,61 +210,71 @@ let home_view model =
     [
       h2 []
         [
-          Printf.sprintf
-            "Welcome to RatHunt. Select a puzzle to start with (hint: \
-             not the meta)."
-          |> text;
+          Printf.sprintf "Welcome to RatHunt! Select a puzzle." |> text;
         ];
       div
-        [ id "list-container"; classList [ ("center-margin", true) ] ]
-        ( ( if get_solves model >= 3 then
+        [ classList [ ("list-bkgd", true) ] ]
+        [
+          div
             [
-              p
-                [ classList [ ("image-container", true) ] ]
-                [
-                  img [ src "list_imgs/noyes.png" ] [];
-                  a
-                    [ href ("#" ^ "meta") ]
-                    [ text "META: Twenty Questions" ];
-                ];
+              id "list-container"; classList [ ("center-margin", true) ];
             ]
-          else [] )
-        @ [
-            p
-              [ classList [ ("image-container", true) ] ]
+            ( [
+                p
+                  [ classList [ ("image-container", true) ] ]
+                  [
+                    img [ src "list_imgs/cook.png" ] [];
+                    a
+                      [ href ("#" ^ "polyplay") ]
+                      [ text "Polymorphic Play" ];
+                  ];
+                p
+                  [ classList [ ("image-container", true) ] ]
+                  [
+                    img [ src "list_imgs/becker.png" ] [];
+                    a
+                      [ href ("#" ^ "treeoverflow") ]
+                      [ text "Tree Overflow" ];
+                  ];
+                p
+                  [ classList [ ("image-container", true) ] ]
+                  [
+                    img [ src "list_imgs/rose.png" ] [];
+                    a
+                      [ href ("#" ^ "killed") ]
+                      [ text "Killed Threads" ];
+                  ];
+                p
+                  [ classList [ ("image-container", true) ] ]
+                  [
+                    img [ src "list_imgs/bethe.png" ] [];
+                    a
+                      [ href ("#" ^ "crossword") ]
+                      [ text "Grid Elements" ];
+                  ];
+                p
+                  [ classList [ ("image-container", true) ] ]
+                  [
+                    img [ src "list_imgs/keeton.png" ] [];
+                    a
+                      [ href ("#" ^ "records") ]
+                      [ text "K. K. Records" ];
+                  ];
+              ]
+            @
+            if get_solves model >= 3 then
               [
-                img [ src "list_imgs/bethe.png" ] [];
-                a [ href ("#" ^ "crossword") ] [ text "Grid Elements" ];
-              ];
-            p
-              [ classList [ ("image-container", true) ] ]
-              [
-                img [ src "list_imgs/rose.png" ] [];
-                a [ href ("#" ^ "killed") ] [ text "Killed Threads" ];
-              ];
-            p
-              [ classList [ ("image-container", true) ] ]
-              [
-                img [ src "list_imgs/keeton.png" ] [];
-                a [ href ("#" ^ "records") ] [ text "K. K. Records" ];
-              ];
-            p
-              [ classList [ ("image-container", true) ] ]
-              [
-                img [ src "list_imgs/cook.png" ] [];
-                a
-                  [ href ("#" ^ "polyplay") ]
-                  [ text "Polymorphic Play" ];
-              ];
-            p
-              [ classList [ ("image-container", true) ] ]
-              [
-                img [ src "list_imgs/becker.png" ] [];
-                a
-                  [ href ("#" ^ "treeoverflow") ]
-                  [ text "Tree Overflow" ];
-              ];
-          ] );
+                p
+                  [ classList [ ("image-container", true) ] ]
+                  [
+                    img [ src "list_imgs/noyes.png" ] [];
+                    a
+                      [ href ("#" ^ "meta") ]
+                      [ text "META: Twenty Questions" ];
+                  ];
+              ]
+            else [] );
+        ];
     ]
 
 (** [view model] renders the [model] into HTML, which will become a

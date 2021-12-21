@@ -7,6 +7,7 @@ module M = struct
   }
 
   type t = button list
+
   type model = t
 
   type msg =
@@ -14,6 +15,7 @@ module M = struct
         (** All of the possile webpage signals to handle *)
 
   let name = "meta"
+
   let solution = "OCAML TAMER"
 
   (** the height of the grid of buttons *)
@@ -30,6 +32,7 @@ module M = struct
     |> String.split_on_char '\n'
 
   let new_button s = { label = s; toggled = false }
+
   let init () = (List.map new_button questions, Cmd.none)
 
   (** [toggle s b] flips the state of button b if it has label s *)
@@ -111,12 +114,15 @@ module M = struct
             p
               [ classList [ ("home-text", true) ] ]
               [
-                "You see that all of the errors you've encountered so \
-                 far lead to a little microcontroller, and on it, a \
-                 game of Twenty Questions you made once upon a time. \
-                 You read across the prepared questions to see what \
-                 you need to input, but they seem to be all mixed \
-                 up... " |> text;
+                i []
+                  [
+                    "You see that all of the errors you've encountered \
+                     so far lead to a little microcontroller, and on \
+                     it, a game of Twenty Questions you made once upon \
+                     a time. You read across the prepared questions to \
+                     see what you need to input, but they seem to be \
+                     all mixed up... " |> text;
+                  ];
               ];
           ];
         show_buttons model;
