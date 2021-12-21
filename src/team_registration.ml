@@ -104,8 +104,8 @@ let cred_view model =
             [];
         ];
       button
-        [ onClick CreateTeam; classList [ ("submit", true) ] ]
-        [ text "Make a team" ];
+        [ onClick CreateTeam; classList [ ("login", true) ] ]
+        [ text "Login" ];
     ]
 
 let view model =
